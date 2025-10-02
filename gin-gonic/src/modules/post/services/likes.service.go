@@ -2,19 +2,21 @@ package services
 
 import (
 	"fmt"
-	"gone-be/src/config"
-	"gone-be/src/functions"
-	"gone-be/src/modules/notification/services"
-	"gone-be/src/modules/post/models"
-	Users "gone-be/src/modules/user/models"
-	"gone-be/src/utils"
-	"gorm.io/gorm"
 	"log"
 	"net/http"
+	"univia/src/config"
+	"univia/src/functions"
+	"univia/src/modules/notification/services"
+	"univia/src/modules/post/models"
+	Users "univia/src/modules/user/models"
+	"univia/src/utils"
+
+	"github.com/google/uuid"
+	"gorm.io/gorm"
 )
 
 // Like is a service function to process the like action.
-func Like(userID, postID uint) (int64, *utils.ServiceError) {
+func Like(userID, postID uuid.UUID) (int64, *utils.ServiceError) {
 	db := config.DB
 	var counts int64
 
@@ -77,7 +79,7 @@ func Like(userID, postID uint) (int64, *utils.ServiceError) {
 	}
 
 	// 2. Get owner of the post
-	var postOwner uint
+	var postOwner uuid.UUID
 	selectOwnerErr := db.Model(&models.Post{}).
 		Select("user_id").
 		Where("id = ?", postID).
@@ -104,7 +106,7 @@ func Like(userID, postID uint) (int64, *utils.ServiceError) {
 }
 
 // DisLike is a service function to delete a like from the PostLike table and update the like count.
-func DisLike(userID, postID uint) (int64, *utils.ServiceError) {
+func DisLike(userID, postID uuid.UUID) (int64, *utils.ServiceError) {
 	db := config.DB
 	var counts int64
 

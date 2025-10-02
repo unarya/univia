@@ -1,34 +1,24 @@
 package models
 
 import (
-	"fmt"
-	Roles "gone-be/src/modules/role/models"
-	"gorm.io/gorm"
 	"time"
+	Roles "univia/src/modules/role/models"
+
+	"github.com/google/uuid"
 )
 
 // User represents the user model
 type User struct {
-	ID          uint       `gorm:"primaryKey;autoIncrement"`
-	Username    string     `gorm:"size:255;not null;"`
-	Email       string     `gorm:"size:255;not null;unique"`
+	ID          uuid.UUID  `gorm:"type:uuid;primaryKey;default:uuid_generate_v4()"`
+	Username    string     `gorm:"type:varchar(255);not null;"`
+	Email       string     `gorm:"type:varchar(255);not null;unique"`
 	PhoneNumber uint64     `gorm:"default:null;unique"`
-	GoogleID    string     `gorm:"size:255;default:null;unique"`
-	TwitterID   string     `gorm:"size:255;default:null;unique"`
-	Password    string     `gorm:"size:255;default:null"`
+	GoogleID    string     `gorm:"type:varchar(255);default:null;unique"`
+	TwitterID   string     `gorm:"type:varchar(255);default:null;unique"`
+	Password    string     `gorm:"type:varchar(255);default:null"`
 	Status      bool       `gorm:"default:true"`
-	RoleID      uint       `gorm:"not null"`
+	RoleID      uuid.UUID  `gorm:"type:uuid;not null"`
 	Role        Roles.Role `gorm:"foreignKey:RoleID;references:ID"` // Foreign key to Role
 	CreatedAt   time.Time  `gorm:"autoCreateTime"`
 	UpdatedAt   time.Time  `gorm:"autoUpdateTime"`
-}
-
-// MigrateUser migrates the User model to create the table in the database
-func MigrateUser(db *gorm.DB) error {
-	// Auto-migrate the User model
-	if err := db.AutoMigrate(&User{}); err != nil {
-		return fmt.Errorf("failed to auto-migrate User model: %w", err)
-	}
-
-	return nil
 }

@@ -2,10 +2,12 @@ package services
 
 import (
 	"errors"
+	"univia/src/config"
+	"univia/src/modules/role/models"
+	Users "univia/src/modules/user/models"
+
 	"github.com/gin-gonic/gin"
-	"gone-be/src/config"
-	"gone-be/src/modules/role/models"
-	Users "gone-be/src/modules/user/models"
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
@@ -79,4 +81,16 @@ func ListAllRoles() ([]map[string]interface{}, error) {
 		})
 	}
 	return result, nil
+}
+
+// GetRoleID is a function given roleId by name
+func GetRoleID(name string) (uuid.UUID, error) {
+	var id uuid.UUID
+	db := config.DB
+	if err := db.Model(&models.Role{}).
+		Where("name = ?", name).
+		Pluck("id", &id).Error; err != nil {
+		return uuid.Nil, err
+	}
+	return id, nil
 }

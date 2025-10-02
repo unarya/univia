@@ -2,8 +2,8 @@ package services
 
 import (
 	"errors"
-	"gone-be/src/config"
-	"gone-be/src/modules/post/models"
+	"univia/src/config"
+	"univia/src/modules/post/models"
 )
 
 // ListAllCategories retrieves all categories from the database

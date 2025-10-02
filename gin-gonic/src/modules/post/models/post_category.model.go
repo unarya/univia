@@ -1,14 +1,15 @@
 package models
 
 import (
-	"gorm.io/gorm"
 	"time"
+
+	"github.com/google/uuid"
 )
 
 type PostCategory struct {
-	ID         uint `gorm:"primary_key;AUTO_INCREMENT"`
-	CategoryID uint `gorm:"not null"`
-	PostID     uint `gorm:"not null"`
+	ID         uuid.UUID `gorm:"type:uuid;primaryKey;default:uuid_generate_v4()"`
+	CategoryID uuid.UUID `gorm:"type:uuid;not null"`
+	PostID     uuid.UUID `gorm:"type:uuid;not null"`
 
 	// References
 	Category Category `gorm:"foreignKey:CategoryID;references:ID"`
@@ -16,8 +17,4 @@ type PostCategory struct {
 
 	CreatedAt time.Time `gorm:"autoCreateTime"`
 	UpdatedAt time.Time `gorm:"autoUpdateTime"`
-}
-
-func MigratePostCategory(db *gorm.DB) error {
-	return db.AutoMigrate(&PostCategory{})
 }

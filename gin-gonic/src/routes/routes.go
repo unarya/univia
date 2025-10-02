@@ -1,16 +1,20 @@
 package routes
 
 import (
-	"github.com/gin-gonic/gin"
-	"gone-be/src/config"
-	"gone-be/src/middlewares"
-	NotificationControllers "gone-be/src/modules/notification/controllers"
-	PermissionController "gone-be/src/modules/permission/controllers"
-	PostControllers "gone-be/src/modules/post/controllers"
-	RoleControllers "gone-be/src/modules/role/controllers"
-	UserControllers "gone-be/src/modules/user/controllers"
-	"gone-be/src/utils"
 	"net/http"
+	"univia/docs"
+	"univia/src/config"
+	"univia/src/middlewares"
+	NotificationControllers "univia/src/modules/notification/controllers"
+	PermissionController "univia/src/modules/permission/controllers"
+	PostControllers "univia/src/modules/post/controllers"
+	RoleControllers "univia/src/modules/role/controllers"
+	UserControllers "univia/src/modules/user/controllers"
+	"univia/src/utils"
+
+	"github.com/gin-gonic/gin"
+	"github.com/swaggo/files"
+	"github.com/swaggo/gin-swagger"
 )
 
 // RegisterRoutes initializes all API routes
@@ -21,15 +25,8 @@ func RegisterRoutes(router *gin.Engine) {
 	authMiddleware := middlewares.AuthMiddleware
 	authzMiddleware := middlewares.Authorization
 	needPermission := utils.Permissions
-	// Hello World
-	api.GET("/hello", func(c *gin.Context) {
-		c.JSON(200, gin.H{
-			"status": gin.H{
-				"code":    http.StatusOK,
-				"message": "Hello world",
-			},
-		})
-	})
+
+	api.GET("/hello", HelloHandler)
 
 	router.GET("/healthz", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{"status": "ok"})
@@ -42,7 +39,6 @@ func RegisterRoutes(router *gin.Engine) {
 			c.JSON(http.StatusServiceUnavailable, gin.H{"status": "unavailable"})
 		}
 	})
-
 	// Authentication Routes
 	authRoutes := api.Group("/auth")
 	{
@@ -103,4 +99,29 @@ func RegisterRoutes(router *gin.Engine) {
 		notificationsRoutes.POST("single-seen", authMiddleware(), NotificationControllers.UpdateSeen)
 		notificationsRoutes.POST("all-seen", authMiddleware(), NotificationControllers.UpdateSeenWithUserID)
 	}
+
+	// Swago
+	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+	// programmatically set swagger info
+	docs.SwaggerInfo.Title = "Swagger Example API"
+	docs.SwaggerInfo.Description = "This is a sample server Petstore server."
+	docs.SwaggerInfo.Version = "1.0"
+	docs.SwaggerInfo.Host = "petstore.swagger.io"
+	docs.SwaggerInfo.BasePath = "/v2"
+	docs.SwaggerInfo.Schemes = []string{"http", "https"}
+}
+
+// HelloHandler godoc
+// @Summary Hello World
+// @Tags Health
+// @Produce json
+// @Success 200 {object} map[string]interface{}
+// @Router /api/v1/hello [get]
+func HelloHandler(c *gin.Context) {
+	c.JSON(200, gin.H{
+		"status": gin.H{
+			"code":    http.StatusOK,
+			"message": "Hello world",
+		},
+	})
 }

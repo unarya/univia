@@ -2,12 +2,13 @@ package middlewares
 
 import (
 	"errors"
-	"github.com/gin-gonic/gin"
-	"gone-be/src/modules/key_token/access_token/services"
-	PermissionServices "gone-be/src/modules/permission/services"
-	"gone-be/src/modules/user/models"
 	"net/http"
 	"strings"
+	access_token "univia/src/modules/key_token/access_token/services"
+	PermissionServices "univia/src/modules/permission/services"
+	"univia/src/modules/user/models"
+
+	"github.com/gin-gonic/gin"
 )
 
 func AuthMiddleware() gin.HandlerFunc {
@@ -28,7 +29,7 @@ func AuthMiddleware() gin.HandlerFunc {
 			return
 		}
 
-		userInfo, err := services.VerifyToken(token)
+		userInfo, err := access_token.VerifyToken(token)
 		if err != nil {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid Token"})
 			c.Abort()

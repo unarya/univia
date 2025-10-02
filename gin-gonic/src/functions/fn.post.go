@@ -3,45 +3,49 @@ package functions
 import (
 	"database/sql"
 	"fmt"
-	"gone-be/src/config"
-	"gone-be/src/modules/post/models"
-	"gone-be/src/utils"
 	"net/http"
-	"strconv"
+	"univia/src/config"
+	"univia/src/modules/post/models"
+	"univia/src/utils"
+
+	"github.com/google/uuid"
 )
 
 // CreatePost is the function will create post with userID and content
-func CreatePost(content string, userID uint) (postID uint, errService *utils.ServiceError) {
+func CreatePost(content string, userID uuid.UUID) (postID uuid.UUID, errService *utils.ServiceError) {
 	db := config.DB
 	post := models.Post{UserID: userID, Content: content}
 	if err := db.Create(&post).Error; err != nil {
-		return 0, &utils.ServiceError{StatusCode: http.StatusInternalServerError, Message: "Failed to create post"}
+		return uuid.Nil, &utils.ServiceError{StatusCode: http.StatusInternalServerError, Message: "Failed to create post"}
 	}
 	return post.ID, nil
 }
 
 // SaveCategoriesToPost is the function will save post categories to database
-func SaveCategoriesToPost(categoryIDs []string, postID uint) *utils.ServiceError {
+func SaveCategoriesToPost(categoryIDs []uuid.UUID, postID uuid.UUID) *utils.ServiceError {
 	db := config.DB
 	var postCategories []models.PostCategory
+
 	for _, categoryID := range categoryIDs {
-		id, err := strconv.Atoi(categoryID)
-		if err != nil {
-			return &utils.ServiceError{StatusCode: http.StatusBadRequest, Message: "Invalid category ID"}
-		}
-		postCategories = append(postCategories, models.PostCategory{PostID: postID, CategoryID: uint(id)})
+		postCategories = append(postCategories, models.PostCategory{
+			PostID:     postID,
+			CategoryID: categoryID,
+		})
 	}
 
 	if len(postCategories) > 0 {
 		if err := db.Create(&postCategories).Error; err != nil {
-			return &utils.ServiceError{StatusCode: http.StatusInternalServerError, Message: "Failed to associate categories"}
+			return &utils.ServiceError{
+				StatusCode: http.StatusInternalServerError,
+				Message:    "Failed to associate categories",
+			}
 		}
 	}
 	return nil
 }
 
 // SaveMediaRecords is the function will save from media path into database
-func SaveMediaRecords(savedMedia []models.Media, postID uint) *utils.ServiceError {
+func SaveMediaRecords(savedMedia []models.Media, postID uuid.UUID) *utils.ServiceError {
 	db := config.DB
 	for _, media := range savedMedia {
 		media.PostID = postID
@@ -66,7 +70,7 @@ func DeletePostRecord(postID uint) *utils.ServiceError {
 }
 
 // DeleteMediaRecords is the function to delete media records following to the post
-func DeleteMediaRecords(postID uint) *utils.ServiceError {
+func DeleteMediaRecords(postID uuid.UUID) *utils.ServiceError {
 	db := config.DB
 
 	if err := db.Where("post_id = ?", postID).Delete(&models.Media{}).Error; err != nil {
@@ -79,7 +83,7 @@ func DeleteMediaRecords(postID uint) *utils.ServiceError {
 }
 
 // DeleteCategoryRecords is the function to delete categories following to the post
-func DeleteCategoryRecords(postID uint) *utils.ServiceError {
+func DeleteCategoryRecords(postID uuid.UUID) *utils.ServiceError {
 	db := config.DB
 	if err := db.Where("post_id = ?", postID).Delete(&models.PostCategory{}).Error; err != nil {
 		return &utils.ServiceError{
@@ -91,7 +95,7 @@ func DeleteCategoryRecords(postID uint) *utils.ServiceError {
 }
 
 // UpdatePostContent is the function to update the content of post by given postID
-func UpdatePostContent(content string, postID uint) *utils.ServiceError {
+func UpdatePostContent(content string, postID uuid.UUID) *utils.ServiceError {
 	db := config.DB
 	if err := db.Model(&models.Post{}).Where("id = ?", postID).Updates(models.Post{
 		Content: content,
@@ -105,7 +109,7 @@ func UpdatePostContent(content string, postID uint) *utils.ServiceError {
 }
 
 // CheckPostExits is the function will check post was valid on database or not
-func CheckPostExits(postID uint) *utils.ServiceError {
+func CheckPostExits(postID uuid.UUID) *utils.ServiceError {
 	db := config.DB
 	// Check if Post Exists
 	var exists bool
@@ -170,7 +174,7 @@ func SelectPosts(searchValue, orderBy, sortBy string, offset, limit int) (*sql.R
 }
 
 // ListNotifications returns a row query for list of notifications
-func ListNotifications(searchValue, orderBy, sortBy string, offset, limit int, isSeen bool, receiverID uint, all bool) (*sql.Rows, *utils.ServiceError) {
+func ListNotifications(searchValue, orderBy, sortBy string, offset, limit int, isSeen bool, receiverID uuid.UUID, all bool) (*sql.Rows, *utils.ServiceError) {
 	query := config.DB.Table("notifications").
 		Select(`*,
             COUNT(notifications.id) OVER() AS total_count

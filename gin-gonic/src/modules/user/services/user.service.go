@@ -5,23 +5,26 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"golang.org/x/crypto/bcrypt"
-	"gone-be/src/config"
-	AccessTokens "gone-be/src/modules/key_token/access_token/models"
-	RefreshTokens "gone-be/src/modules/key_token/refresh_token/models"
-	Profiles "gone-be/src/modules/profile/models"
-	Users "gone-be/src/modules/user/models"
-	"gone-be/src/utils"
-	"gorm.io/gorm"
 	"io"
 	"io/ioutil"
 	"log"
 	"math/rand"
 	"net/http"
+	"univia/src/config"
+	AccessTokens "univia/src/modules/key_token/access_token/models"
+	RefreshTokens "univia/src/modules/key_token/refresh_token/models"
+	Profiles "univia/src/modules/profile/models"
+	"univia/src/modules/role/services"
+	Users "univia/src/modules/user/models"
+	"univia/src/utils"
+
+	"github.com/google/uuid"
+	"golang.org/x/crypto/bcrypt"
+	"gorm.io/gorm"
 )
 
 // GetUserInfo is the function to get user information with the given userID
-func GetUserInfo(userID uint) (map[string]interface{}, error) {
+func GetUserInfo(userID uuid.UUID) (map[string]interface{}, error) {
 	db := config.DB
 
 	// Get the user and their associated profile using a raw query
@@ -44,7 +47,10 @@ func GetUserInfo(userID uint) (map[string]interface{}, error) {
 // RegisterUser HandleCreateUser handles the logic for creating a new user.
 func RegisterUser(user Users.User) (map[string]interface{}, error) {
 	db := config.DB
-
+	userRoleID, err := services.GetRoleID("user")
+	if err != nil {
+		return nil, err
+	}
 	// Step 1: Validate input data
 	if user.Email == "" || user.Password == "" {
 		return nil, errors.New("all fields (email, password) are required")
@@ -68,7 +74,7 @@ func RegisterUser(user Users.User) (map[string]interface{}, error) {
 	newUser := Users.User{
 		Email:    user.Email,
 		Password: user.Password,
-		RoleID:   2, // Default for new user
+		RoleID:   userRoleID,
 	}
 	if err := db.Create(&newUser).Error; err != nil {
 		return nil, fmt.Errorf("failed to create user: %v", err)
@@ -161,6 +167,10 @@ func LoginUser(email, phoneNumber, password, username string) (string, int, erro
 
 // LoginGoogle is the function to login by google service and return the tokens
 func LoginGoogle(googleToken string) (map[string]interface{}, error) {
+	userRoleID, err := services.GetRoleID("user")
+	if err != nil {
+		return nil, err
+	}
 	// Step 1: Send the access token to Google's userinfo endpoint
 	userInfoURL := fmt.Sprintf("https://www.googleapis.com/oauth2/v3/userinfo?access_token=%s", googleToken)
 	response, err := http.Get(userInfoURL)
@@ -202,7 +212,7 @@ func LoginGoogle(googleToken string) (map[string]interface{}, error) {
 				GoogleID: googleUserInfo.Sub,
 				Username: googleUserInfo.Name,
 				Email:    googleUserInfo.Email,
-				RoleID:   2, // Default for new user
+				RoleID:   userRoleID, // Default for new user
 			}
 			if err := db.Create(&newUser).Error; err != nil {
 				return nil, fmt.Errorf("failed to create user: %v", err)
@@ -253,7 +263,11 @@ func LoginGoogle(googleToken string) (map[string]interface{}, error) {
 // LoginTwitter is the function to help user login via twitter service and return the tokens
 func LoginTwitter(username, email, image, profileBackgroundImage, profileBackgroundColor, twitterId string) (map[string]interface{}, error) {
 	db := config.DB
-
+	// Query for new user role
+	userRoleID, err := services.GetRoleID("user")
+	if err != nil {
+		return nil, fmt.Errorf("failed to get user role ID: %w", err)
+	}
 	// Check if the user exists by email
 	var existingUser Users.User
 	if err := db.Where("email = ?", email).First(&existingUser).Error; err != nil {
@@ -263,7 +277,7 @@ func LoginTwitter(username, email, image, profileBackgroundImage, profileBackgro
 				TwitterID: twitterId,
 				Username:  username,
 				Email:     email,
-				RoleID:    2, // Default role for new users
+				RoleID:    userRoleID,
 			}
 			if err := db.Create(&newUser).Error; err != nil {
 				return nil, fmt.Errorf("failed to create user: %v", err)
@@ -327,7 +341,7 @@ func LoginTwitter(username, email, image, profileBackgroundImage, profileBackgro
 	}
 
 	// Clean up old tokens
-	err := DeleteAllTokensByUserID(existingUser.ID)
+	err = DeleteAllTokensByUserID(existingUser.ID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to delete tokens: %w", err)
 	}
@@ -345,7 +359,7 @@ func LoginTwitter(username, email, image, profileBackgroundImage, profileBackgro
 	}, nil
 }
 
-func generateHexTokens(userID uint) (string, string, error) {
+func generateHexTokens(userID uuid.UUID) (string, string, error) {
 	db := config.DB
 
 	// Generate random hex strings for tokens
@@ -385,7 +399,7 @@ func generateHexTokens(userID uint) (string, string, error) {
 	return accessToken, refreshToken, nil
 }
 
-func DeleteAllTokensByUserID(userID uint) error {
+func DeleteAllTokensByUserID(userID uuid.UUID) error {
 	// Start a transaction to ensure both deletions are atomic
 	tx := config.DB.Begin()
 	if tx.Error != nil {

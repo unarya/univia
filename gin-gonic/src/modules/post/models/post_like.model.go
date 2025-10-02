@@ -1,15 +1,16 @@
 package models
 
 import (
-	Users "gone-be/src/modules/user/models"
-	"gorm.io/gorm"
 	"time"
+	Users "univia/src/modules/user/models"
+
+	"github.com/google/uuid"
 )
 
 type PostLike struct {
-	ID     uint `gorm:"primary_key;AUTO_INCREMENT"`
-	PostID uint `gorm:"not null"`
-	UserID uint `gorm:"not null"`
+	ID     uuid.UUID `gorm:"type:uuid;primaryKey;default:uuid_generate_v4()"`
+	PostID uuid.UUID `gorm:"type:uuid;not null"`
+	UserID uuid.UUID `gorm:"type:uuid;not null"`
 
 	// References
 	Post Post       `gorm:"foreignKey:PostID;references:ID"`
@@ -17,8 +18,4 @@ type PostLike struct {
 
 	CreatedAt time.Time `gorm:"autoCreateTime"`
 	UpdatedAt time.Time `gorm:"autoUpdateTime"`
-}
-
-func MigratePostLike(db *gorm.DB) error {
-	return db.AutoMigrate(&PostLike{})
 }

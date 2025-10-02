@@ -2,17 +2,14 @@ package config
 
 import (
 	"fmt"
-	AccessTokens "gone-be/src/modules/key_token/access_token/models"
-	RefreshTokens "gone-be/src/modules/key_token/refresh_token/models"
-	Notifications "gone-be/src/modules/notification/models"
-	Permissions "gone-be/src/modules/permission/models"
-	Posts "gone-be/src/modules/post/models"
-	Profiles "gone-be/src/modules/profile/models"
-	Roles "gone-be/src/modules/role/models"
-	Users "gone-be/src/modules/user/models"
 	"log"
 	"os"
+	Permissions "univia/src/modules/permission/models"
+	Posts "univia/src/modules/post/models"
+	Roles "univia/src/modules/role/models"
+	Users "univia/src/modules/user/models"
 
+	"github.com/google/uuid"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -43,10 +40,8 @@ func ConnectDatabase() *gorm.DB {
 
 	DB = database
 	fmt.Println("Connected to database!")
-
-	// Perform database migrations
-	if err := runMigrations(DB); err != nil {
-		log.Fatalf("Migration failed: %v", err)
+	if err := SeedData(DB); err != nil {
+		log.Fatalf("Failed to seed: %v", err)
 	}
 
 	return DB
@@ -76,48 +71,79 @@ func CheckConnection() bool {
 	return result == 1
 }
 
-// runMigrations runs all model migrations.
-func runMigrations(db *gorm.DB) error {
-	migrations := []func(*gorm.DB) error{
-		// Role and User models
-		Roles.MigrateRole,
-		Users.MigrateUser,
-		Users.MigrateFriends,
-		Users.MigrateMessage,
-
-		// Profile model
-		Profiles.MigrateProfile,
-
-		// Permission model
-		Permissions.MigratePermissions,
-		Roles.MigrateRolePermissions,
-
-		// Access and Refresh Tokens
-		AccessTokens.MigrateAccessTokens,
-		RefreshTokens.MigrateRefreshTokens,
-
-		// Post-related models
-		Posts.MigratePost,
-		Posts.MigrateComment,
-		Posts.MigrateCommentLike,
-		Posts.MigrateCategory,
-		Posts.MigratePostCategory,
-		Posts.MigratePostLike,
-		Posts.MigrateMedia,
-		Posts.MigratePostShare,
-
-		// Add Tables for future
-		Users.MigrateVerificationCode,
-		Notifications.MigrateNotification,
+func SeedData(db *gorm.DB) error {
+	// ---- Seed Categories ----
+	categories := []string{
+		"Social Media Trends", "Anime Fan Communities", "Music Production Tips",
+		"Programming Tutorials", "Digital Art & Design", "K-Pop Culture",
+		"Web Development", "Cosplay Inspiration", "Game Development",
+		"AI & Machine Learning", "Manga Discussions", "Indie Music Artists",
+		"Cybersecurity Corner", "Live Streaming Tips", "Anime Reviews",
+		"Hip-Hop Culture", "Mobile App Development", "Viral Content Analysis",
+		"Tech Gadgets Talk", "Songwriting & Composition",
 	}
 
-	// Iterate through all migrations
-	for _, migrate := range migrations {
-		if err := migrate(db); err != nil {
-			return fmt.Errorf("migration failed: %w", err)
+	for _, name := range categories {
+		var cat Posts.Category
+		db.FirstOrCreate(&cat, Posts.Category{
+			Name: name,
+		})
+	}
+
+	// ---- Seed Roles ----
+	adminRole := Roles.Role{Name: "admin"}
+	userRole := Roles.Role{Name: "user"}
+	db.FirstOrCreate(&adminRole, Roles.Role{Name: "admin"})
+	db.FirstOrCreate(&userRole, Roles.Role{Name: "user"})
+
+	// Reselect ids of roles
+	var adminRoleID uuid.UUID
+	if err := db.Model(&Roles.Role{}).
+		Where("name = ?", adminRole.Name).
+		Select("id", &adminRoleID).Error; err != nil {
+	}
+	// ---- Seed Admin User ----
+	adminUser := Users.User{
+		Username:    "admin",
+		Email:       "ties.node@outlook.com",
+		PhoneNumber: 773598329,
+		Password:    "$2a$12$OqiRAY9.CA7pj1zK4p42wuq0d63xf0l/ZXD7uQMDrBWU4.uGvdt12",
+		Status:      true,
+		RoleID:      adminRoleID,
+	}
+	db.FirstOrCreate(&adminUser, Users.User{Email: "ties.node@outlook.com"})
+
+	// ---- Seed Permissions ----
+	permNames := []string{
+		"allow_create_role",
+		"allow_create_permission",
+		"allow_assign_permissions",
+		"allow_list_roles",
+		"allow_list_permissions",
+	}
+
+	var permissions []Permissions.Permission
+	for _, name := range permNames {
+		var perm Permissions.Permission
+		db.FirstOrCreate(&perm, Permissions.Permission{Name: name})
+		if err := db.Where("name = ?", perm.Name).First(&perm).Error; err != nil {
+			return err
 		}
+		permissions = append(permissions, perm)
 	}
 
-	fmt.Println("All migrations completed successfully!")
+	// ---- Seed Role-Permissions (assign all perms to admin) ----
+	for _, perm := range permissions {
+		rp := Roles.RolePermission{
+			RoleID:       adminRoleID,
+			PermissionID: perm.ID,
+		}
+		db.FirstOrCreate(&rp, Roles.RolePermission{
+			RoleID:       adminRole.ID,
+			PermissionID: perm.ID,
+		})
+	}
+
+	fmt.Println("✅ Seed data completed with UUID models")
 	return nil
 }

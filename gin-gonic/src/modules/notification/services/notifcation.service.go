@@ -2,16 +2,18 @@ package services
 
 import (
 	"database/sql"
-	"gone-be/src/config"
-	"gone-be/src/functions"
-	"gone-be/src/modules/notification/models"
-	"gone-be/src/services"
-	"gone-be/src/utils"
 	"net/http"
 	"time"
+	"univia/src/config"
+	"univia/src/functions"
+	"univia/src/modules/notification/models"
+	"univia/src/services"
+	"univia/src/utils"
+
+	"github.com/google/uuid"
 )
 
-func NotificationHandler(senderID, receiverID uint, message, noti_type string) *utils.ServiceError {
+func NotificationHandler(senderID, receiverID uuid.UUID, message, notiType string) *utils.ServiceError {
 	db := config.DB
 
 	// Prepare for new notification record
@@ -19,7 +21,7 @@ func NotificationHandler(senderID, receiverID uint, message, noti_type string) *
 		SenderID:   senderID,
 		ReceiverID: receiverID,
 		Message:    message,
-		NotiType:   noti_type,
+		NotiType:   notiType,
 	}
 
 	// Inserting record
@@ -42,7 +44,7 @@ func NotificationHandler(senderID, receiverID uint, message, noti_type string) *
 	return nil
 }
 
-func GetNotificationsByUserID(userID uint, currentPage, itemsPerPage int, orderBy, sortBy, searchValue string, isSeen bool, all bool) (map[string]interface{}, *utils.ServiceError) {
+func GetNotificationsByUserID(userID uuid.UUID, currentPage, itemsPerPage int, orderBy, sortBy, searchValue string, isSeen bool, all bool) (map[string]interface{}, *utils.ServiceError) {
 	// Prepare Pagination
 	offsetData := utils.CalculateOffset(currentPage, itemsPerPage, sortBy, orderBy)
 
@@ -115,7 +117,7 @@ func GetNotificationsByUserID(userID uint, currentPage, itemsPerPage int, orderB
 	}, nil
 }
 
-func UpdateIsSeen(notificationID, userID uint) *utils.ServiceError {
+func UpdateIsSeen(notificationID, userID uuid.UUID) *utils.ServiceError {
 	db := config.DB
 
 	if err := db.Model(&models.Notification{}).
@@ -130,7 +132,7 @@ func UpdateIsSeen(notificationID, userID uint) *utils.ServiceError {
 	return nil
 }
 
-func UpdateIsSeenForAllNotificationByUserID(userID uint) *utils.ServiceError {
+func UpdateIsSeenForAllNotificationByUserID(userID uuid.UUID) *utils.ServiceError {
 	db := config.DB
 
 	if err := db.Model(&models.Notification{}).

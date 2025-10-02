@@ -1,11 +1,13 @@
 package controllers
 
 import (
-	"github.com/gin-gonic/gin"
-	"gone-be/src/functions"
-	"gone-be/src/modules/notification/services"
-	"gone-be/src/utils"
 	"net/http"
+	"univia/src/functions"
+	"univia/src/modules/notification/services"
+	"univia/src/utils"
+
+	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
 func List(c *gin.Context) {
@@ -46,7 +48,7 @@ func List(c *gin.Context) {
 
 func UpdateSeen(c *gin.Context) {
 	var request struct {
-		NotificationID uint `json:"notification_id"`
+		NotificationID uuid.UUID `json:"notification_id"`
 	}
 	bindErr := utils.BindJson(c, &request)
 	if bindErr != nil {

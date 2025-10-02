@@ -2,14 +2,14 @@ package services
 
 import (
 	"fmt"
-	"gone-be/src/config"
-	AccessTokens "gone-be/src/modules/key_token/access_token/models"
-	"gone-be/src/modules/user/models"
 	"math/rand"
 	"net/http"
 	"net/smtp"
 	"os"
 	"time"
+	"univia/src/config"
+	AccessTokens "univia/src/modules/key_token/access_token/models"
+	"univia/src/modules/user/models"
 )
 
 // Helper function to generate a 6-digit verification code
@@ -170,7 +170,7 @@ func VerifyCode(code, email string) (map[string]interface{}, error) {
 	if err := db.Create(&accessTokenEntry).Error; err != nil {
 		return nil, fmt.Errorf("failed to save access token")
 	}
-	
+
 	// Step 9: Return the token and user ID
 	response := map[string]interface{}{
 		"token":   accessTokenEntry.Token,

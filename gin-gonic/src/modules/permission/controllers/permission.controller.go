@@ -1,9 +1,11 @@
 package controllers
 
 import (
-	"github.com/gin-gonic/gin"
-	"gone-be/src/modules/permission/services"
 	"net/http"
+	"univia/src/modules/permission/services"
+
+	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
 func CreatePermission(c *gin.Context) {
@@ -49,8 +51,8 @@ func ListPermissions(c *gin.Context) {
 
 func AssignPermissionsToRole(c *gin.Context) {
 	var request struct {
-		RoleID        uint   `json:"role_id"`
-		PermissionIDs []uint `json:"permission_ids"`
+		RoleID        uuid.UUID   `json:"role_id"`
+		PermissionIDs []uuid.UUID `json:"permission_ids"`
 	}
 
 	// Validate request payload

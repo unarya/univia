@@ -1,18 +1,18 @@
 root = "."
 testdata_dir = "testdata"
-tmp_dir = "tmp"
+tmp_dir = "bin"
 
 [build]
   args_bin = []
-  cmd = "go build -buildvcs=false -o ./main ."
-  bin = "./main"
+  cmd = "go build -buildvcs=false -o ./bin/main ."
+  bin = "./bin/main"
   delay = 1000
-  exclude_dir = ["assets", "tmp", "vendor", "testdata"]
+  exclude_dir = ["assets", "tmp", "vendor", "testdata", "docs"]
   exclude_file = []
   exclude_regex = ["_test.go"]
   exclude_unchanged = false
   follow_symlink = false
-  full_bin = "APP_PORT=2000 ./main"
+  full_bin = "APP_PORT=2000 ./bin/main"
   include_dir = []
   include_ext = ["go", "tpl", "tmpl", "html"]
   include_file = []
@@ -21,7 +21,7 @@ tmp_dir = "tmp"
   poll = true
   poll_interval = 500
   post_cmd = []
-  pre_cmd = []
+  pre_cmd = ["./scripts/gen_swag.sh && go mod tidy"]
   rerun = false
   rerun_delay = 500
   send_interrupt = false

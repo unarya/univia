@@ -1,9 +1,10 @@
 package controllers
 
 import (
-	"github.com/gin-gonic/gin"
-	"gone-be/src/modules/post/services"
 	"net/http"
+	"univia/src/modules/post/services"
+
+	"github.com/gin-gonic/gin"
 )
 
 func ListCategories(c *gin.Context) {

@@ -2,8 +2,9 @@ package functions
 
 import (
 	"fmt"
+	"univia/src/utils"
+
 	"github.com/graphql-go/graphql"
-	"gone-be/src/utils"
 )
 
 // TestGraphQL is a test function for GraphQL

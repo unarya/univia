@@ -1,0 +1,17 @@
+info:
+  contact: {}
+paths:
+  /api/v1/hello:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Hello World
+      tags:
+      - Health
+swagger: "2.0"

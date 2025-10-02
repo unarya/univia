@@ -2,15 +2,17 @@ package services
 
 import (
 	"errors"
-	"gone-be/src/config"
-	"gone-be/src/modules/permission/models"
-	Role "gone-be/src/modules/role/models"
-	RoleServices "gone-be/src/modules/role/services"
+	"univia/src/config"
+	"univia/src/modules/permission/models"
+	Role "univia/src/modules/role/models"
+	RoleServices "univia/src/modules/role/services"
+
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
 // CheckPermission verifies if a role has a specific permission
-func CheckPermission(roleID uint, permissionName string) bool {
+func CheckPermission(roleID uuid.UUID, permissionName string) bool {
 	db := config.DB
 
 	var permission models.Permission
@@ -110,7 +112,7 @@ func ListAllPermissions() ([]map[string]interface{}, error) {
 	return result, nil
 }
 
-func AddPermissionsToRole(roleID uint, permissionIDs []uint) (map[string]interface{}, error) {
+func AddPermissionsToRole(roleID uuid.UUID, permissionIDs []uuid.UUID) (map[string]interface{}, error) {
 	db := config.DB
 
 	// 1. Check if the Role exists
@@ -169,4 +171,14 @@ func AddPermissionsToRole(roleID uint, permissionIDs []uint) (map[string]interfa
 	}
 
 	return response, nil
+}
+
+// GetPermissionIDByName is a function to give a permissionID by name
+func GetPermissionIDByName(permissionName string) (uuid.UUID, error) {
+	db := config.DB
+	var permission models.Permission
+	if err := db.Where("name = ?", permissionName).First(&permission).Error; err != nil {
+		return uuid.Nil, err
+	}
+	return permission.ID, nil
 }

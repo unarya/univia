@@ -10,9 +10,9 @@ set -e
 # fi
 
 # Ensure the main binary is built before running
-if [ ! -f "./main" ]; then
+if [ ! -f "./bin/main" ]; then
   echo "Binary './main' not found. Building it now..."
-  go build -buildvcs=false -o ./main .
+  go build -buildvcs=false -o ./bin/main .
 fi
 
 # Start the application with Air

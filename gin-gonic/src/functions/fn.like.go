@@ -1,14 +1,16 @@
 package functions
 
 import (
-	"gone-be/src/config"
-	"gone-be/src/modules/post/models"
-	"gone-be/src/utils"
 	"net/http"
+	"univia/src/config"
+	"univia/src/modules/post/models"
+	"univia/src/utils"
+
+	"github.com/google/uuid"
 )
 
 // CheckIsLiked is a function need userID and postID and return bool
-func CheckIsLiked(userID, postID uint) (bool, *utils.ServiceError) {
+func CheckIsLiked(userID, postID uuid.UUID) (bool, *utils.ServiceError) {
 	db := config.DB
 	var liked bool
 	err := db.Model(&models.PostLike{}).
@@ -22,6 +24,6 @@ func CheckIsLiked(userID, postID uint) (bool, *utils.ServiceError) {
 			Message:    "Database error while checking like status",
 		}
 	}
-	
+
 	return liked, nil
 }

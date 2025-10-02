@@ -1,21 +1,18 @@
 package models
 
 import (
-	"gorm.io/gorm"
 	"time"
+
+	"github.com/google/uuid"
 )
 
 type Media struct {
-	ID        uint      `gorm:"primary_key;AUTO_INCREMENT"`
-	PostID    uint      `gorm:"not null"`
+	ID        uuid.UUID `gorm:"type:uuid;primaryKey;default:uuid_generate_v4()"`
+	PostID    uuid.UUID `gorm:"type:uuid;not null"`
 	Post      Post      `gorm:"foreignKey:PostID;references:ID;constraint:OnDelete:CASCADE;"`
-	Path      string    `gorm:"type:text;not null"`
-	Type      string    `gorm:"size:50;not null"`
+	Path      string    `gorm:"type:varchar(255);not null"`
+	Type      string    `gorm:"type:varchar(255);not null"`
 	Status    bool      `gorm:"default:true"`
 	CreatedAt time.Time `gorm:"autoCreateTime"`
 	UpdatedAt time.Time `gorm:"autoUpdateTime"`
-}
-
-func MigrateMedia(db *gorm.DB) error {
-	return db.AutoMigrate(&Media{})
 }

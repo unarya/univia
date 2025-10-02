@@ -2,12 +2,12 @@ package main
 
 import (
 	"fmt"
-	"gone-be/src/config"
-	"gone-be/src/routes"
-	"gone-be/src/services"
 	"log"
 	"os"
 	"time"
+	"univia/src/config"
+	"univia/src/routes"
+	"univia/src/services"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"

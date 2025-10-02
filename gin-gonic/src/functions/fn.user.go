@@ -1,10 +1,11 @@
 package functions
 
 import (
-	"github.com/gin-gonic/gin"
-	model "gone-be/src/modules/user/models"
-	"gone-be/src/utils"
 	"net/http"
+	model "univia/src/modules/user/models"
+	"univia/src/utils"
+
+	"github.com/gin-gonic/gin"
 )
 
 // GetCurrentUser retrieves the current user from the context

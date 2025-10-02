@@ -1,16 +1,16 @@
-package services
+package access_token
 
 import (
-	"gone-be/src/config"
-	AccessTokens "gone-be/src/modules/key_token/access_token/models"
-	Users "gone-be/src/modules/user/models"
+	"univia/src/config"
+	AccessTokens "univia/src/modules/key_token/access_token/models"
+	Users "univia/src/modules/user/models"
 )
 
 func VerifyToken(token string) (*Users.User, error) {
 	db := config.DB
 	// Proceed with token validation
 	var tokenRecord AccessTokens.AccessToken
-	if err := db.Where("token = ?", token).First(&tokenRecord).Error; err != nil {
+	if err := db.Where("token = ? and status = true", token).First(&tokenRecord).Error; err != nil {
 		return nil, err
 	}
 

@@ -1,9 +1,7 @@
-version: "3.9"
-
 services:
   db:
-    image: mysql:8.0
-    container_name: gone-mysql
+    image: univia:mysql
+    container_name: univia-mysql
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: ${DB_PASS}
@@ -15,13 +13,11 @@ services:
     volumes:
       - db_data:/var/lib/mysql
     networks:
-      - gone_network
+      - univia_network
 
   app:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: gone-gin
+    image: univia:dev
+    container_name: univia
     restart: always
     ports:
       - "${APP_PORT}:2000"
@@ -33,15 +29,60 @@ services:
       - DB_NAME=${DB_NAME}
     volumes:
       - ./:/app
-      - /app/tmp
     depends_on:
-      - db
+      redis:
+        condition: service_healthy
     networks:
-      - gone_network
+      - univia_network
 
+  redis:
+    image: redis:8.0.2-alpine
+    container_name: univia-redis
+    restart: always
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    ports:
+      - "6372:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - univia_network
+
+  minio:
+    image: quay.io/minio/minio
+    container_name: univia-minio
+    restart: always
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    command: server /data/minio --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: admin
+      MINIO_ROOT_PASSWORD: password
+    volumes:
+      - minio_data:/data/minio
+    networks:
+      - univia_network
 volumes:
   db_data:
+    driver: local
+  redis_data:
+    name: ${APP_NAME}-redis-data
+  minio_data:
+    name: ${APP_NAME}-minio-data
 
 networks:
-  gone_network:
+  univia_network:
     driver: bridge
+
+x-bake:
+  app:
+    dockerfile: Dockerfile
+    tags:
+      - ${APP_NAME}-${FRAMEWORK}:${APP_VERSION}
+    platforms: ["linux/amd64"]
+    cache-from: type=registry,ref=${APP_NAME}-${FRAMEWORK}:cache
+    cache-to: type=registry,ref=${APP_NAME}-${FRAMEWORK}:cache,mode=max

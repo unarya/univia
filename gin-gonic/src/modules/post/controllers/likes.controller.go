@@ -1,16 +1,18 @@
 package controllers
 
 import (
-	"github.com/gin-gonic/gin"
-	"gone-be/src/functions"
-	"gone-be/src/modules/post/services"
-	"gone-be/src/utils"
 	"net/http"
+	"univia/src/functions"
+	"univia/src/modules/post/services"
+	"univia/src/utils"
+
+	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
 func Like(c *gin.Context) {
 	var request struct {
-		PostID uint `json:"post_id"`
+		PostID uuid.UUID `json:"post_id"`
 	}
 	bindErr := utils.BindJson(c, &request)
 	if bindErr != nil {
@@ -43,7 +45,7 @@ func Like(c *gin.Context) {
 
 func DisLike(c *gin.Context) {
 	var request struct {
-		PostID uint `json:"post_id"`
+		PostID uuid.UUID `json:"post_id"`
 	}
 	bindErr := utils.BindJson(c, &request)
 	if bindErr != nil {

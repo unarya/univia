@@ -2,14 +2,14 @@ package controllers
 
 import (
 	"bytes"
-	model "gone-be/src/modules/user/models"
-	"gone-be/src/modules/user/services"
-	"gone-be/src/utils"
 	"io"
 	"log"
 	"net/http"
 	"strconv"
 	"strings"
+	model "univia/src/modules/user/models"
+	"univia/src/modules/user/services"
+	"univia/src/utils"
 
 	"github.com/gin-gonic/gin"
 )

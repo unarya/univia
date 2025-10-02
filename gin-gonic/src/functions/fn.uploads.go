@@ -2,14 +2,14 @@ package functions
 
 import (
 	"fmt"
-	"gone-be/src/modules/post/models"
-	"gone-be/src/utils"
 	"io"
 	"mime/multipart"
 	"net/http"
 	"os"
 	"path/filepath"
 	"time"
+	"univia/src/modules/post/models"
+	"univia/src/utils"
 )
 
 // Allowed Media Types

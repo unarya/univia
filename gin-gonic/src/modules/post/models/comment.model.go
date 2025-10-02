@@ -1,18 +1,19 @@
 package models
 
 import (
-	Users "gone-be/src/modules/user/models"
-	"gorm.io/gorm"
 	"time"
+	Users "univia/src/modules/user/models"
+
+	"github.com/google/uuid"
 )
 
 type Comment struct {
-	ID     uint   `gorm:"primary_key;AUTO_INCREMENT"`
-	PostID uint   `gorm:"not null"`
-	UserID uint   `gorm:"not null"`
-	Text   string `gorm:"type:text;not null"`
-	Left   int    `gorm:"not null"`
-	Right  int    `gorm:"not null"`
+	ID     uuid.UUID `gorm:"type:uuid;primaryKey;default:uuid_generate_v4()"`
+	PostID uuid.UUID `gorm:"type:uuid;not null"`
+	UserID uuid.UUID `gorm:"type:uuid;not null"`
+	Text   string    `gorm:"type:text;not null"`
+	Left   int       `gorm:"not null"`
+	Right  int       `gorm:"not null"`
 
 	// References
 	Post Post       `gorm:"foreignKey:PostID;references:ID"`
@@ -20,8 +21,4 @@ type Comment struct {
 
 	CreatedAt time.Time `gorm:"autoCreateTime"`
 	UpdatedAt time.Time `gorm:"autoUpdateTime"`
-}
-
-func MigrateComment(db *gorm.DB) error {
-	return db.AutoMigrate(&Comment{})
 }

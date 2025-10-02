@@ -4,18 +4,20 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"github.com/gin-gonic/gin"
-	"gone-be/src/config"
-	"gone-be/src/functions"
-	"gone-be/src/modules/post/models"
-	"gone-be/src/utils"
 	"mime/multipart"
 	"net/http"
 	"strings"
 	"time"
+	"univia/src/config"
+	"univia/src/functions"
+	"univia/src/modules/post/models"
+	"univia/src/utils"
+
+	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
-func List(currentPage, itemsPerPage int, orderBy, sortBy, searchValue string, userID uint) (map[string]interface{}, error) {
+func List(currentPage, itemsPerPage int, orderBy, sortBy, searchValue string, userID uuid.UUID) (map[string]interface{}, error) {
 	// Validate sorting and calculate offset for pagination
 	offsetData := utils.CalculateOffset(currentPage, itemsPerPage, sortBy, orderBy)
 
@@ -32,13 +34,13 @@ func List(currentPage, itemsPerPage int, orderBy, sortBy, searchValue string, us
 	}
 	defer rows.Close()
 
-	postMap := make(map[uint]map[string]interface{})
+	postMap := make(map[uuid.UUID]map[string]interface{})
 	var paginationResult map[string]interface{}
 
 	for rows.Next() {
 		// Declare variables for scanning
 		var (
-			postID, ownerID                                    uint
+			postID, ownerID                                    uuid.UUID
 			content                                            sql.NullString
 			createdAt, updatedAt                               time.Time
 			categoryIDs, categoryNames                         sql.NullString
@@ -236,15 +238,15 @@ func GetDetails(postID string) (map[string]interface{}, error) {
 }
 
 type PostInfo struct {
-	UserID      uint
-	PostID      int64
-	CategoryIDs []string
+	UserID      uuid.UUID
+	PostID      uuid.UUID
+	CategoryIDs []uuid.UUID
 	Media       []*multipart.FileHeader
 	Content     string
 }
 
 // CreatePost handles post creation along with media and categories
-func CreatePost(content string, categoryIDs []string, files []*multipart.FileHeader, userID uint) (map[string]interface{}, *utils.ServiceError) {
+func CreatePost(content string, categoryIDs []uuid.UUID, files []*multipart.FileHeader, userID uuid.UUID) (map[string]interface{}, *utils.ServiceError) {
 	db := config.DB
 
 	savedMediaResult, err := functions.SaveMediaToServer(files)
@@ -295,7 +297,7 @@ func EditPostByUserID(postInfo PostInfo) *utils.ServiceError {
 		}
 	}
 	// Check Post Exits
-	var checkPostErr = functions.CheckPostExits(utils.ConvertInt64ToUint(postInfo.PostID))
+	var checkPostErr = functions.CheckPostExits(postInfo.PostID)
 	if checkPostErr != nil {
 		tx.Rollback()
 		return &utils.ServiceError{
@@ -324,7 +326,7 @@ func EditPostByUserID(postInfo PostInfo) *utils.ServiceError {
 		}
 	}
 	// Delete existing media records
-	deleteMediaErr := functions.DeleteMediaRecords(utils.ConvertInt64ToUint(postInfo.PostID))
+	deleteMediaErr := functions.DeleteMediaRecords(postInfo.PostID)
 	if deleteMediaErr != nil {
 		tx.Rollback()
 		return &utils.ServiceError{
@@ -333,7 +335,7 @@ func EditPostByUserID(postInfo PostInfo) *utils.ServiceError {
 		}
 	}
 	// Delete existing category associations
-	deleteCategoriesErr := functions.DeleteCategoryRecords(utils.ConvertInt64ToUint(postInfo.PostID))
+	deleteCategoriesErr := functions.DeleteCategoryRecords(postInfo.PostID)
 	if deleteCategoriesErr != nil {
 		tx.Rollback()
 		return &utils.ServiceError{
@@ -343,7 +345,7 @@ func EditPostByUserID(postInfo PostInfo) *utils.ServiceError {
 	}
 
 	// Update post content
-	updatePostErr := functions.UpdatePostContent(postInfo.Content, utils.ConvertInt64ToUint(postInfo.PostID))
+	updatePostErr := functions.UpdatePostContent(postInfo.Content, postInfo.PostID)
 	if updatePostErr != nil {
 		tx.Rollback()
 		return &utils.ServiceError{
@@ -359,7 +361,7 @@ func EditPostByUserID(postInfo PostInfo) *utils.ServiceError {
 			StatusCode: err.StatusCode, Message: err.Message,
 		}
 	}
-	saveMediaRecordErr := functions.SaveMediaRecords(savedMediaResult, utils.ConvertInt64ToUint(postInfo.PostID))
+	saveMediaRecordErr := functions.SaveMediaRecords(savedMediaResult, postInfo.PostID)
 	if saveMediaRecordErr != nil {
 		tx.Rollback()
 		return &utils.ServiceError{
@@ -369,7 +371,7 @@ func EditPostByUserID(postInfo PostInfo) *utils.ServiceError {
 	}
 
 	// New Categories
-	savedCategoriesErr := functions.SaveCategoriesToPost(postInfo.CategoryIDs, utils.ConvertInt64ToUint(postInfo.PostID))
+	savedCategoriesErr := functions.SaveCategoriesToPost(postInfo.CategoryIDs, postInfo.PostID)
 	if savedCategoriesErr != nil {
 		tx.Rollback()
 		return &utils.ServiceError{

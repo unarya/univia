@@ -1,14 +1,15 @@
 package models
 
 import (
-	"gorm.io/gorm"
 	"time"
+
+	"github.com/google/uuid"
 )
 
 type Message struct {
-	ID         uint `gorm:"primary_key;AUTO_INCREMENT"`
-	SenderID   uint `gorm:"not null"`
-	ReceiverID uint `gorm:"not null"`
+	ID         uuid.UUID `gorm:"type:uuid;primaryKey;default:uuid_generate_v4()"`
+	SenderID   uuid.UUID `gorm:"type:uuid;not null"`
+	ReceiverID uuid.UUID `gorm:"type:uuid;not null"`
 
 	// References
 	Sender   User `gorm:"foreignKey:SenderID"`
@@ -16,8 +17,4 @@ type Message struct {
 
 	CreatedAt time.Time `gorm:"autoCreateTime"`
 	UpdatedAt time.Time `gorm:"autoUpdateTime"`
-}
-
-func MigrateMessage(db *gorm.DB) error {
-	return db.AutoMigrate(&Message{})
 }

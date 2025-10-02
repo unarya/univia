@@ -1,10 +1,13 @@
 package utils
 
 import (
-	"github.com/gin-gonic/gin"
+	"encoding/binary"
 	"math"
 	"net/http"
 	"strconv"
+
+	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
 func Paginate(total int64, page, perPage int) (map[string]interface{}, error) {
@@ -52,18 +55,20 @@ func ConvertInt64ToString(i int64) string {
 	return strconv.FormatInt(i, 10)
 }
 
-// ConvertInt64ToUint is the function will receive an int64 and return uint format
-func ConvertInt64ToUint(i int64) uint {
-	return uint(i)
+// ConvertInt64ToUUID is the function will receive an int64 and return uuid.UUID format
+func ConvertInt64ToUUID(i int64) uuid.UUID {
+	b := make([]byte, 16)
+	binary.BigEndian.PutUint64(b[8:], uint64(i))
+	return uuid.Must(uuid.FromBytes(b))
 }
 
-// ConvertStringToUint is the function to convert string to uint format
-func ConvertStringToUint(str string) uint {
-	i, err := strconv.ParseUint(str, 10, 64)
+// ConvertStringToUint is the function to convert string to uuid.UUID format
+func ConvertStringToUint(str string) uuid.UUID {
+	uuid, err := uuid.Parse(str)
 	if err != nil {
 		panic(err)
 	}
-	return uint(i)
+	return uuid
 }
 
 // ServiceError to define return exception for system
@@ -118,4 +123,16 @@ func BindJson(c *gin.Context, request interface{}) *ServiceError {
 		}
 	}
 	return nil
+}
+
+func ParseUUIDs(strs []string) ([]uuid.UUID, error) {
+	var uuids []uuid.UUID
+	for _, s := range strs {
+		id, err := uuid.Parse(s)
+		if err != nil {
+			return nil, err
+		}
+		uuids = append(uuids, id)
+	}
+	return uuids, nil
 }

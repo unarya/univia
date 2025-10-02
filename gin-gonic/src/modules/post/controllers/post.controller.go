@@ -1,22 +1,24 @@
 package controllers
 
 import (
-	"github.com/gin-gonic/gin"
-	"gone-be/src/functions"
-	"gone-be/src/modules/post/services"
-	model "gone-be/src/modules/user/models"
-	"gone-be/src/utils"
 	"net/http"
 	"strings"
+	"univia/src/functions"
+	"univia/src/modules/post/services"
+	model "univia/src/modules/user/models"
+	"univia/src/utils"
+
+	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
 // CreatePost handles creating a new post
 func CreatePost(c *gin.Context) {
 	// Step 1: Parse form data
 	content := strings.TrimSpace(c.PostForm("content"))
-	categoryIds := c.PostFormArray("category_ids")
+	categoryIDs, err := utils.ParseUUIDs(c.PostFormArray("category_ids"))
 
-	if len(categoryIds) == 0 {
+	if len(categoryIDs) == 0 {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "At least one category must be selected"})
 		return
 	}
@@ -46,7 +48,7 @@ func CreatePost(c *gin.Context) {
 	// Type assertion (since c.Get returns an interface{})
 	currentUser, _ := user.(*model.User)
 	// Step 4: Call the service to create a post
-	result, serviceError := services.CreatePost(content, categoryIds, files, currentUser.ID)
+	result, serviceError := services.CreatePost(content, categoryIDs, files, currentUser.ID)
 	if serviceError != nil {
 		c.JSON(serviceError.StatusCode, gin.H{"error": serviceError.Message})
 		return
@@ -122,10 +124,10 @@ func GetDetailsPost(c *gin.Context) {
 func UpdatePost(c *gin.Context) {
 	// Step 1: Parse form data
 	content := strings.TrimSpace(c.PostForm("content"))
-	postID := utils.ConvertStringToInt64(c.PostForm("id"))
-	categoryIds := c.PostFormArray("category_ids") // Get array of category IDs
+	postID, _ := uuid.Parse(c.PostForm("id"))
+	categoryIDs, err := utils.ParseUUIDs(c.PostFormArray("category_ids"))
 
-	if len(categoryIds) == 0 {
+	if len(categoryIDs) == 0 {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "At least one category must be selected"})
 		return
 	}
@@ -150,7 +152,7 @@ func UpdatePost(c *gin.Context) {
 		UserID:      currentUser.ID,
 		PostID:      postID,
 		Content:     content,
-		CategoryIDs: categoryIds,
+		CategoryIDs: categoryIDs,
 		Media:       files,
 	}
 	serviceError := services.EditPostByUserID(postInfo)

@@ -3,12 +3,13 @@ package services
 import (
 	"encoding/json"
 	"fmt"
-	"gone-be/src/utils"
-	"gone-be/store"
 	"log"
 	"net/http"
+	"univia/src/utils"
+	"univia/store"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
 )
 
@@ -116,7 +117,7 @@ func sendJSONMessage(conn *websocket.Conn, messageType int, response WebSocketMe
 }
 
 // SendMessageToUser is a function using socket to send message
-func SendMessageToUser(userID uint, message WebSocketMessage) error {
+func SendMessageToUser(userID uuid.UUID, message WebSocketMessage) error {
 	conn, exists := store.GetUserSocket(userID)
 	if !exists {
 		return fmt.Errorf("user %s not connected", userID)

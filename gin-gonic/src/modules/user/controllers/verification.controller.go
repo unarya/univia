@@ -1,10 +1,11 @@
 package controllers
 
 import (
-	"github.com/gin-gonic/gin"
-	Users "gone-be/src/modules/user/models"
-	verificationservices "gone-be/src/modules/user/services"
 	"net/http"
+	Users "univia/src/modules/user/models"
+	verificationservices "univia/src/modules/user/services"
+
+	"github.com/gin-gonic/gin"
 )
 
 // VerifyCode handles the verification code process and token generation

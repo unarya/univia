@@ -1,20 +1,17 @@
 package models
 
 import (
-	Users "gone-be/src/modules/user/models"
-	"gorm.io/gorm"
 	"time"
+	Users "univia/src/modules/user/models"
+
+	"github.com/google/uuid"
 )
 
 type Post struct {
-	ID        uint       `gorm:"primaryKey;AUTO_INCREMENT"`
-	UserID    uint       `gorm:"not null"`
+	ID        uuid.UUID  `gorm:"type:uuid;primaryKey;default:uuid_generate_v4()"`
+	UserID    uuid.UUID  `gorm:"type:uuid;not null"`
 	User      Users.User `gorm:"foreignKey:UserID;references:ID"`
 	Content   string     `gorm:"type:text;default:null"`
 	CreatedAt time.Time  `gorm:"autoCreateTime"`
 	UpdatedAt time.Time  `gorm:"autoUpdateTime"`
-}
-
-func MigratePost(db *gorm.DB) error {
-	return db.AutoMigrate(&Post{})
 }

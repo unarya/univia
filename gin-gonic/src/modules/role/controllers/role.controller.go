@@ -1,9 +1,10 @@
 package controllers
 
 import (
-	"github.com/gin-gonic/gin"
-	"gone-be/src/modules/role/services"
 	"net/http"
+	"univia/src/modules/role/services"
+
+	"github.com/gin-gonic/gin"
 )
 
 func CreateRole(c *gin.Context) {
