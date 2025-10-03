@@ -1,27 +1,37 @@
-package controllers
+package posts
 
 import (
 	"net/http"
-	"univia/src/modules/post/services"
+	"time"
+	"univia/src/config"
+	posts "univia/src/modules/post/services"
+	"univia/src/utils"
+	"univia/src/utils/cache"
 
 	"github.com/gin-gonic/gin"
 )
 
+// ListCategories godoc
+// @Summary List categories
+// @Description Retrieve all categories in the system
+// @Tags Social Routes
+// @Produce      json
+// @Success 200 {object} types.SuccessListCategoriesResponse "Successfully List Categories"
+// @Failure 400 {object} types.StatusBadRequest "Bad Request"
+// @Failure 500 {object} types.StatusInternalError "Internal server error"
+// @Router /api/v1/posts/categories [get]
 func ListCategories(c *gin.Context) {
-	results, err := services.ListAllCategories()
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"status": gin.H{
-				"code":    http.StatusBadRequest,
-				"message": err.Error(),
-			},
-		})
+	// Cache
+	cacheKey := "listCategories"
+	if results, err := cache.GetJSON[[]map[string]interface{}](config.Redis, cacheKey); err != nil && results != nil {
+		utils.SendSuccessResponse(c, http.StatusOK, "Categories List Successfully", results)
+		return
 	}
-	c.JSON(http.StatusOK, gin.H{
-		"status": gin.H{
-			"code":    http.StatusOK,
-			"message": "Categories List Successfully",
-		},
-		"data": results,
-	})
+	results, err := posts.ListAllCategories()
+	if err != nil {
+		utils.SendErrorResponse(c, http.StatusBadRequest, "Categories List Error", err)
+		return
+	}
+	_ = config.Redis.SetJSON(cacheKey, results, 12*time.Hour)
+	utils.SendSuccessResponse(c, http.StatusOK, "Categories List Successfully", results)
 }

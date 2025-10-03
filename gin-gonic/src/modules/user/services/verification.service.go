@@ -1,4 +1,4 @@
-package services
+package users
 
 import (
 	"fmt"
@@ -8,8 +8,8 @@ import (
 	"os"
 	"time"
 	"univia/src/config"
-	AccessTokens "univia/src/modules/key_token/access_token/models"
-	"univia/src/modules/user/models"
+	"univia/src/modules/key_token/access_token/models"
+	users "univia/src/modules/user/models"
 )
 
 // Helper function to generate a 6-digit verification code
@@ -20,16 +20,16 @@ func generateVerificationCode() string {
 // Helper function to save the verification code
 func saveVerificationCode(email, code string) error {
 	db := config.DB
-	var user models.User
+	var user users.User
 	if err := db.Where("email = ?", email).First(&user).Error; err != nil {
 		return err
 	}
 	// Delete all verification code before sent a new one
-	if err := db.Where("email = ?", email).Delete(&models.VerificationCode{}).Error; err != nil {
+	if err := db.Where("email = ?", email).Delete(&users.VerificationCode{}).Error; err != nil {
 		return fmt.Errorf("failed to delete verification code: %v", err)
 	}
 
-	verification := models.VerificationCode{
+	verification := users.VerificationCode{
 		Email:     email,
 		Code:      code,
 		ExpiresAt: time.Now().Add(3 * time.Minute),
@@ -44,7 +44,6 @@ func sendVerificationEmail(email, code string) error {
 	smtpPort := os.Getenv("SMTP_PORT")     // E.g., "587"
 	smtpUsername := os.Getenv("SMTP_USER") // Your email address
 	smtpPassword := os.Getenv("SMTP_PASS") // Your email password or app-specific password
-
 	// Email content
 	subject := "Your Verification Code"
 	body := fmt.Sprintf("Your verification code is: %s", code)
@@ -69,16 +68,16 @@ func sendVerificationEmail(email, code string) error {
 }
 
 // VerifyCodeAndGenerateTokens Function to verify the code and generate tokens
-func VerifyCodeAndGenerateTokens(code models.VerificationCode) (map[string]interface{}, int, error) {
+func VerifyCodeAndGenerateTokens(code users.VerificationCode) (map[string]interface{}, int, error) {
 	db := config.DB
 	// Step 1: Retrieve the user associated with the email
-	var user models.User
+	var user users.User
 	if err := db.Where("email = ?", code.Email).First(&user).Error; err != nil {
 		return nil, http.StatusNotFound, fmt.Errorf("invalid user")
 	}
 
 	// Step 2: Retrieve the verification record
-	var verification models.VerificationCode
+	var verification users.VerificationCode
 	if err := db.Where("email = ?", code.Email).First(&verification).Error; err != nil {
 		return nil, http.StatusNotFound, fmt.Errorf("verification record not found")
 	}
@@ -125,11 +124,11 @@ func VerifyCodeAndGenerateTokens(code models.VerificationCode) (map[string]inter
 func VerifyCode(code, email string) (map[string]interface{}, error) {
 	// Import db queries
 	db := config.DB
-	var user models.User
+	var user users.User
 	if err := db.Where("email = ?", email).First(&user).Error; err != nil {
 		return nil, err
 	}
-	var verification models.VerificationCode
+	var verification users.VerificationCode
 	if err := db.Where("email = ? AND code = ?", email, code).First(&verification).Error; err != nil {
 		return nil, err
 	}
@@ -163,7 +162,7 @@ func VerifyCode(code, email string) (map[string]interface{}, error) {
 		return nil, fmt.Errorf("failed to generate access token")
 	}
 	// Step 8: Save token to user
-	accessTokenEntry := AccessTokens.AccessToken{
+	accessTokenEntry := access_token.AccessToken{
 		UserID: user.ID,
 		Token:  token,
 	}

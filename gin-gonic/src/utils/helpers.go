@@ -3,8 +3,8 @@ package utils
 import (
 	"encoding/binary"
 	"math"
-	"net/http"
 	"strconv"
+	"univia/src/utils/types"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -115,12 +115,9 @@ func CalculateOffset(currentPage, itemsPerPage int, sortBy, orderBy string) Calc
 }
 
 // BindJson is a function to bind the json request
-func BindJson(c *gin.Context, request interface{}) *ServiceError {
-	if err := c.ShouldBind(&request); err != nil {
-		return &ServiceError{
-			StatusCode: http.StatusBadRequest,
-			Message:    "Invalid input",
-		}
+func BindJson(c *gin.Context, request interface{}) error {
+	if err := c.ShouldBindJSON(request); err != nil {
+		return err
 	}
 	return nil
 }
@@ -135,4 +132,28 @@ func ParseUUIDs(strs []string) ([]uuid.UUID, error) {
 		uuids = append(uuids, id)
 	}
 	return uuids, nil
+}
+
+// SendSuccessResponse and SendErrorResponse Helper functions for consistent responses
+func SendSuccessResponse(c *gin.Context, statusCode int, message string, data interface{}) {
+	c.JSON(statusCode, types.SuccessResponse{
+		Status: types.StatusOK{
+			Code:    statusCode,
+			Message: message,
+		},
+		Data: data,
+	})
+}
+
+func SendErrorResponse(c *gin.Context, statusCode int, message string, err error) {
+	response := types.ErrorResponse{
+		Status: types.StatusBadRequest{
+			Code:    statusCode,
+			Message: message,
+		},
+	}
+	if err != nil {
+		response.Error = err.Error()
+	}
+	c.JSON(statusCode, response)
 }

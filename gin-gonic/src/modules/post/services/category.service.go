@@ -1,15 +1,15 @@
-package services
+package posts
 
 import (
 	"errors"
 	"univia/src/config"
-	"univia/src/modules/post/models"
+	posts "univia/src/modules/post/models"
 )
 
 // ListAllCategories retrieves all categories from the database
 func ListAllCategories() ([]map[string]interface{}, error) {
 	db := config.DB
-	var categories []models.Category
+	var categories []posts.Category
 
 	// Fetch categories from DB
 	if err := db.Find(&categories).Error; err != nil {

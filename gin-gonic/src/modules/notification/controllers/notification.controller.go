@@ -1,15 +1,33 @@
-package controllers
+package notifications
 
 import (
+	"fmt"
 	"net/http"
+	"time"
+	"univia/src/config"
 	"univia/src/functions"
-	"univia/src/modules/notification/services"
+	notifications "univia/src/modules/notification/services"
 	"univia/src/utils"
+	"univia/src/utils/cache"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 )
 
+// List godoc
+// @Summary      List all notifications of the current user
+// @Description  Retrieve notifications with filters (pagination, seen/unseen, search)
+// @Tags         Notifications
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Param        Authorization header string true "Bearer <access_token>"
+// @Param        request body types.ListNotificationRequest true "Notification filter options"
+// @Success      200 {object} map[string]interface{}
+// @Failure      400 {object} map[string]interface{}
+// @Failure      401 {object} map[string]interface{}
+// @Failure      500 {object} map[string]interface{}
+// @Router       /api/v1/notifications [post]
 func List(c *gin.Context) {
 	var request struct {
 		CurrentPage  int    `json:"current_page"`
@@ -20,79 +38,105 @@ func List(c *gin.Context) {
 		IsSeen       bool   `json:"is_seen"`
 		All          bool   `json:"all"`
 	}
-	bindErr := utils.BindJson(c, &request)
-	if bindErr != nil {
-		c.JSON(bindErr.StatusCode, gin.H{"error": bindErr.Message})
+
+	if bindErr := utils.BindJson(c, &request); bindErr != nil {
+		utils.SendErrorResponse(c, http.StatusBadRequest, "Invalid Input", bindErr)
 		return
 	}
 
-	// Get current user from context
 	currentUser, getUserErr := functions.GetCurrentUser(c)
 	if getUserErr != nil {
-		c.JSON(getUserErr.StatusCode, gin.H{"error": getUserErr.Message})
+		utils.SendErrorResponse(c, getUserErr.StatusCode, getUserErr.Message, nil)
 		return
 	}
-	response, err := services.GetNotificationsByUserID(currentUser.ID, request.CurrentPage, request.ItemsPerPage, request.OrderBy, request.SortBy, request.SearchValue, request.IsSeen, request.All)
+
+	// Try cache
+	cacheKey := fmt.Sprintf("notifications_by_user_%v_%d_%d_%s_%s_%s_%v_%v",
+		currentUser.ID, request.CurrentPage, request.ItemsPerPage, request.OrderBy, request.SortBy, request.SearchValue, request.IsSeen, request.All)
+	if results, err := cache.GetJSON[map[string]interface{}](config.Redis, cacheKey); err == nil && results != nil {
+		utils.SendSuccessResponse(c, http.StatusOK, "Successfully list notifications", results)
+		return
+	}
+	response, err := notifications.GetNotificationsByUserID(
+		currentUser.ID,
+		request.CurrentPage,
+		request.ItemsPerPage,
+		request.OrderBy,
+		request.SortBy,
+		request.SearchValue,
+		request.IsSeen,
+		request.All,
+	)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		utils.SendErrorResponse(c, http.StatusInternalServerError, "Failed to fetch notifications", err)
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{
-		"status": gin.H{
-			"code":    http.StatusOK,
-			"message": "List all notifications successfully",
-		},
-		"data": response,
-	})
+	_ = config.Redis.SetJSON(cacheKey, response, 3*time.Hour)
+	utils.SendSuccessResponse(c, http.StatusOK, "List all notifications successfully", response)
 }
 
+// UpdateSeen godoc
+// @Summary      Mark a notification as seen
+// @Description  Update notification status (seen) for the current user
+// @Tags         Notifications
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Param        Authorization header string true "Bearer <access_token>"
+// @Param        request body types.UpdateSeenRequest true "Notification ID"
+// @Success      200 {object} map[string]interface{}
+// @Failure      400 {object} map[string]interface{}
+// @Failure      401 {object} map[string]interface{}
+// @Failure      500 {object} map[string]interface{}
+// @Router       /api/v1/notifications/seen [put]
 func UpdateSeen(c *gin.Context) {
 	var request struct {
 		NotificationID uuid.UUID `json:"notification_id"`
 	}
-	bindErr := utils.BindJson(c, &request)
-	if bindErr != nil {
-		c.JSON(bindErr.StatusCode, gin.H{"error": bindErr.Message})
-		return
-	}
-	// Get current user from context
-	currentUser, getUserErr := functions.GetCurrentUser(c)
-	if getUserErr != nil {
-		c.JSON(getUserErr.StatusCode, gin.H{"error": getUserErr.Message})
+
+	if bindErr := utils.BindJson(c, &request); bindErr != nil {
+		utils.SendErrorResponse(c, http.StatusBadRequest, "Invalid Input", bindErr)
 		return
 	}
 
-	serviceErr := services.UpdateIsSeen(request.NotificationID, currentUser.ID)
-	if serviceErr != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": serviceErr.Error()})
+	currentUser, getUserErr := functions.GetCurrentUser(c)
+	if getUserErr != nil {
+		utils.SendErrorResponse(c, getUserErr.StatusCode, getUserErr.Message, nil)
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{
-		"status": gin.H{
-			"code":    http.StatusOK,
-			"message": "Update notification status successfully",
-		},
-	})
+
+	serviceErr := notifications.UpdateIsSeen(request.NotificationID, currentUser.ID)
+	if serviceErr != nil {
+		utils.SendErrorResponse(c, http.StatusInternalServerError, "Failed to update notification", serviceErr)
+		return
+	}
+
+	utils.SendSuccessResponse(c, http.StatusOK, "Notification updated successfully", nil)
 }
 
-// UpdateSeenWithUserID is a controller receive userID, update all notifications for this user
+// UpdateSeenWithUserID godoc
+// @Summary      Mark all notifications as seen
+// @Description  Update all notifications of the current user to seen
+// @Tags         Notifications
+// @Produce      json
+// @Security     BearerAuth
+// @Param        Authorization header string true "Bearer <access_token>"
+// @Success      200 {object} map[string]interface{}
+// @Failure      401 {object} map[string]interface{}
+// @Failure      500 {object} map[string]interface{}
+// @Router       /api/v1/notifications/seen/all [put]
 func UpdateSeenWithUserID(c *gin.Context) {
-	// Get current user from context
 	currentUser, getUserErr := functions.GetCurrentUser(c)
 	if getUserErr != nil {
-		c.JSON(getUserErr.StatusCode, gin.H{"error": getUserErr.Message})
+		utils.SendErrorResponse(c, getUserErr.StatusCode, getUserErr.Message, nil)
 		return
 	}
 
-	serviceErr := services.UpdateIsSeenForAllNotificationByUserID(currentUser.ID)
+	serviceErr := notifications.UpdateIsSeenForAllNotificationByUserID(currentUser.ID)
 	if serviceErr != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": serviceErr.Error()})
+		utils.SendErrorResponse(c, http.StatusInternalServerError, "Failed to update all notifications", serviceErr)
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{
-		"status": gin.H{
-			"code":    http.StatusOK,
-			"message": "Update notifications status successfully",
-		},
-	})
+
+	utils.SendSuccessResponse(c, http.StatusOK, "All notifications updated successfully", nil)
 }

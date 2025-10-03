@@ -1,4 +1,4 @@
-package services
+package users
 
 import (
 	"encoding/hex"
@@ -14,7 +14,7 @@ import (
 	AccessTokens "univia/src/modules/key_token/access_token/models"
 	RefreshTokens "univia/src/modules/key_token/refresh_token/models"
 	Profiles "univia/src/modules/profile/models"
-	"univia/src/modules/role/services"
+	roles "univia/src/modules/role/services"
 	Users "univia/src/modules/user/models"
 	"univia/src/utils"
 
@@ -47,7 +47,7 @@ func GetUserInfo(userID uuid.UUID) (map[string]interface{}, error) {
 // RegisterUser HandleCreateUser handles the logic for creating a new user.
 func RegisterUser(user Users.User) (map[string]interface{}, error) {
 	db := config.DB
-	userRoleID, err := services.GetRoleID("user")
+	userRoleID, err := roles.GetRoleID("user")
 	if err != nil {
 		return nil, err
 	}
@@ -167,7 +167,7 @@ func LoginUser(email, phoneNumber, password, username string) (string, int, erro
 
 // LoginGoogle is the function to login by google service and return the tokens
 func LoginGoogle(googleToken string) (map[string]interface{}, error) {
-	userRoleID, err := services.GetRoleID("user")
+	userRoleID, err := roles.GetRoleID("user")
 	if err != nil {
 		return nil, err
 	}
@@ -264,7 +264,7 @@ func LoginGoogle(googleToken string) (map[string]interface{}, error) {
 func LoginTwitter(username, email, image, profileBackgroundImage, profileBackgroundColor, twitterId string) (map[string]interface{}, error) {
 	db := config.DB
 	// Query for new user role
-	userRoleID, err := services.GetRoleID("user")
+	userRoleID, err := roles.GetRoleID("user")
 	if err != nil {
 		return nil, fmt.Errorf("failed to get user role ID: %w", err)
 	}
@@ -595,8 +595,8 @@ func ChangePassword(oldPassword, newPassword, userID string) (int, error) {
 	return http.StatusOK, nil
 }
 
-// GetUserImageByID is a function to get user avatar by ID, this function will open for all clients
-// GetUserImageByID retrieves a user's profile picture URL by their user ID
+// GetUserImageByID is a function to get user avatar by ID, this function will open for all clients,
+// retrieves a user's profile picture URL by their user ID
 func GetUserImageByID(userID uint) (string, *utils.ServiceError) {
 	if userID == 0 {
 		return "", &utils.ServiceError{

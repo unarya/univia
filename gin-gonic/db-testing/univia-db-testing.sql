@@ -1,10 +1,12 @@
 -- Checking block
-SELECT * FROM users;
+EXPLAIN SELECT * FROM users WHERE role_id = "d8faffca-a00e-11f0-94f9-362064ef513e";
+EXPLAIN SELECT * FROM access_tokens WHERE token = "8ef033a06c2035ad5ba7b585918b7455a899e35da086ee0e84c98303d01ba9fc" AND status = true;
 SELECT * FROM roles;
 SELECT * FROM profiles;
 SELECT * FROM role_permissions;
 SELECT * FROM access_tokens WHERE status = 1;
 SELECT * FROM permissions;
+SELECT users.*, profiles.* FROM `users` INNER JOIN profiles ON profiles.user_id = users.id WHERE users.id = '79fb3083-a010-11f0-94f9-362064ef513e';
 SELECT * FROM media;
 SELECT * FROM posts WHERE id = 2;
 SELECT * FROM schema_migrations;

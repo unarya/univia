@@ -23,9 +23,9 @@ var allowedMediaTypes = map[string]bool{
 	"video/mov":  true,
 }
 
-func SaveMediaToServer(files []*multipart.FileHeader) ([]models.Media, *utils.ServiceError) {
+func SaveMediaToServer(files []*multipart.FileHeader) ([]posts.Media, *utils.ServiceError) {
 	// Handle file uploads
-	var savedMedia []models.Media
+	var savedMedia []posts.Media
 
 	for _, file := range files {
 		fileType := file.Header.Get("Content-Type")
@@ -51,7 +51,7 @@ func SaveMediaToServer(files []*multipart.FileHeader) ([]models.Media, *utils.Se
 		}
 
 		// Append to saved media list
-		savedMedia = append(savedMedia, models.Media{Path: mediaPath, Type: fileType})
+		savedMedia = append(savedMedia, posts.Media{Path: mediaPath, Type: fileType})
 	}
 
 	return savedMedia, nil

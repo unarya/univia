@@ -27,18 +27,9 @@ func RegisterRoutes(router *gin.Engine) {
 	needPermission := utils.Permissions
 
 	api.GET("/hello", HelloHandler)
+	router.GET("/healthz", HealthHandler)
+	router.GET("/readyz", ReadyzHandler)
 
-	router.GET("/healthz", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{"status": "ok"})
-	})
-
-	router.GET("/readyz", func(c *gin.Context) {
-		if config.CheckConnection() {
-			c.JSON(http.StatusOK, gin.H{"status": "ready"})
-		} else {
-			c.JSON(http.StatusServiceUnavailable, gin.H{"status": "unavailable"})
-		}
-	})
 	// Authentication Routes
 	authRoutes := api.Group("/auth")
 	{
@@ -95,25 +86,25 @@ func RegisterRoutes(router *gin.Engine) {
 	// Notifications Group APIs
 	notificationsRoutes := api.Group("/notifications")
 	{
-		notificationsRoutes.POST("", authMiddleware(), NotificationControllers.List)
-		notificationsRoutes.POST("single-seen", authMiddleware(), NotificationControllers.UpdateSeen)
-		notificationsRoutes.POST("all-seen", authMiddleware(), NotificationControllers.UpdateSeenWithUserID)
+		notificationsRoutes.POST("", authMiddleware(), NotificationControllers.List)                         // 23
+		notificationsRoutes.POST("single-seen", authMiddleware(), NotificationControllers.UpdateSeen)        // 24
+		notificationsRoutes.POST("all-seen", authMiddleware(), NotificationControllers.UpdateSeenWithUserID) // 25
 	}
 
-	// Swago
+	// Swaggo
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	// programmatically set swagger info
-	docs.SwaggerInfo.Title = "Swagger Example API"
-	docs.SwaggerInfo.Description = "This is a sample server Petstore server."
+	docs.SwaggerInfo.Title = "Swagger API Documentation"
+	docs.SwaggerInfo.Description = "This is the api documentation for Univia Application"
 	docs.SwaggerInfo.Version = "1.0"
-	docs.SwaggerInfo.Host = "petstore.swagger.io"
-	docs.SwaggerInfo.BasePath = "/v2"
+	docs.SwaggerInfo.Host = "localhost:2000"
+	docs.SwaggerInfo.BasePath = ""
 	docs.SwaggerInfo.Schemes = []string{"http", "https"}
 }
 
 // HelloHandler godoc
 // @Summary Hello World
-// @Tags Health
+// @Tags Health Check
 // @Produce json
 // @Success 200 {object} map[string]interface{}
 // @Router /api/v1/hello [get]
@@ -124,4 +115,40 @@ func HelloHandler(c *gin.Context) {
 			"message": "Hello world",
 		},
 	})
+}
+
+// HealthHandler godoc
+// @Summary Healthz
+// @Tags Health Check
+// @Produce json
+// @Success 200 {object} HealthResponse
+// @Router /healthz [get]
+func HealthHandler(c *gin.Context) {
+	c.JSON(http.StatusOK, gin.H{"status": "ok"})
+}
+
+type HealthResponse struct {
+	Status string `json:"status" example:"ok"`
+}
+
+// ReadyzHandler godoc
+// @Summary Readyz
+// @Tags Health Check
+// @Produce json
+// @Success 200 {object} ReadySuccessResponse
+// @Failure 503 {object} ReadyUnavailableResponse
+// @Router /readyz [get]
+func ReadyzHandler(c *gin.Context) {
+	if config.CheckConnection() {
+		c.JSON(http.StatusOK, gin.H{"status": "ready"})
+	} else {
+		c.JSON(http.StatusServiceUnavailable, gin.H{"status": "unavailable"})
+	}
+}
+
+type ReadySuccessResponse struct {
+	Status string `json:"status" example:"ok"`
+}
+type ReadyUnavailableResponse struct {
+	Status string `json:"status" example:"unavailable"`
 }

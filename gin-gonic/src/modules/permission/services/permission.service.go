@@ -1,11 +1,14 @@
-package services
+package permissions
 
 import (
 	"errors"
+	"fmt"
+	"time"
 	"univia/src/config"
-	"univia/src/modules/permission/models"
+	permissions "univia/src/modules/permission/models"
 	Role "univia/src/modules/role/models"
 	RoleServices "univia/src/modules/role/services"
+	"univia/src/utils/cache"
 
 	"github.com/google/uuid"
 	"gorm.io/gorm"
@@ -14,8 +17,14 @@ import (
 // CheckPermission verifies if a role has a specific permission
 func CheckPermission(roleID uuid.UUID, permissionName string) bool {
 	db := config.DB
-
-	var permission models.Permission
+	cacheKey := fmt.Sprintf("permission:%s:%s", roleID, permissionName)
+	// Try cache
+	if results, err := cache.GetJSON[bool](config.Redis, cacheKey); err == nil && results != nil {
+		return true
+	} else {
+		fmt.Printf("Cache miss: %s", cacheKey)
+	}
+	var permission permissions.Permission
 	if err := db.Where("name = ?", permissionName).First(&permission).Error; err != nil {
 		return false
 	}
@@ -29,7 +38,7 @@ func CheckPermission(roleID uuid.UUID, permissionName string) bool {
 	if err != nil || !exists {
 		return false
 	}
-
+	_ = config.Redis.SetJSON(cacheKey, true, 12*time.Hour)
 	return exists
 }
 
@@ -37,12 +46,12 @@ func CreatePermission(permissionName string) (bool, error) {
 	db := config.DB
 
 	var exists bool
-	err := db.Model(models.Permission{}).Select("name").Where("name = ?", permissionName).First(&models.Permission{}).Scan(&exists).Error
+	err := db.Model(permissions.Permission{}).Select("name").Where("name = ?", permissionName).First(&permissions.Permission{}).Scan(&exists).Error
 	if err == nil || exists {
 		return false, errors.New("permission already exists")
 	}
 
-	var permission models.Permission
+	var permission permissions.Permission
 	permission.Name = permissionName
 
 	if err := db.Create(&permission).Error; err != nil {
@@ -130,7 +139,7 @@ func AddPermissionsToRole(roleID uuid.UUID, permissionIDs []uuid.UUID) (map[stri
 	}
 
 	// 3. Check if all provided Permission IDs exist
-	var permissions []models.Permission
+	var permissions []permissions.Permission
 	if err := db.Where("id IN ?", permissionIDs).Find(&permissions).Error; err != nil {
 		return nil, err
 	}
@@ -176,7 +185,7 @@ func AddPermissionsToRole(roleID uuid.UUID, permissionIDs []uuid.UUID) (map[stri
 // GetPermissionIDByName is a function to give a permissionID by name
 func GetPermissionIDByName(permissionName string) (uuid.UUID, error) {
 	db := config.DB
-	var permission models.Permission
+	var permission permissions.Permission
 	if err := db.Where("name = ?", permissionName).First(&permission).Error; err != nil {
 		return uuid.Nil, err
 	}

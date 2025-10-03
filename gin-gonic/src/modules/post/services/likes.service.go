@@ -1,4 +1,4 @@
-package services
+package posts
 
 import (
 	"fmt"
@@ -7,7 +7,7 @@ import (
 	"univia/src/config"
 	"univia/src/functions"
 	"univia/src/modules/notification/services"
-	"univia/src/modules/post/models"
+	posts "univia/src/modules/post/models"
 	Users "univia/src/modules/user/models"
 	"univia/src/utils"
 
@@ -34,7 +34,7 @@ func Like(userID, postID uuid.UUID) (int64, *utils.ServiceError) {
 	}
 
 	// 2. Create a new like for the post in a single query
-	newLike := models.PostLike{
+	newLike := posts.PostLike{
 		UserID: userID,
 		PostID: postID,
 	}
@@ -48,7 +48,7 @@ func Like(userID, postID uuid.UUID) (int64, *utils.ServiceError) {
 		}
 
 		// Count the total likes after inserting the new like
-		if err := tx.Model(&models.PostLike{}).
+		if err := tx.Model(&posts.PostLike{}).
 			Where("post_id = ?", postID).
 			Count(&counts).Error; err != nil {
 			return err
@@ -80,7 +80,7 @@ func Like(userID, postID uuid.UUID) (int64, *utils.ServiceError) {
 
 	// 2. Get owner of the post
 	var postOwner uuid.UUID
-	selectOwnerErr := db.Model(&models.Post{}).
+	selectOwnerErr := db.Model(&posts.Post{}).
 		Select("user_id").
 		Where("id = ?", postID).
 		Scan(&postOwner).Error
@@ -96,7 +96,7 @@ func Like(userID, postID uuid.UUID) (int64, *utils.ServiceError) {
 		// 3. Send notification to the post owner
 		message := fmt.Sprintf("%s just liked your post", username)
 		noti_type := "personal_post"
-		sendNotiErr := services.NotificationHandler(userID, postOwner, message, noti_type)
+		sendNotiErr := notifications.NotificationHandler(userID, postOwner, message, noti_type)
 		if sendNotiErr != nil {
 			log.Printf("Failed to send notification: %v", sendNotiErr)
 		}
@@ -127,12 +127,12 @@ func DisLike(userID, postID uuid.UUID) (int64, *utils.ServiceError) {
 	if err := db.Transaction(func(tx *gorm.DB) error {
 		// Delete the like
 		if err := tx.Where("post_id = ? AND user_id = ?", postID, userID).
-			Delete(&models.PostLike{}).Error; err != nil {
+			Delete(&posts.PostLike{}).Error; err != nil {
 			return err
 		}
 
 		// Count the total likes after deleting the like
-		if err := tx.Model(&models.PostLike{}).
+		if err := tx.Model(&posts.PostLike{}).
 			Where("post_id = ?", postID).
 			Count(&counts).Error; err != nil {
 			return err
