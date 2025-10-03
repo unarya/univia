@@ -3,4 +3,4 @@
 /gin-gonic/uploads
 /gin-gonic/*.sh
 .idea
-.env
+/gin-gonic/.env
