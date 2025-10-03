@@ -1,4 +1,4 @@
-package services
+package notifications
 
 import (
 	"database/sql"
@@ -17,7 +17,7 @@ func NotificationHandler(senderID, receiverID uuid.UUID, message, notiType strin
 	db := config.DB
 
 	// Prepare for new notification record
-	newNoti := models.Notification{
+	newNoti := notifications.Notification{
 		SenderID:   senderID,
 		ReceiverID: receiverID,
 		Message:    message,
@@ -120,7 +120,7 @@ func GetNotificationsByUserID(userID uuid.UUID, currentPage, itemsPerPage int, o
 func UpdateIsSeen(notificationID, userID uuid.UUID) *utils.ServiceError {
 	db := config.DB
 
-	if err := db.Model(&models.Notification{}).
+	if err := db.Model(&notifications.Notification{}).
 		Where("id = ? AND receiver_id = ?", notificationID, userID).
 		Update("is_seen", true).Error; err != nil {
 		return &utils.ServiceError{
@@ -135,7 +135,7 @@ func UpdateIsSeen(notificationID, userID uuid.UUID) *utils.ServiceError {
 func UpdateIsSeenForAllNotificationByUserID(userID uuid.UUID) *utils.ServiceError {
 	db := config.DB
 
-	if err := db.Model(&models.Notification{}).
+	if err := db.Model(&notifications.Notification{}).
 		Where("receiver_id = ? AND is_seen = false", userID).
 		Update("is_seen", true).Error; err != nil {
 		return &utils.ServiceError{

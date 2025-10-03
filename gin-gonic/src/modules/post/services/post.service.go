@@ -1,4 +1,4 @@
-package services
+package posts
 
 import (
 	"database/sql"
@@ -10,7 +10,7 @@ import (
 	"time"
 	"univia/src/config"
 	"univia/src/functions"
-	"univia/src/modules/post/models"
+	posts "univia/src/modules/post/models"
 	"univia/src/utils"
 
 	"github.com/gin-gonic/gin"
@@ -307,7 +307,7 @@ func EditPostByUserID(postInfo PostInfo) *utils.ServiceError {
 	}
 
 	// Delete existing media
-	var existingMedia []models.Media
+	var existingMedia []posts.Media
 	if err := tx.Where("post_id = ?", postInfo.PostID).Find(&existingMedia).Error; err != nil {
 		tx.Rollback()
 		return &utils.ServiceError{

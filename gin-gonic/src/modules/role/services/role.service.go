@@ -1,9 +1,9 @@
-package services
+package roles
 
 import (
 	"errors"
 	"univia/src/config"
-	"univia/src/modules/role/models"
+	roles "univia/src/modules/role/models"
 	Users "univia/src/modules/user/models"
 
 	"github.com/gin-gonic/gin"
@@ -12,7 +12,7 @@ import (
 )
 
 // GetRoleByUserID retrieves the role of a user by their user ID
-func GetRoleByUserID(userID uint) (*models.Role, error) {
+func GetRoleByUserID(userID uint) (*roles.Role, error) {
 	db := config.DB
 
 	// Fetch user to get RoleID
@@ -25,7 +25,7 @@ func GetRoleByUserID(userID uint) (*models.Role, error) {
 	}
 
 	// Fetch role based on RoleID
-	var role models.Role
+	var role roles.Role
 	if err := db.Where("id = ?", user.RoleID).First(&role).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, errors.New("role not found")
@@ -46,13 +46,13 @@ func CreateRoleByAdmin(roleName string) (map[string]interface{}, error) {
 	}
 
 	// Check if role already exists
-	var existingRole models.Role
+	var existingRole roles.Role
 	if err := db.Where("name = ?", roleName).First(&existingRole).Error; err == nil {
 		return nil, errors.New("role already exists")
 	}
 
 	// Create new role
-	role := &models.Role{
+	role := &roles.Role{
 		Name: roleName,
 	}
 
@@ -68,7 +68,7 @@ func CreateRoleByAdmin(roleName string) (map[string]interface{}, error) {
 
 func ListAllRoles() ([]map[string]interface{}, error) {
 	db := config.DB
-	var roles []models.Role
+	var roles []roles.Role
 	if err := db.Find(&roles).Error; err != nil {
 		return nil, err
 	}
@@ -87,7 +87,7 @@ func ListAllRoles() ([]map[string]interface{}, error) {
 func GetRoleID(name string) (uuid.UUID, error) {
 	var id uuid.UUID
 	db := config.DB
-	if err := db.Model(&models.Role{}).
+	if err := db.Model(&roles.Role{}).
 		Where("name = ?", name).
 		Pluck("id", &id).Error; err != nil {
 		return uuid.Nil, err

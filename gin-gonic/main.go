@@ -52,6 +52,8 @@ func main() {
 
 	// Connect to the database
 	config.ConnectDatabase()
+	config.ConnectRedis()
+	config.ConnectMinio()
 
 	// Register other routes
 	routes.RegisterRoutes(router)

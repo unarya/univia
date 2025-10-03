@@ -4,9 +4,10 @@ import (
 	"errors"
 	"net/http"
 	"strings"
-	access_token "univia/src/modules/key_token/access_token/services"
+	"univia/src/modules/key_token/access_token/services"
 	PermissionServices "univia/src/modules/permission/services"
 	"univia/src/modules/user/models"
+	"univia/src/utils"
 
 	"github.com/gin-gonic/gin"
 )
@@ -15,28 +16,26 @@ func AuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authHeader := c.GetHeader("Authorization")
 		if authHeader == "" {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "authorization token missing"})
+			utils.SendErrorResponse(c, http.StatusUnauthorized, "authorization token missing", nil)
 			c.Abort()
 			return
 		}
 
 		token, err := SplitToken(authHeader)
 		if err != nil {
-			c.JSON(http.StatusUnauthorized, gin.H{
-				"code":    http.StatusUnauthorized,
-				"message": err.Error(),
-			})
+			utils.SendErrorResponse(c, http.StatusUnauthorized, "Not correct form of header", err)
+			c.Abort()
 			return
 		}
 
 		userInfo, err := access_token.VerifyToken(token)
 		if err != nil {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid Token"})
+			utils.SendErrorResponse(c, http.StatusUnauthorized, "Invalid Token", err)
 			c.Abort()
 			return
 		}
 
-		// Store user in context for later use
+		// Đặt vào context
 		c.Set("user", userInfo)
 		c.Next()
 	}
@@ -48,22 +47,22 @@ func Authorization(requiredPermission string) gin.HandlerFunc {
 		// Retrieve user from context
 		userInterface, exists := c.Get("user")
 		if !exists {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+			utils.SendErrorResponse(c, http.StatusUnauthorized, "Unauthorized", nil)
 			c.Abort()
 			return
 		}
 
 		// Type assertion
-		user, ok := userInterface.(*models.User)
+		user, ok := userInterface.(*users.User)
 		if !ok {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+			utils.SendErrorResponse(c, http.StatusInternalServerError, "Internal Server Error", nil)
 			c.Abort()
 			return
 		}
 
 		// Check role permissions
 		if !PermissionServices.CheckPermission(user.RoleID, requiredPermission) {
-			c.JSON(http.StatusForbidden, gin.H{"error": "Forbidden: insufficient permissions"})
+			utils.SendErrorResponse(c, http.StatusForbidden, "Forbidden: insufficient permissions", nil)
 			c.Abort()
 			return
 		}

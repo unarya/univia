@@ -3,3 +3,4 @@
 /gin-gonic/uploads
 /gin-gonic/*.sh
 .idea
+.env

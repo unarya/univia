@@ -14,7 +14,7 @@ import (
 // CreatePost is the function will create post with userID and content
 func CreatePost(content string, userID uuid.UUID) (postID uuid.UUID, errService *utils.ServiceError) {
 	db := config.DB
-	post := models.Post{UserID: userID, Content: content}
+	post := posts.Post{UserID: userID, Content: content}
 	if err := db.Create(&post).Error; err != nil {
 		return uuid.Nil, &utils.ServiceError{StatusCode: http.StatusInternalServerError, Message: "Failed to create post"}
 	}
@@ -24,10 +24,10 @@ func CreatePost(content string, userID uuid.UUID) (postID uuid.UUID, errService 
 // SaveCategoriesToPost is the function will save post categories to database
 func SaveCategoriesToPost(categoryIDs []uuid.UUID, postID uuid.UUID) *utils.ServiceError {
 	db := config.DB
-	var postCategories []models.PostCategory
+	var postCategories []posts.PostCategory
 
 	for _, categoryID := range categoryIDs {
-		postCategories = append(postCategories, models.PostCategory{
+		postCategories = append(postCategories, posts.PostCategory{
 			PostID:     postID,
 			CategoryID: categoryID,
 		})
@@ -45,7 +45,7 @@ func SaveCategoriesToPost(categoryIDs []uuid.UUID, postID uuid.UUID) *utils.Serv
 }
 
 // SaveMediaRecords is the function will save from media path into database
-func SaveMediaRecords(savedMedia []models.Media, postID uuid.UUID) *utils.ServiceError {
+func SaveMediaRecords(savedMedia []posts.Media, postID uuid.UUID) *utils.ServiceError {
 	db := config.DB
 	for _, media := range savedMedia {
 		media.PostID = postID
@@ -60,7 +60,7 @@ func SaveMediaRecords(savedMedia []models.Media, postID uuid.UUID) *utils.Servic
 func DeletePostRecord(postID uint) *utils.ServiceError {
 	db := config.DB
 	// Attempt to delete the post record with the given ID
-	if err := db.Delete(&models.Post{}, postID).Error; err != nil {
+	if err := db.Delete(&posts.Post{}, postID).Error; err != nil {
 		return &utils.ServiceError{
 			StatusCode: http.StatusInternalServerError,
 			Message:    "Failed to delete post",
@@ -73,7 +73,7 @@ func DeletePostRecord(postID uint) *utils.ServiceError {
 func DeleteMediaRecords(postID uuid.UUID) *utils.ServiceError {
 	db := config.DB
 
-	if err := db.Where("post_id = ?", postID).Delete(&models.Media{}).Error; err != nil {
+	if err := db.Where("post_id = ?", postID).Delete(&posts.Media{}).Error; err != nil {
 		return &utils.ServiceError{
 			StatusCode: http.StatusInternalServerError,
 			Message:    "Failed to remove old media records",
@@ -85,7 +85,7 @@ func DeleteMediaRecords(postID uuid.UUID) *utils.ServiceError {
 // DeleteCategoryRecords is the function to delete categories following to the post
 func DeleteCategoryRecords(postID uuid.UUID) *utils.ServiceError {
 	db := config.DB
-	if err := db.Where("post_id = ?", postID).Delete(&models.PostCategory{}).Error; err != nil {
+	if err := db.Where("post_id = ?", postID).Delete(&posts.PostCategory{}).Error; err != nil {
 		return &utils.ServiceError{
 			StatusCode: http.StatusInternalServerError,
 			Message:    "Failed to remove old category associations",
@@ -97,7 +97,7 @@ func DeleteCategoryRecords(postID uuid.UUID) *utils.ServiceError {
 // UpdatePostContent is the function to update the content of post by given postID
 func UpdatePostContent(content string, postID uuid.UUID) *utils.ServiceError {
 	db := config.DB
-	if err := db.Model(&models.Post{}).Where("id = ?", postID).Updates(models.Post{
+	if err := db.Model(&posts.Post{}).Where("id = ?", postID).Updates(posts.Post{
 		Content: content,
 	}).Error; err != nil {
 		return &utils.ServiceError{
@@ -113,7 +113,7 @@ func CheckPostExits(postID uuid.UUID) *utils.ServiceError {
 	db := config.DB
 	// Check if Post Exists
 	var exists bool
-	if err := db.Model(&models.Post{}).
+	if err := db.Model(&posts.Post{}).
 		Select("count(*) > 0").
 		Where("id = ?", postID).
 		Find(&exists).Error; err != nil {

@@ -1,64 +1,70 @@
-package controllers
+package roles
 
 import (
+	"fmt"
 	"net/http"
+	"univia/src/config"
 	"univia/src/modules/role/services"
+	"univia/src/utils"
+	"univia/src/utils/cache"
+	"univia/src/utils/types"
 
 	"github.com/gin-gonic/gin"
 )
 
+// CreateRole godoc
+// @Summary Create a new role
+// @Description Admin creates a new role with a unique name
+// @Tags Roles
+// @Accept       json
+// @Produce      json
+// @Param request body types.CreateRoleRequest true "Role Name"
+// @Success 201 {object} types.SuccessCreateRoleResponse "Role Created Successfully"
+// @Failure 400 {object} types.StatusBadRequest "Invalid Input"
+// @Failure 500 {object} types.StatusInternalError "Internal server error"
+// @Router /api/v1/roles [post]
 func CreateRole(c *gin.Context) {
-	var request struct {
-		RoleName string `json:"name"`
-	}
+	var request types.CreateRoleRequest
 
-	// Bind the JSON body to the struct
-	if err := c.ShouldBindJSON(&request); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"status": gin.H{
-				"code":    http.StatusBadRequest,
-				"message": "Invalid input",
-			},
-			"error": err.Error(),
-		})
+	// Parse JSON input
+	if err := utils.BindJson(c, &request); err != nil {
+		utils.SendErrorResponse(c, http.StatusBadRequest, "Invalid input", err)
 		return
 	}
 
-	results, err := services.CreateRoleByAdmin(request.RoleName)
+	results, err := roles.CreateRoleByAdmin(request.Name)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"status": gin.H{
-				"code":    http.StatusInternalServerError,
-				"message": err.Error(),
-			},
-		})
+		utils.SendErrorResponse(c, http.StatusInternalServerError, "Internal Server Error: "+err.Error(), nil)
 		return
 	}
-	c.JSON(http.StatusCreated, gin.H{
-		"status": gin.H{
-			"code":    http.StatusCreated,
-			"message": "Role Created Successfully",
-		},
-		"data": results,
-	})
+
+	utils.SendSuccessResponse(c, http.StatusCreated, "Role Created Successfully", results)
 }
 
+// ListRoles godoc
+// @Summary List all roles
+// @Description Retrieve all roles in the system
+// @Tags Roles
+// @Produce      json
+// @Security     BearerAuth
+// @Param        Authorization header string true "Bearer <access_token>"
+// @Success 200 {object} types.SuccessListRolesResponse "Successfully List All Roles"
+// @Failure 500 {object} types.StatusInternalError "Internal server error"
+// @Router /api/v1/roles [get]
 func ListRoles(c *gin.Context) {
-	roles, err := services.ListAllRoles()
+	// Cache
+	cacheKey := "listRoles"
+	if results, err := cache.GetJSON[[]map[string]interface{}](config.Redis, cacheKey); err != nil && results != nil {
+		utils.SendSuccessResponse(c, http.StatusOK, "Success", nil)
+		return
+	} else if err != nil {
+		fmt.Printf("Cache miss: %s", err)
+	}
+	// Continue
+	results, err := roles.ListAllRoles()
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"status": gin.H{
-				"code":    http.StatusInternalServerError,
-				"message": err.Error(),
-			},
-		})
+		utils.SendErrorResponse(c, http.StatusInternalServerError, "Internal Server Error ", err)
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{
-		"status": gin.H{
-			"code":    http.StatusOK,
-			"message": "Successfully List All Roles",
-		},
-		"data": roles,
-	})
+	utils.SendSuccessResponse(c, http.StatusOK, "Success", results)
 }

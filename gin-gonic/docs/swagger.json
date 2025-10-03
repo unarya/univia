@@ -4,13 +4,505 @@
         "contact": {}
     },
     "paths": {
+        "/api/v1/auth/change-password": {
+            "post": {
+                "description": "Change password by providing old and new password",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Change Password",
+                "parameters": [
+                    {
+                        "description": "Change password",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/types.ChangePasswordRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Password changed successfully",
+                        "schema": {
+                            "$ref": "#/definitions/types.SuccessResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "schema": {
+                            "$ref": "#/definitions/types.StatusBadRequest"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/types.StatusInternalError"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/auth/forgot-password": {
+            "post": {
+                "description": "Send a verification email for password reset",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Forgot Password",
+                "parameters": [
+                    {
+                        "description": "Email",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/types.ForgotPasswordRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Verification email sent",
+                        "schema": {
+                            "$ref": "#/definitions/types.SuccessResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "schema": {
+                            "$ref": "#/definitions/types.StatusBadRequest"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/types.StatusInternalError"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/auth/login": {
+            "post": {
+                "description": "Login using email, username or phone + password",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Login with email/username/phone",
+                "parameters": [
+                    {
+                        "description": "Login request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/types.LoginRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Login success with verification code sent (data is email)",
+                        "schema": {
+                            "$ref": "#/definitions/types.SuccessLoginEmailResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "schema": {
+                            "$ref": "#/definitions/types.StatusBadRequest"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/types.StatusUnauthorized"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/auth/login/google": {
+            "post": {
+                "description": "Login using Google OAuth token",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Login with Google",
+                "parameters": [
+                    {
+                        "description": "Google login request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/types.GoogleLoginRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Login success with tokens",
+                        "schema": {
+                            "$ref": "#/definitions/types.SuccessResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "schema": {
+                            "$ref": "#/definitions/types.StatusBadRequest"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/auth/login/twitter": {
+            "post": {
+                "description": "Login using Twitter account info",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Login with Twitter",
+                "parameters": [
+                    {
+                        "description": "Twitter login request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/types.TwitterLoginRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Login success with tokens",
+                        "schema": {
+                            "$ref": "#/definitions/types.SuccessResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "schema": {
+                            "$ref": "#/definitions/types.StatusBadRequest"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/auth/refresh-access-token": {
+            "post": {
+                "description": "Refresh JWT token with refresh token + client id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Refresh Access Token",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Refresh Token (Bearer token format)",
+                        "name": "x-rtoken-id",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Client ID",
+                        "name": "x-client-id",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "New tokens",
+                        "schema": {
+                            "$ref": "#/definitions/types.SuccessResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/types.StatusUnauthorized"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/types.StatusInternalError"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/auth/register": {
+            "post": {
+                "description": "Create a new user with email/username/password",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Register new user",
+                "parameters": [
+                    {
+                        "description": "User data",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/users.User"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created user",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/types.SuccessResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/users.User"
+                                        },
+                                        "status": {
+                                            "$ref": "#/definitions/types.StatusOK"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "schema": {
+                            "$ref": "#/definitions/types.StatusBadRequest"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/types.StatusInternalError"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/auth/reset-password": {
+            "post": {
+                "description": "Reset password without old password (via verification flow)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Renew Password",
+                "parameters": [
+                    {
+                        "description": "Renew password",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/types.RenewPasswordRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Password changed successfully",
+                        "schema": {
+                            "$ref": "#/definitions/types.SuccessResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "schema": {
+                            "$ref": "#/definitions/types.StatusBadRequest"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/types.StatusInternalError"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/auth/user-info": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Retrieve the user information by given token",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "Get User Info",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer \u003caccess_token\u003e",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "User info",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/types.SuccessResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/users.User"
+                                        },
+                                        "status": {
+                                            "$ref": "#/definitions/types.StatusOK"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/types.StatusUnauthorized"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden: insufficient permissions",
+                        "schema": {
+                            "$ref": "#/definitions/types.StatusForbidden"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/types.StatusInternalError"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/auth/verification": {
+            "post": {
+                "description": "handles the verification code process and token generation",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Verify the code and generate token",
+                "parameters": [
+                    {
+                        "description": "Verify Code",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/types.VerifyCodeRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Tokens response",
+                        "schema": {
+                            "$ref": "#/definitions/types.SuccessVerifyCodeResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid Input",
+                        "schema": {
+                            "$ref": "#/definitions/types.StatusBadRequest"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/types.StatusInternalError"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/hello": {
             "get": {
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "Health"
+                    "Health Check"
                 ],
                 "summary": "Hello World",
                 "responses": {
@@ -21,6 +513,1458 @@
                             "additionalProperties": true
                         }
                     }
+                }
+            }
+        },
+        "/api/v1/likes": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Like the post",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Social Routes"
+                ],
+                "summary": "Like the post",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer \u003caccess_token\u003e",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "Post ID Required",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/types.LikeRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully Like A Post",
+                        "schema": {
+                            "$ref": "#/definitions/types.SuccessLikeAPostResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/types.StatusBadRequest"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/types.StatusInternalError"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/likes/undo": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "DisLike the post",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Social Routes"
+                ],
+                "summary": "DisLike the post",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer \u003caccess_token\u003e",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "Post ID Required",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/types.LikeRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully Like A Post",
+                        "schema": {
+                            "$ref": "#/definitions/types.SuccessDisLikeAPostResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/types.StatusBadRequest"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/types.StatusInternalError"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/notifications": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Retrieve notifications with filters (pagination, seen/unseen, search)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Notifications"
+                ],
+                "summary": "List all notifications of the current user",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer \u003caccess_token\u003e",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "Notification filter options",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/types.ListNotificationRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/notifications/seen": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Update notification status (seen) for the current user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Notifications"
+                ],
+                "summary": "Mark a notification as seen",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer \u003caccess_token\u003e",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "Notification ID",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/types.UpdateSeenRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/notifications/seen/all": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Update all notifications of the current user to seen",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Notifications"
+                ],
+                "summary": "Mark all notifications as seen",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer \u003caccess_token\u003e",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/permissions/assign": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Grant multiple permissions to a specific role",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Permissions"
+                ],
+                "summary": "Assign permissions to a role",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer \u003caccess_token\u003e",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "Role ID and list of Permission IDs",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/types.AssignPermissionRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/permissions/create": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Admin creates a new permission",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Permissions"
+                ],
+                "summary": "Create a new permission",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer \u003caccess_token\u003e",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "Permission name",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/types.CreatePermissionRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/permissions/list": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Get all permissions in the system",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Permissions"
+                ],
+                "summary": "List all permissions",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer \u003caccess_token\u003e",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/posts": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Get detailed information of a single post by ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Social Routes"
+                ],
+                "summary": "Get post details",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Post ID",
+                        "name": "id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully get details of this post",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "ID is required",
+                        "schema": {
+                            "$ref": "#/definitions/types.StatusBadRequest"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/types.StatusUnauthorized"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/types.StatusInternalError"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Update post content, categories, and media files",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Social Routes"
+                ],
+                "summary": "Update a post",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Post ID",
+                        "name": "id",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Post content",
+                        "name": "content",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "csv",
+                        "description": "List of category UUIDs",
+                        "name": "category_ids",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "file",
+                        "description": "Media files (multiple allowed)",
+                        "name": "media",
+                        "in": "formData"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Updated post successfully",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/types.StatusBadRequest"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/types.StatusUnauthorized"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/types.StatusInternalError"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/posts/categories": {
+            "get": {
+                "description": "Retrieve all categories in the system",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Social Routes"
+                ],
+                "summary": "List categories",
+                "responses": {
+                    "200": {
+                        "description": "Successfully List Categories",
+                        "schema": {
+                            "$ref": "#/definitions/types.SuccessListCategoriesResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/types.StatusBadRequest"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/types.StatusInternalError"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/posts/create": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Create a post with content, categories, and media uploads",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Social Routes"
+                ],
+                "summary": "Create a new post",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Post content",
+                        "name": "content",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "csv",
+                        "description": "List of category UUIDs",
+                        "name": "category_ids",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "file",
+                        "description": "Media files (multiple allowed)",
+                        "name": "media",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Post Created Successfully",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/types.StatusBadRequest"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/types.StatusUnauthorized"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/types.StatusInternalError"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/roles": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Retrieve all roles in the system",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Roles"
+                ],
+                "summary": "List all roles",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer \u003caccess_token\u003e",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully List All Roles",
+                        "schema": {
+                            "$ref": "#/definitions/types.SuccessListRolesResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/types.StatusInternalError"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Admin creates a new role with a unique name",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Roles"
+                ],
+                "summary": "Create a new role",
+                "parameters": [
+                    {
+                        "description": "Role Name",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/types.CreateRoleRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Role Created Successfully",
+                        "schema": {
+                            "$ref": "#/definitions/types.SuccessCreateRoleResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid Input",
+                        "schema": {
+                            "$ref": "#/definitions/types.StatusBadRequest"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/types.StatusInternalError"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/users/avatar": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Get avatar of a user by user_id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "Get User Avatar",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer \u003caccess_token\u003e",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "User ID",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/types.GetUserAvatarRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Avatar URL",
+                        "schema": {
+                            "$ref": "#/definitions/types.SuccessResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "schema": {
+                            "$ref": "#/definitions/types.StatusBadRequest"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/types.StatusUnauthorized"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/types.StatusInternalError"
+                        }
+                    }
+                }
+            }
+        },
+        "/healthz": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Health Check"
+                ],
+                "summary": "Healthz",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/routes.HealthResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/readyz": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Health Check"
+                ],
+                "summary": "Readyz",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/routes.ReadySuccessResponse"
+                        }
+                    },
+                    "503": {
+                        "description": "Service Unavailable",
+                        "schema": {
+                            "$ref": "#/definitions/routes.ReadyUnavailableResponse"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "roles.Role": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "routes.HealthResponse": {
+            "type": "object",
+            "properties": {
+                "status": {
+                    "type": "string",
+                    "example": "ok"
+                }
+            }
+        },
+        "routes.ReadySuccessResponse": {
+            "type": "object",
+            "properties": {
+                "status": {
+                    "type": "string",
+                    "example": "ok"
+                }
+            }
+        },
+        "routes.ReadyUnavailableResponse": {
+            "type": "object",
+            "properties": {
+                "status": {
+                    "type": "string",
+                    "example": "unavailable"
+                }
+            }
+        },
+        "types.AssignPermissionRequest": {
+            "type": "object",
+            "properties": {
+                "permission_ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "example": [
+                        "[]"
+                    ]
+                },
+                "role_id": {
+                    "type": "string",
+                    "example": "36byte"
+                }
+            }
+        },
+        "types.ChangePasswordRequest": {
+            "type": "object",
+            "required": [
+                "new_password",
+                "old_password",
+                "user_id"
+            ],
+            "properties": {
+                "new_password": {
+                    "type": "string",
+                    "minLength": 8,
+                    "example": "newPassword123"
+                },
+                "old_password": {
+                    "type": "string",
+                    "example": "oldPassword123"
+                },
+                "user_id": {
+                    "type": "integer",
+                    "example": 1
+                }
+            }
+        },
+        "types.CreatePermissionRequest": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "example": "allow_create_post"
+                }
+            }
+        },
+        "types.CreateRoleRequest": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "example": "team_leader"
+                }
+            }
+        },
+        "types.ForgotPasswordRequest": {
+            "type": "object",
+            "required": [
+                "email"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string",
+                    "example": "user@example.com"
+                }
+            }
+        },
+        "types.GetUserAvatarRequest": {
+            "type": "object",
+            "required": [
+                "user_id"
+            ],
+            "properties": {
+                "user_id": {
+                    "type": "integer",
+                    "example": 1
+                }
+            }
+        },
+        "types.GoogleLoginRequest": {
+            "type": "object",
+            "required": [
+                "token"
+            ],
+            "properties": {
+                "token": {
+                    "type": "string",
+                    "example": "google-oauth-token"
+                }
+            }
+        },
+        "types.LikeRequest": {
+            "type": "object",
+            "properties": {
+                "post_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "types.ListNotificationRequest": {
+            "type": "object",
+            "properties": {
+                "all": {
+                    "type": "boolean",
+                    "example": true
+                },
+                "current_page": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "is_seen": {
+                    "type": "boolean",
+                    "example": true
+                },
+                "items_per_page": {
+                    "type": "integer",
+                    "example": 10
+                },
+                "order_by": {
+                    "type": "string",
+                    "example": "id"
+                },
+                "search_value": {
+                    "type": "string",
+                    "example": "general"
+                },
+                "sort_by": {
+                    "type": "string",
+                    "example": "asc"
+                }
+            }
+        },
+        "types.LoginRequest": {
+            "type": "object",
+            "required": [
+                "password"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string",
+                    "example": "user@example.com"
+                },
+                "password": {
+                    "type": "string",
+                    "example": "password123"
+                },
+                "phone_number": {
+                    "type": "string",
+                    "example": "+84901234567"
+                },
+                "username": {
+                    "type": "string",
+                    "example": "johndoe"
+                }
+            }
+        },
+        "types.RenewPasswordRequest": {
+            "type": "object",
+            "required": [
+                "new_password",
+                "user_id"
+            ],
+            "properties": {
+                "new_password": {
+                    "type": "string",
+                    "minLength": 8,
+                    "example": "newPassword123"
+                },
+                "user_id": {
+                    "type": "integer",
+                    "example": 1
+                }
+            }
+        },
+        "types.RoleResponse": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "example": "79fb3083-a010-11f0-94f9-362064ef513e"
+                },
+                "name": {
+                    "type": "string",
+                    "example": "team_leader"
+                }
+            }
+        },
+        "types.StatusBadRequest": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer",
+                    "example": 400
+                },
+                "message": {
+                    "type": "string",
+                    "example": "Bad Request"
+                }
+            }
+        },
+        "types.StatusCreated": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer",
+                    "example": 201
+                },
+                "message": {
+                    "type": "string",
+                    "example": "Created"
+                }
+            }
+        },
+        "types.StatusForbidden": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer",
+                    "example": 403
+                },
+                "message": {
+                    "type": "string",
+                    "example": "Forbidden"
+                }
+            }
+        },
+        "types.StatusInternalError": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer",
+                    "example": 500
+                },
+                "message": {
+                    "type": "string",
+                    "example": "Internal Server Error"
+                }
+            }
+        },
+        "types.StatusOK": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer",
+                    "example": 200
+                },
+                "message": {
+                    "type": "string",
+                    "example": "Success"
+                }
+            }
+        },
+        "types.StatusResponseVerification": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer",
+                    "example": 200
+                },
+                "message": {
+                    "type": "string",
+                    "example": "Verification code sent to your email. Please verify to process."
+                }
+            }
+        },
+        "types.StatusUnauthorized": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer",
+                    "example": 401
+                },
+                "message": {
+                    "type": "string",
+                    "example": "Unauthorized"
+                }
+            }
+        },
+        "types.StatusVerificationCode": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer",
+                    "example": 200
+                },
+                "message": {
+                    "type": "string",
+                    "example": "Verification successful"
+                }
+            }
+        },
+        "types.SuccessCreateRoleResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/types.RoleResponse"
+                },
+                "status": {
+                    "$ref": "#/definitions/types.StatusCreated"
+                }
+            }
+        },
+        "types.SuccessDisLikeAPostResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "object",
+                    "properties": {
+                        "totalLikes": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                },
+                "status": {
+                    "$ref": "#/definitions/types.StatusOK"
+                }
+            }
+        },
+        "types.SuccessLikeAPostResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "object",
+                    "properties": {
+                        "totalLikes": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                },
+                "status": {
+                    "$ref": "#/definitions/types.StatusOK"
+                }
+            }
+        },
+        "types.SuccessListCategoriesResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "example": [
+                        "[]"
+                    ]
+                },
+                "status": {
+                    "$ref": "#/definitions/types.StatusOK"
+                }
+            }
+        },
+        "types.SuccessListRolesResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/types.RoleResponse"
+                    }
+                },
+                "status": {
+                    "$ref": "#/definitions/types.StatusOK"
+                }
+            }
+        },
+        "types.SuccessLoginEmailResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "string",
+                    "example": "example@hotmail.com"
+                },
+                "status": {
+                    "$ref": "#/definitions/types.StatusResponseVerification"
+                }
+            }
+        },
+        "types.SuccessResponse": {
+            "type": "object",
+            "properties": {
+                "data": {},
+                "status": {
+                    "$ref": "#/definitions/types.StatusOK"
+                }
+            }
+        },
+        "types.SuccessVerifyCodeResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/types.TokenData"
+                },
+                "status": {
+                    "$ref": "#/definitions/types.StatusVerificationCode"
+                }
+            }
+        },
+        "types.TokenData": {
+            "type": "object",
+            "properties": {
+                "access_token": {
+                    "type": "string",
+                    "example": "8ef033a06c2035ad5ba7b585918b7455a899e35da086ee0e84c98303d01ba9fc"
+                },
+                "refresh_token": {
+                    "type": "string",
+                    "example": "f38c31612b2b6f03caaa8a8fb8e0809ab21e7403d9fe7c9fb358a5b5255c1959"
+                }
+            }
+        },
+        "types.TwitterLoginRequest": {
+            "type": "object",
+            "required": [
+                "email",
+                "twitter_id",
+                "username"
+            ],
+            "properties": {
+                "background_color": {
+                    "type": "string",
+                    "example": "#1DA1F2"
+                },
+                "background_image": {
+                    "type": "string",
+                    "example": "https://example.com/bg.jpg"
+                },
+                "email": {
+                    "type": "string",
+                    "example": "user@example.com"
+                },
+                "image": {
+                    "type": "string",
+                    "example": "https://example.com/avatar.jpg"
+                },
+                "twitter_id": {
+                    "type": "string",
+                    "example": "123456789"
+                },
+                "username": {
+                    "type": "string",
+                    "example": "johndoe"
+                }
+            }
+        },
+        "types.UpdateSeenRequest": {
+            "type": "object",
+            "properties": {
+                "notification_id": {
+                    "type": "string",
+                    "example": "36byte"
+                }
+            }
+        },
+        "types.VerifyCodeRequest": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string",
+                    "example": "257699"
+                },
+                "email": {
+                    "type": "string",
+                    "example": "ties.node@outlook.com"
+                }
+            }
+        },
+        "users.User": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "googleID": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "phoneNumber": {
+                    "type": "integer"
+                },
+                "role": {
+                    "description": "Foreign key to Role",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/roles.Role"
+                        }
+                    ]
+                },
+                "roleID": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "boolean"
+                },
+                "twitterID": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
                 }
             }
         }
