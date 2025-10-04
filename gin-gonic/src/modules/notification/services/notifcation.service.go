@@ -2,13 +2,15 @@ package notifications
 
 import (
 	"database/sql"
+	"encoding/json"
+	"net/http"
+	"time"
+
 	"github.com/deva-labs/univia-api/gin-gonic/src/config"
 	"github.com/deva-labs/univia-api/gin-gonic/src/functions"
 	"github.com/deva-labs/univia-api/gin-gonic/src/modules/notification/models"
-	"github.com/deva-labs/univia-api/gin-gonic/src/services"
 	"github.com/deva-labs/univia-api/gin-gonic/src/utils"
-	"net/http"
-	"time"
+	"github.com/deva-labs/univia-api/signaling/services"
 
 	"github.com/google/uuid"
 )

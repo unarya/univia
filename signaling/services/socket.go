@@ -12,8 +12,9 @@ import (
 
 // WebSocketMessage represents the JSON message format
 type WebSocketMessage struct {
-	Type    string `json:"type"`
-	Message string `json:"message"`
+	Type       string `json:"type"`
+	Message    string `json:"message"`
+	ReceiverID string `json:"receiverId"`
 }
 
 // HandleMessage processes incoming WebSocket messages
