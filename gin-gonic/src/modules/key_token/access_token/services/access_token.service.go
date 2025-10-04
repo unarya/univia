@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/deva-labs/univia-api/api/gin-gonic/src/config"
-	AccessTokens "github.com/deva-labs/univia-api/api/gin-gonic/src/modules/key_token/access_token/models"
-	Users "github.com/deva-labs/univia-api/api/gin-gonic/src/modules/user/models"
-	"github.com/deva-labs/univia-api/api/gin-gonic/src/utils/cache"
+	"github.com/deva-labs/univia-api/gin-gonic/src/config"
+	AccessTokens "github.com/deva-labs/univia-api/gin-gonic/src/modules/key_token/access_token/models"
+	Users "github.com/deva-labs/univia-api/gin-gonic/src/modules/user/models"
+	"github.com/deva-labs/univia-api/gin-gonic/src/utils/cache"
 )
 
 func VerifyToken(token string) (*Users.User, error) {

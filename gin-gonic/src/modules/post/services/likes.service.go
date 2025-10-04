@@ -5,12 +5,12 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/deva-labs/univia-api/api/gin-gonic/src/config"
-	"github.com/deva-labs/univia-api/api/gin-gonic/src/functions"
-	"github.com/deva-labs/univia-api/api/gin-gonic/src/modules/notification/services"
-	posts "github.com/deva-labs/univia-api/api/gin-gonic/src/modules/post/models"
-	Users "github.com/deva-labs/univia-api/api/gin-gonic/src/modules/user/models"
-	"github.com/deva-labs/univia-api/api/gin-gonic/src/utils"
+	"github.com/deva-labs/univia-api/gin-gonic/src/config"
+	"github.com/deva-labs/univia-api/gin-gonic/src/functions"
+	"github.com/deva-labs/univia-api/gin-gonic/src/modules/notification/services"
+	posts "github.com/deva-labs/univia-api/gin-gonic/src/modules/post/models"
+	Users "github.com/deva-labs/univia-api/gin-gonic/src/modules/user/models"
+	"github.com/deva-labs/univia-api/gin-gonic/src/utils"
 
 	"github.com/google/uuid"
 	"gorm.io/gorm"

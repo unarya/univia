@@ -2,9 +2,9 @@ package users
 
 import (
 	"fmt"
-	"github.com/deva-labs/univia-api/api/gin-gonic/src/config"
-	"github.com/deva-labs/univia-api/api/gin-gonic/src/modules/key_token/access_token/models"
-	users "github.com/deva-labs/univia-api/api/gin-gonic/src/modules/user/models"
+	"github.com/deva-labs/univia-api/gin-gonic/src/config"
+	"github.com/deva-labs/univia-api/gin-gonic/src/modules/key_token/access_token/models"
+	users "github.com/deva-labs/univia-api/gin-gonic/src/modules/user/models"
 	"math/rand"
 	"net/http"
 	"net/smtp"

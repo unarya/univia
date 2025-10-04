@@ -1,7 +1,7 @@
 package posts
 
 import (
-	Users "github.com/deva-labs/univia-api/api/gin-gonic/src/modules/user/models"
+	Users "github.com/deva-labs/univia-api/gin-gonic/src/modules/user/models"
 	"time"
 
 	"github.com/google/uuid"

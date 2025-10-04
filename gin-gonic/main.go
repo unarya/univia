@@ -2,9 +2,8 @@ package main
 
 import (
 	"fmt"
-	"github.com/deva-labs/univia-api/api/gin-gonic/src/config"
-	"github.com/deva-labs/univia-api/api/gin-gonic/src/routes"
-	"github.com/deva-labs/univia-api/api/gin-gonic/src/services"
+	"github.com/deva-labs/univia-api/gin-gonic/src/config"
+	"github.com/deva-labs/univia-api/gin-gonic/src/routes"
 	"log"
 	"os"
 	"time"
@@ -46,9 +45,6 @@ func main() {
 
 	// Set static files
 	router.Static("/uploads", "./uploads")
-
-	// WebSocket route
-	router.GET("/ws", services.WebSocketHandler)
 
 	// Connect to the database
 	config.ConnectDatabase()
