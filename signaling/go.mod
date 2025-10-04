@@ -1,9 +1,9 @@
-module github.com/deva-labs/univia-api/signaling
+module github.com/deva-labs/univia/signaling
 
 go 1.25.0
 
 require (
-	github.com/deva-labs/univia-api/gin-gonic v0.0.0-20251004041112-ce3d873168d1
+	github.com/deva-labs/univia/gin v0.0.0-20251004041112-ce3d873168d1
 	github.com/gin-gonic/gin v1.11.0
 	github.com/goccy/go-json v0.10.5
 	github.com/google/uuid v1.6.0
