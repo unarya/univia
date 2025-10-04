@@ -20,7 +20,7 @@ import (
 // @Success 200 {object} types.SuccessVerifyCodeResponse "Tokens response"
 // @Failure 400 {object} types.StatusBadRequest "Invalid Input"
 // @Failure 500 {object} types.StatusInternalError "Internal server error"
-// @Router /api/v1/auth/verification [post]
+// @Router /api/v1/auth/confirm-forgot-password [post]
 // VerifyCode handles the verification code process and token generation
 func VerifyCode(c *gin.Context) {
 	var code Users.VerificationCode
