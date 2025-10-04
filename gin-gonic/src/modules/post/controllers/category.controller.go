@@ -1,12 +1,12 @@
 package posts
 
 import (
+	"github.com/deva-labs/univia-api/api/gin-gonic/src/config"
+	posts "github.com/deva-labs/univia-api/api/gin-gonic/src/modules/post/services"
+	"github.com/deva-labs/univia-api/api/gin-gonic/src/utils"
+	"github.com/deva-labs/univia-api/api/gin-gonic/src/utils/cache"
 	"net/http"
 	"time"
-	"univia/src/config"
-	posts "univia/src/modules/post/services"
-	"univia/src/utils"
-	"univia/src/utils/cache"
 
 	"github.com/gin-gonic/gin"
 )

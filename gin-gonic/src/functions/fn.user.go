@@ -1,9 +1,9 @@
 package functions
 
 import (
+	model "github.com/deva-labs/univia-api/api/gin-gonic/src/modules/user/models"
+	"github.com/deva-labs/univia-api/api/gin-gonic/src/utils"
 	"net/http"
-	model "univia/src/modules/user/models"
-	"univia/src/utils"
 
 	"github.com/gin-gonic/gin"
 )

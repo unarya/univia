@@ -3,12 +3,12 @@ package permissions
 import (
 	"errors"
 	"fmt"
+	"github.com/deva-labs/univia-api/api/gin-gonic/src/config"
+	permissions "github.com/deva-labs/univia-api/api/gin-gonic/src/modules/permission/models"
+	Role "github.com/deva-labs/univia-api/api/gin-gonic/src/modules/role/models"
+	RoleServices "github.com/deva-labs/univia-api/api/gin-gonic/src/modules/role/services"
+	"github.com/deva-labs/univia-api/api/gin-gonic/src/utils/cache"
 	"time"
-	"univia/src/config"
-	permissions "univia/src/modules/permission/models"
-	Role "univia/src/modules/role/models"
-	RoleServices "univia/src/modules/role/services"
-	"univia/src/utils/cache"
 
 	"github.com/google/uuid"
 	"gorm.io/gorm"

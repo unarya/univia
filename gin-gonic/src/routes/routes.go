@@ -2,15 +2,16 @@ package routes
 
 import (
 	"net/http"
-	"univia/docs"
-	"univia/src/config"
-	"univia/src/middlewares"
-	NotificationControllers "univia/src/modules/notification/controllers"
-	PermissionController "univia/src/modules/permission/controllers"
-	PostControllers "univia/src/modules/post/controllers"
-	RoleControllers "univia/src/modules/role/controllers"
-	UserControllers "univia/src/modules/user/controllers"
-	"univia/src/utils"
+
+	"github.com/deva-labs/univia-api/api/gin-gonic/docs"
+	"github.com/deva-labs/univia-api/api/gin-gonic/src/config"
+	"github.com/deva-labs/univia-api/api/gin-gonic/src/middlewares"
+	NotificationControllers "github.com/deva-labs/univia-api/api/gin-gonic/src/modules/notification/controllers"
+	PermissionController "github.com/deva-labs/univia-api/api/gin-gonic/src/modules/permission/controllers"
+	PostControllers "github.com/deva-labs/univia-api/api/gin-gonic/src/modules/post/controllers"
+	RoleControllers "github.com/deva-labs/univia-api/api/gin-gonic/src/modules/role/controllers"
+	UserControllers "github.com/deva-labs/univia-api/api/gin-gonic/src/modules/user/controllers"
+	"github.com/deva-labs/univia-api/api/gin-gonic/src/utils"
 
 	"github.com/gin-gonic/gin"
 	"github.com/swaggo/files"

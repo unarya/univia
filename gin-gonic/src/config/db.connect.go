@@ -3,18 +3,18 @@ package config
 import (
 	"encoding/json"
 	"fmt"
+	Permissions "github.com/deva-labs/univia-api/api/gin-gonic/src/modules/permission/models"
+	Posts "github.com/deva-labs/univia-api/api/gin-gonic/src/modules/post/models"
+	Profiles "github.com/deva-labs/univia-api/api/gin-gonic/src/modules/profile/models"
+	Roles "github.com/deva-labs/univia-api/api/gin-gonic/src/modules/role/models"
+	Users "github.com/deva-labs/univia-api/api/gin-gonic/src/modules/user/models"
+	"github.com/deva-labs/univia-api/api/gin-gonic/src/utils"
 	"gorm.io/datatypes"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 	"log"
 	"os"
-	Permissions "univia/src/modules/permission/models"
-	Posts "univia/src/modules/post/models"
-	Profiles "univia/src/modules/profile/models"
-	Roles "univia/src/modules/role/models"
-	Users "univia/src/modules/user/models"
-	"univia/src/utils"
 )
 
 var DB *gorm.DB

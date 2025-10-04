@@ -28,7 +28,7 @@ RUN go mod download && go mod verify
 COPY . .
 
 # Build the application (enable CGO for libwebp)
-RUN CGO_ENABLED=1 GOOS=linux GOARCH=amd64 go build \
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build \
     -ldflags='-w -s' \
     -o app ./main.go
 

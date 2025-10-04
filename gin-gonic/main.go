@@ -2,12 +2,12 @@ package main
 
 import (
 	"fmt"
+	"github.com/deva-labs/univia-api/api/gin-gonic/src/config"
+	"github.com/deva-labs/univia-api/api/gin-gonic/src/routes"
+	"github.com/deva-labs/univia-api/api/gin-gonic/src/services"
 	"log"
 	"os"
 	"time"
-	"univia/src/config"
-	"univia/src/routes"
-	"univia/src/services"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
