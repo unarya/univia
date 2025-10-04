@@ -3,7 +3,6 @@ module github.com/deva-labs/univia/api/gin
 go 1.25.0
 
 require (
-	github.com/deva-labs/univia/signaling v0.0.0-20251004064410-5a5c5be07b58
 	github.com/gin-contrib/cors v1.7.3
 	github.com/gin-gonic/gin v1.11.0
 	github.com/google/uuid v1.6.0
@@ -30,6 +29,7 @@ require (
 	github.com/bytedance/sonic/loader v0.3.0 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/cloudwego/base64x v0.1.6 // indirect
+	github.com/deva-labs/univia/signaling v0.0.0-20251004081731-8975791f19b5 // indirect
 	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.8 // indirect

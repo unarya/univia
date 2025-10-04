@@ -18,7 +18,7 @@ type WebSocketMessage struct {
 }
 
 // HandleMessage processes incoming WebSocket messages
-func HandleMessage(conn *websocket.Conn, messageType int, wsMessage WebSocketMessage) {
+func HandleMessage(conn *websocket.Conn, messageType int, wsMessage WebSocketMessage) error {
 	var response WebSocketMessage
 
 	switch wsMessage.Type {
@@ -47,7 +47,9 @@ func HandleMessage(conn *websocket.Conn, messageType int, wsMessage WebSocketMes
 	// Send the response as JSON
 	if err := sendJSONMessage(conn, messageType, response); err != nil {
 		log.Printf("Error sending message: %v", err)
+		return err
 	}
+	return nil
 }
 
 // sendJSONMessage sends a JSON-encoded message to the client

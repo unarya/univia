@@ -22,10 +22,8 @@ github.com/creack/pty v1.1.9/go.mod h1:oKZEueFk5CKHvIhNR5MUki03XCEU+Q6VDXinZuGJ3
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
-github.com/deva-labs/univia-api/signaling v0.0.0-20251004044429-85e7682370de h1:8BqZxrLgcjG1jPtvK/UsbRl/NSyKmK3chA7gD4Tm1yk=
-github.com/deva-labs/univia-api/signaling v0.0.0-20251004044429-85e7682370de/go.mod h1:3HaHewF7BWuaeOY6Bq+T3g3TaTl34Jx5EE4Qh6oSmYo=
-github.com/deva-labs/univia-api/signaling v0.0.0-20251004064410-5a5c5be07b58 h1:ee7VVfDkx8lpZDcuD+VShZ8llZ2o24z9CpbkNxmE6u0=
-github.com/deva-labs/univia-api/signaling v0.0.0-20251004064410-5a5c5be07b58/go.mod h1:3HaHewF7BWuaeOY6Bq+T3g3TaTl34Jx5EE4Qh6oSmYo=
+github.com/deva-labs/univia/signaling v0.0.0-20251004081731-8975791f19b5 h1:aWyToMeThmMV1G5mOCg9NqeXk7i27qB0PUg7shxW+ZA=
+github.com/deva-labs/univia/signaling v0.0.0-20251004081731-8975791f19b5/go.mod h1:+BVSpb91Yg7UE7/X31V9jIG6agY/dExbbyYYrOVifg0=
 github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f h1:lO4WD4F/rVNCu3HqELle0jiPLLBs70cWOduZpkS1E78=
 github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f/go.mod h1:cuUVRXasLTGF7a8hSLbxyZXjz+1KgoB3wDUb6vlszIc=
 github.com/dustin/go-humanize v1.0.1 h1:GzkhY7T5VNhEkwH0PVJgjz+fX1rhBrR7pRT3mDkpeCY=
