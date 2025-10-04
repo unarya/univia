@@ -2,9 +2,10 @@ package users
 
 import (
 	"net/http"
-	Users "univia/src/modules/user/models"
-	verificationservices "univia/src/modules/user/services"
-	"univia/src/utils"
+
+	Users "github.com/deva-labs/univia-api/api/gin-gonic/src/modules/user/models"
+	verificationservices "github.com/deva-labs/univia-api/api/gin-gonic/src/modules/user/services"
+	"github.com/deva-labs/univia-api/api/gin-gonic/src/utils"
 
 	"github.com/gin-gonic/gin"
 )

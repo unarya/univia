@@ -2,9 +2,9 @@ package utils
 
 import (
 	"encoding/binary"
+	"github.com/deva-labs/univia-api/api/gin-gonic/src/utils/types"
 	"math"
 	"strconv"
-	"univia/src/utils/types"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"

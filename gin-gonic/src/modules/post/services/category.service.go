@@ -2,8 +2,8 @@ package posts
 
 import (
 	"errors"
-	"univia/src/config"
-	posts "univia/src/modules/post/models"
+	"github.com/deva-labs/univia-api/api/gin-gonic/src/config"
+	posts "github.com/deva-labs/univia-api/api/gin-gonic/src/modules/post/models"
 )
 
 // ListAllCategories retrieves all categories from the database

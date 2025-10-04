@@ -1,8 +1,8 @@
 package notifications
 
 import (
+	Users "github.com/deva-labs/univia-api/api/gin-gonic/src/modules/user/models"
 	"time"
-	Users "univia/src/modules/user/models"
 
 	"github.com/google/uuid"
 )

@@ -3,11 +3,12 @@ package roles
 import (
 	"fmt"
 	"net/http"
-	"univia/src/config"
-	"univia/src/modules/role/services"
-	"univia/src/utils"
-	"univia/src/utils/cache"
-	"univia/src/utils/types"
+
+	"github.com/deva-labs/univia-api/api/gin-gonic/src/config"
+	"github.com/deva-labs/univia-api/api/gin-gonic/src/modules/role/services"
+	"github.com/deva-labs/univia-api/api/gin-gonic/src/utils"
+	"github.com/deva-labs/univia-api/api/gin-gonic/src/utils/cache"
+	"github.com/deva-labs/univia-api/api/gin-gonic/src/utils/types"
 
 	"github.com/gin-gonic/gin"
 )

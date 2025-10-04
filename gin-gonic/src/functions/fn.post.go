@@ -3,10 +3,10 @@ package functions
 import (
 	"database/sql"
 	"fmt"
+	"github.com/deva-labs/univia-api/api/gin-gonic/src/config"
+	"github.com/deva-labs/univia-api/api/gin-gonic/src/modules/post/models"
+	"github.com/deva-labs/univia-api/api/gin-gonic/src/utils"
 	"net/http"
-	"univia/src/config"
-	"univia/src/modules/post/models"
-	"univia/src/utils"
 
 	"github.com/google/uuid"
 )

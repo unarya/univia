@@ -4,10 +4,11 @@ import (
 	"errors"
 	"net/http"
 	"strings"
-	"univia/src/modules/key_token/access_token/services"
-	PermissionServices "univia/src/modules/permission/services"
-	"univia/src/modules/user/models"
-	"univia/src/utils"
+
+	"github.com/deva-labs/univia-api/api/gin-gonic/src/modules/key_token/access_token/services"
+	PermissionServices "github.com/deva-labs/univia-api/api/gin-gonic/src/modules/permission/services"
+	"github.com/deva-labs/univia-api/api/gin-gonic/src/modules/user/models"
+	"github.com/deva-labs/univia-api/api/gin-gonic/src/utils"
 
 	"github.com/gin-gonic/gin"
 )

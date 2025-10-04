@@ -2,7 +2,7 @@ package roles
 
 import (
 	"time"
-	Permissions "univia/src/modules/permission/models"
+	Permissions "github.com/deva-labs/univia-api/api/gin-gonic/src/modules/permission/models"
 
 	"github.com/google/uuid"
 )

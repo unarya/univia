@@ -3,8 +3,8 @@ package config
 import (
 	"context"
 	"fmt"
+	"github.com/deva-labs/univia-api/api/gin-gonic/src/utils/cache"
 	"os"
-	"univia/src/utils/cache"
 
 	"github.com/redis/go-redis/v9"
 )

@@ -2,15 +2,15 @@ package posts
 
 import (
 	"fmt"
+	"github.com/deva-labs/univia-api/api/gin-gonic/src/config"
+	"github.com/deva-labs/univia-api/api/gin-gonic/src/functions"
+	posts "github.com/deva-labs/univia-api/api/gin-gonic/src/modules/post/services"
+	model "github.com/deva-labs/univia-api/api/gin-gonic/src/modules/user/models"
+	"github.com/deva-labs/univia-api/api/gin-gonic/src/utils"
+	"github.com/deva-labs/univia-api/api/gin-gonic/src/utils/cache"
 	"net/http"
 	"strings"
 	"time"
-	"univia/src/config"
-	"univia/src/functions"
-	posts "univia/src/modules/post/services"
-	model "univia/src/modules/user/models"
-	"univia/src/utils"
-	"univia/src/utils/cache"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
