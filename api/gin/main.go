@@ -6,8 +6,9 @@ import (
 	"os"
 	"time"
 
-	"github.com/deva-labs/univia/api/gin/src/config"
+	DBConfig "github.com/deva-labs/univia/api/gin/src/config"
 	"github.com/deva-labs/univia/api/gin/src/routes"
+	"github.com/deva-labs/univia/common/config"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -44,11 +45,8 @@ func main() {
 		MaxAge:           12 * time.Hour,
 	}))
 
-	// Set static files
-	router.Static("/uploads", "./uploads")
-
 	// Connect to the database
-	config.ConnectDatabase()
+	DBConfig.ConnectDatabase()
 	config.ConnectRedis()
 	config.ConnectMinio()
 	config.InitKafkaProducer()

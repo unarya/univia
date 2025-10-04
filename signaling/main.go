@@ -7,84 +7,108 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/deva-labs/univia/common/config"
+	"github.com/deva-labs/univia/common/utils/cache"
 	"github.com/deva-labs/univia/signaling/services"
 	"github.com/deva-labs/univia/signaling/store"
+	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
 )
 
 func main() {
-	port := os.Getenv("PORT")
+	port := os.Getenv("SIGNALING_PORT")
 	if port == "" {
 		port = "2112"
 	}
 
-	http.HandleFunc("/ws", wsHandler)
-	log.Printf("signaling listening %s", port)
-	log.Fatal(http.ListenAndServe(":"+port, nil))
+	config.ConnectRedis()
+	http.HandleFunc("/ws", handleWebSocket)
+
+	log.Printf("[Signaling] Listening on port %s", port)
+	if err := http.ListenAndServe(":"+port, nil); err != nil {
+		log.Fatalf("Server failed: %v", err)
+	}
 }
 
-// Upgrade configuration for WebSocket
+// ---- WebSocket ----
+
 var upgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
 	WriteBufferSize: 1024,
 	CheckOrigin: func(r *http.Request) bool {
-		// Allow all origins (adjust for production)
+		// TODO: Add domain-based allowlist for production
 		return true
 	},
 }
 
-func wsHandler(w http.ResponseWriter, r *http.Request) {
+func handleWebSocket(w http.ResponseWriter, r *http.Request) {
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
-		log.Printf("Failed to upgrade WebSocket: %v", err)
+		log.Printf("WebSocket upgrade failed: %v", err)
+		http.Error(w, "Could not upgrade connection", http.StatusBadRequest)
 		return
 	}
-	defer conn.Close()
+	defer func(conn *websocket.Conn) {
+		err := conn.Close()
+		if err != nil {
+			log.Printf("Error closing websocket connection: %v", err)
+		}
+	}(conn)
 
 	ip := getUserIP(r)
-	userID := getUserIDFromRedis(ip) // call Redis, nếu chưa có thì nil
-
-	if userID == "" {
-		log.Printf("No user_id for ip: %s", ip)
-		conn.WriteMessage(websocket.TextMessage, []byte(`{"error":"unauthorized"}`))
+	userID := getUserIDFromRedis(ip)
+	if userID == uuid.Nil {
+		log.Printf("Unauthorized WebSocket attempt: ip=%s", ip)
+		err := conn.WriteJSON(map[string]string{"error": "unauthorized"})
+		if err != nil {
+			return
+		}
 		return
 	}
 
-	// bind socket với user_id
+	// Store and manage socket
 	store.SetUserSocket(userID, conn)
 	defer store.RemoveUserSocket(userID)
+	log.Printf("Client connected: ip=%s userID=%s", ip, userID.String())
 
-	log.Printf("Client connected: ip=%s userID=%s", ip, userID)
+	handleMessages(conn)
+}
 
+func handleMessages(conn *websocket.Conn) {
 	for {
-		messageType, message, err := conn.ReadMessage()
+		messageType, msg, err := conn.ReadMessage()
 		if err != nil {
-			log.Printf("Error reading: %v", err)
+			log.Printf("WebSocket read error: %v", err)
 			break
 		}
 
-		var wsMessage services.WebSocketMessage
-		if err := json.Unmarshal(message, &wsMessage); err != nil {
+		var wsMsg services.WebSocketMessage
+		if err := json.Unmarshal(msg, &wsMsg); err != nil {
 			log.Printf("Invalid message: %v", err)
 			continue
 		}
 
-		services.HandleMessage(conn, messageType, wsMessage)
+		if err := services.HandleMessage(conn, messageType, wsMsg); err != nil {
+			log.Printf("HandleMessage error: %v", err)
+		}
 	}
 }
 
+// ---- Helpers ----
+
 func getUserIP(r *http.Request) string {
-	ip := r.Header.Get("X-Forwarded-For")
-	if ip == "" {
-		ip, _, _ = net.SplitHostPort(r.RemoteAddr)
+	if ip := r.Header.Get("X-Forwarded-For"); ip != "" {
+		return ip
 	}
+	ip, _, _ := net.SplitHostPort(r.RemoteAddr)
 	return ip
 }
 
-func getUserIDFromRedis(ip string) string {
-	val, err := redisClient.Get(context.Background(), "user:"+ip).Result()
+func getUserIDFromRedis(ip string) uuid.UUID {
+	val, err := cache.GetJSON[uuid.UUID](config.Redis, "user:"+ip)
 	if err != nil {
-		return ""
+		log.Printf("Redis get user_id failed: %v", err)
+		return uuid.Nil
 	}
-	return val
+	return *val
 }

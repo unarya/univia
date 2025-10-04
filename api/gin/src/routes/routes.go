@@ -11,7 +11,7 @@ import (
 	PostControllers "github.com/deva-labs/univia/api/gin/src/modules/post/controllers"
 	RoleControllers "github.com/deva-labs/univia/api/gin/src/modules/role/controllers"
 	UserControllers "github.com/deva-labs/univia/api/gin/src/modules/user/controllers"
-	"github.com/deva-labs/univia/api/gin/src/utils"
+	"github.com/deva-labs/univia/common/utils"
 
 	"github.com/gin-gonic/gin"
 	"github.com/swaggo/files"

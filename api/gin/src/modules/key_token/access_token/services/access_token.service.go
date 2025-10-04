@@ -4,14 +4,15 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/deva-labs/univia/api/gin/src/config"
+	DBConfig "github.com/deva-labs/univia/api/gin/src/config"
 	AccessTokens "github.com/deva-labs/univia/api/gin/src/modules/key_token/access_token/models"
 	Users "github.com/deva-labs/univia/api/gin/src/modules/user/models"
-	"github.com/deva-labs/univia/api/gin/src/utils/cache"
+	"github.com/deva-labs/univia/common/config"
+	"github.com/deva-labs/univia/common/utils/cache"
 )
 
 func VerifyToken(token string) (*Users.User, error) {
-	db := config.DB
+	db := DBConfig.DB
 	// Proceed with token validation
 	var tokenRecord AccessTokens.AccessToken
 	// Try cache first

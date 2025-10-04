@@ -5,10 +5,10 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/deva-labs/univia/api/gin/src/config"
 	"github.com/deva-labs/univia/api/gin/src/modules/permission/services"
-	"github.com/deva-labs/univia/api/gin/src/utils"
-	"github.com/deva-labs/univia/api/gin/src/utils/cache"
+	"github.com/deva-labs/univia/common/config"
+	"github.com/deva-labs/univia/common/utils"
+	"github.com/deva-labs/univia/common/utils/cache"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"

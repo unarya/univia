@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	model "github.com/deva-labs/univia/api/gin/src/modules/user/models"
-	"github.com/deva-labs/univia/api/gin/src/utils"
+	"github.com/deva-labs/univia/common/utils"
 
 	"github.com/gin-gonic/gin"
 )

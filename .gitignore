@@ -1,6 +1,8 @@
 /sql/*.idea
-/gin-gonic/go.mod/go.sum
-/gin-gonic/uploads
-/gin-gonic/*.sh
+/api/gin/go.mod/go.sum
+/api/gin/uploads
+/api/gin/*.sh
 .idea
-/gin-gonic/.env
+/api/gin/.env
+/infra/.env
+/signaling/.env

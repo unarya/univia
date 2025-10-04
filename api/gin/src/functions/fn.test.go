@@ -3,7 +3,7 @@ package functions
 import (
 	"fmt"
 
-	"github.com/deva-labs/univia/api/gin/src/utils"
+	"github.com/deva-labs/univia/common/utils"
 
 	"github.com/graphql-go/graphql"
 )

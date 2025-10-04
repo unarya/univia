@@ -7,18 +7,19 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/deva-labs/univia/api/gin/src/config"
+	DBConfig "github.com/deva-labs/univia/api/gin/src/config"
 	"github.com/deva-labs/univia/api/gin/src/functions"
 	"github.com/deva-labs/univia/api/gin/src/modules/notification/models"
-	"github.com/deva-labs/univia/api/gin/src/utils"
-	"github.com/deva-labs/univia/signaling/services"
+	"github.com/deva-labs/univia/common/config"
+	"github.com/deva-labs/univia/common/utils"
+	"github.com/deva-labs/univia/common/utils/types"
 	"github.com/segmentio/kafka-go"
 
 	"github.com/google/uuid"
 )
 
 func NotificationHandler(senderID, receiverID uuid.UUID, message, notiType string) *utils.ServiceError {
-	db := config.DB
+	db := DBConfig.DB
 
 	newNoti := notifications.Notification{
 		SenderID:   senderID,
@@ -35,7 +36,7 @@ func NotificationHandler(senderID, receiverID uuid.UUID, message, notiType strin
 	}
 
 	// Kafka event
-	event := services.WebSocketMessage{
+	event := types.WebSocketMessage{
 		Type:       newNoti.NotiType,
 		Message:    newNoti.Message,
 		ReceiverID: receiverID.String(),
@@ -132,7 +133,7 @@ func GetNotificationsByUserID(userID uuid.UUID, currentPage, itemsPerPage int, o
 }
 
 func UpdateIsSeen(notificationID, userID uuid.UUID) *utils.ServiceError {
-	db := config.DB
+	db := DBConfig.DB
 
 	if err := db.Model(&notifications.Notification{}).
 		Where("id = ? AND receiver_id = ?", notificationID, userID).
@@ -147,7 +148,7 @@ func UpdateIsSeen(notificationID, userID uuid.UUID) *utils.ServiceError {
 }
 
 func UpdateIsSeenForAllNotificationByUserID(userID uuid.UUID) *utils.ServiceError {
-	db := config.DB
+	db := DBConfig.DB
 
 	if err := db.Model(&notifications.Notification{}).
 		Where("receiver_id = ? AND is_seen = false", userID).

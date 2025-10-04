@@ -3,7 +3,6 @@ module github.com/deva-labs/univia/api/gin
 go 1.25.0
 
 require (
-	github.com/deva-labs/univia/signaling v0.0.0-20251004064410-5a5c5be07b58
 	github.com/gin-contrib/cors v1.7.3
 	github.com/gin-gonic/gin v1.11.0
 	github.com/google/uuid v1.6.0

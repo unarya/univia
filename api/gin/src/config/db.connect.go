@@ -5,13 +5,16 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strconv"
 
 	Permissions "github.com/deva-labs/univia/api/gin/src/modules/permission/models"
 	Posts "github.com/deva-labs/univia/api/gin/src/modules/post/models"
 	Profiles "github.com/deva-labs/univia/api/gin/src/modules/profile/models"
 	Roles "github.com/deva-labs/univia/api/gin/src/modules/role/models"
 	Users "github.com/deva-labs/univia/api/gin/src/modules/user/models"
-	"github.com/deva-labs/univia/api/gin/src/utils"
+	"github.com/deva-labs/univia/common/utils"
+	"github.com/google/uuid"
+	"golang.org/x/crypto/bcrypt"
 	"gorm.io/datatypes"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -79,13 +82,47 @@ func CheckConnection() bool {
 // - System and team roles for access control hierarchy
 // - Permissions for granular access management
 // - Role-permission mappings based on organizational structure
-// - Default admin user for initial system access
+// - Default admin user with profile for initial system access
 //
 // This function is idempotent and uses FirstOrCreate to prevent duplicate entries.
 // It should be called during application initialization or via migration scripts.
 func SeedData(db *gorm.DB) error {
-	// ---- Seed Post Categories ----
-	// These categories help organize and classify user-generated content
+	// Seed in order of dependencies
+	if err := seedCategories(db); err != nil {
+		return err
+	}
+
+	roles, err := seedRoles(db)
+	if err != nil {
+		return err
+	}
+
+	permissions, err := seedPermissions(db)
+	if err != nil {
+		return err
+	}
+
+	if err := assignRolePermissions(db, roles, permissions); err != nil {
+		return err
+	}
+
+	if err := seedDefaultAdminUser(db, roles["super_admin"]); err != nil {
+		return err
+	}
+
+	fmt.Println("✅ Seed data completed successfully:")
+	fmt.Println("   - Categories created")
+	fmt.Printf("   - %d roles initialized\n", len(roles))
+	fmt.Printf("   - %d permissions configured\n", len(permissions))
+	fmt.Println("   - Role-permission mappings established")
+	fmt.Println("   - Default admin user with profile created")
+	fmt.Println("⚠️  SECURITY WARNING: Change default admin credentials immediately!")
+
+	return nil
+}
+
+// seedCategories creates post categories for content organization
+func seedCategories(db *gorm.DB) error {
 	categories := []string{
 		"Social Media Trends", "Anime Fan Communities", "Music Production Tips",
 		"Programming Tutorials", "Digital Art & Design", "K-Pop Culture",
@@ -103,295 +140,380 @@ func SeedData(db *gorm.DB) error {
 		}
 	}
 
-	// ---- Define Role Hierarchy ----
-	// System-level roles: Control platform-wide operations and configurations
+	return nil
+}
+
+// seedRoles creates system and team roles, returns a map of role names to role objects
+func seedRoles(db *gorm.DB) (map[string]Roles.Role, error) {
 	systemRoles := []string{"super_admin", "general_admin", "billing_manager", "support"}
-
-	// Team-level roles: Control team-specific resources and collaboration
 	teamRoles := []string{"team_owner", "team_admin", "team_editor", "team_viewer", "team_guest"}
-
 	allRoles := append(systemRoles, teamRoles...)
 
-	// Create all roles in database
-	var roleEntities []Roles.Role
+	roleMap := make(map[string]Roles.Role)
+
 	for _, roleName := range allRoles {
 		var role Roles.Role
 		if err := db.FirstOrCreate(&role, Roles.Role{Name: roleName}).Error; err != nil {
-			return fmt.Errorf("failed to create role %s: %w", roleName, err)
+			return nil, fmt.Errorf("failed to create role %s: %w", roleName, err)
 		}
-		roleEntities = append(roleEntities, role)
+		roleMap[roleName] = role
 	}
 
-	// ---- Seed Permissions ----
-	// Permissions define atomic actions that can be performed in the system
+	return roleMap, nil
+}
+
+// seedPermissions creates all system permissions, returns a slice of permission objects
+func seedPermissions(db *gorm.DB) ([]Permissions.Permission, error) {
 	var permEntities []Permissions.Permission
+
 	for _, permName := range utils.Permissions {
 		var perm Permissions.Permission
 		if err := db.FirstOrCreate(&perm, Permissions.Permission{Name: permName}).Error; err != nil {
-			return fmt.Errorf("failed to create permission %s: %w", permName, err)
+			return nil, fmt.Errorf("failed to create permission %s: %w", permName, err)
 		}
 		permEntities = append(permEntities, perm)
 	}
 
-	// ---- Assign Permissions to System Roles ----
+	return permEntities, nil
+}
 
-	// Super Admin: Full system access with all permissions
-	// This role has unrestricted access to all platform features and configurations
-	var superAdminRole Roles.Role
-	if err := db.First(&superAdminRole, "name = ?", "super_admin").Error; err != nil {
-		return fmt.Errorf("failed to find super_admin role: %w", err)
+// assignRolePermissions assigns permissions to roles based on access control requirements
+func assignRolePermissions(db *gorm.DB, roles map[string]Roles.Role, permissions []Permissions.Permission) error {
+	// Define permission sets for each role
+	permissionSets := map[string][]string{
+		"super_admin":     getAllPermissionNames(permissions),
+		"general_admin":   getGeneralAdminPermissions(),
+		"billing_manager": getBillingManagerPermissions(),
+		"support":         getSupportPermissions(),
+		"team_owner":      getTeamOwnerPermissions(),
+		"team_admin":      getTeamAdminPermissions(),
+		"team_editor":     getTeamEditorPermissions(),
+		"team_viewer":     getTeamViewerPermissions(),
+		"team_guest":      getTeamGuestPermissions(),
 	}
 
-	for _, perm := range permEntities {
-		rp := Roles.RolePermission{
-			RoleID:       superAdminRole.ID,
-			PermissionID: perm.ID,
+	// Create permission name to ID map for faster lookup
+	permMap := make(map[string]uuid.UUID)
+	for _, perm := range permissions {
+		permMap[perm.Name] = perm.ID
+	}
+
+	// Assign permissions to each role
+	for roleName, permNames := range permissionSets {
+		role, exists := roles[roleName]
+		if !exists {
+			return fmt.Errorf("role %s not found", roleName)
 		}
-		if err := db.FirstOrCreate(&rp, Roles.RolePermission{
-			RoleID:       rp.RoleID,
-			PermissionID: rp.PermissionID,
-		}).Error; err != nil {
-			return fmt.Errorf("failed to assign permission to super_admin: %w", err)
+
+		for _, permName := range permNames {
+			permID, exists := permMap[permName]
+			if !exists {
+				continue // Skip if permission doesn't exist
+			}
+
+			rp := Roles.RolePermission{
+				RoleID:       role.ID,
+				PermissionID: permID,
+			}
+
+			if err := db.FirstOrCreate(&rp, Roles.RolePermission{
+				RoleID:       rp.RoleID,
+				PermissionID: rp.PermissionID,
+			}).Error; err != nil {
+				return fmt.Errorf("failed to assign permission %s to role %s: %w", permName, roleName, err)
+			}
 		}
 	}
 
-	// General Admin: Administrative access excluding sensitive billing and server operations
-	// Can manage users, content, and general platform operations
-	var generalAdminRole Roles.Role
-	if err := db.First(&generalAdminRole, "name = ?", "general_admin").Error; err != nil {
-		return fmt.Errorf("failed to find general_admin role: %w", err)
+	return nil
+}
+
+// seedDefaultAdminUser creates the default super admin account with profile
+// Reads plain password from ADMIN_PASSWORD env variable (default: "admin123")
+// Hashes the password using bcrypt before storing in database
+func seedDefaultAdminUser(db *gorm.DB, superAdminRole Roles.Role) error {
+	// Load admin configuration from environment
+	config := loadAdminConfig()
+
+	// Hash the plain password
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(config.PlainPassword), bcrypt.DefaultCost)
+	if err != nil {
+		return fmt.Errorf("failed to hash admin password: %w", err)
 	}
 
-	// Excluded permissions for general admin (sensitive operations only)
-	excludedPermissions := map[string]bool{
+	// Create admin user
+	adminUser := Users.User{
+		Username:    config.Username,
+		Email:       config.Email,
+		PhoneNumber: uint64(config.PhoneNumber),
+		Password:    string(hashedPassword),
+		Status:      true,
+		RoleID:      superAdminRole.ID,
+	}
+
+	if err := db.Where(Users.User{Email: adminUser.Email}).FirstOrCreate(&adminUser).Error; err != nil {
+		return fmt.Errorf("failed to create admin user: %w", err)
+	}
+
+	// Fetch the admin user ID from database (in case it was just created or already exists)
+	var existingUser Users.User
+	if err := db.Where("email = ?", adminUser.Email).First(&existingUser).Error; err != nil {
+		return fmt.Errorf("failed to fetch admin user ID: %w", err)
+	}
+
+	// Create admin profile with configured values
+	if err := createAdminProfile(db, existingUser.ID, config); err != nil {
+		return err
+	}
+
+	// Log admin info (mask sensitive data)
+	fmt.Printf("   - Admin user: %s (%s)\n", config.Username, maskEmail(config.Email))
+	if config.IsDefaultPassword {
+		fmt.Println("   ⚠️  Using default password 'admin123' - CHANGE IMMEDIATELY in production!")
+	}
+
+	return nil
+}
+
+// AdminConfig holds configuration for the default admin account
+type AdminConfig struct {
+	Username          string
+	Email             string
+	PhoneNumber       int
+	PlainPassword     string
+	IsDefaultPassword bool
+	ProfilePic        string
+	CoverPhoto        string
+	BackgroundColor   string
+	Location          string
+	Bio               string
+	Interests         []string
+	SocialLinks       map[string]string
+}
+
+// loadAdminConfig loads admin configuration from environment variables with defaults
+func loadAdminConfig() AdminConfig {
+	plainPassword := getEnvOrDefault("ADMIN_PASSWORD", "admin123")
+	isDefaultPassword := getEnv("ADMIN_PASSWORD") == ""
+
+	config := AdminConfig{
+		Username:          getEnvOrDefault("ADMIN_USERNAME", "admin"),
+		Email:             getEnvOrDefault("ADMIN_EMAIL", "ties.node@outlook.com"),
+		PhoneNumber:       getEnvAsIntOrDefault("ADMIN_PHONE", 773598329),
+		PlainPassword:     plainPassword,
+		IsDefaultPassword: isDefaultPassword,
+		ProfilePic:        getEnvOrDefault("ADMIN_PROFILE_PIC", "https://ui-avatars.com/api/?name=Super+Admin&size=256&background=7b2cbf&color=fff"),
+		CoverPhoto:        getEnvOrDefault("ADMIN_COVER_PHOTO", "https://images.unsplash.com/photo-1557683316-973673baf926?w=1200&h=400&fit=crop"),
+		BackgroundColor:   getEnvOrDefault("ADMIN_BG_COLOR", "#7b2cbf"),
+		Location:          getEnvOrDefault("ADMIN_LOCATION", "Headquarters"),
+		Bio:               getEnvOrDefault("ADMIN_BIO", "Super Admin of the system. Full access to all features."),
+		Interests: []string{
+			"System Administration",
+			"Security",
+			"Scaling",
+			"DevOps",
+		},
+		SocialLinks: map[string]string{
+			"github":  getEnvOrDefault("ADMIN_GITHUB", "https://github.com/superadmin"),
+			"twitter": getEnvOrDefault("ADMIN_TWITTER", "https://twitter.com/superadmin"),
+		},
+	}
+
+	return config
+}
+
+// createAdminProfile creates the profile for the admin user
+func createAdminProfile(db *gorm.DB, userID uuid.UUID, config AdminConfig) error {
+	interests, err := json.Marshal(config.Interests)
+	if err != nil {
+		return fmt.Errorf("failed to marshal interests: %w", err)
+	}
+
+	socialLinks, err := json.Marshal(config.SocialLinks)
+	if err != nil {
+		return fmt.Errorf("failed to marshal social links: %w", err)
+	}
+
+	adminProfile := Profiles.Profile{
+		UserID:          userID,
+		ProfilePic:      config.ProfilePic,
+		CoverPhoto:      config.CoverPhoto,
+		BackgroundColor: config.BackgroundColor,
+		Gender:          "Other",
+		Location:        config.Location,
+		Bio:             config.Bio,
+		Interests:       datatypes.JSON(interests),
+		SocialLinks:     datatypes.JSON(socialLinks),
+	}
+
+	if err := db.Where(Profiles.Profile{UserID: userID}).FirstOrCreate(&adminProfile).Error; err != nil {
+		return fmt.Errorf("failed to create profile for super admin: %w", err)
+	}
+
+	return nil
+}
+
+// =================== Permission Set Helpers ===================
+
+// getAllPermissionNames returns all permission names
+func getAllPermissionNames(permissions []Permissions.Permission) []string {
+	names := make([]string, len(permissions))
+	for i, perm := range permissions {
+		names[i] = perm.Name
+	}
+	return names
+}
+
+// getGeneralAdminPermissions returns permissions for general admin
+// Excludes sensitive billing and server management
+func getGeneralAdminPermissions() []string {
+	excluded := map[string]bool{
 		utils.Permissions["ALLOW_VIEW_BILLING"]:        true,
 		utils.Permissions["ALLOW_UPDATE_PAYMENT"]:      true,
 		utils.Permissions["ALLOW_CANCEL_SUBSCRIPTION"]: true,
 		utils.Permissions["ALLOW_MANAGE_SERVER"]:       true,
 	}
 
-	for _, perm := range permEntities {
-		if excludedPermissions[perm.Name] {
-			continue
-		}
-		rp := Roles.RolePermission{
-			RoleID:       generalAdminRole.ID,
-			PermissionID: perm.ID,
-		}
-		if err := db.FirstOrCreate(&rp, rp).Error; err != nil {
-			return fmt.Errorf("failed to assign permission to general_admin: %w", err)
+	var perms []string
+	for _, permName := range utils.Permissions {
+		if !excluded[permName] {
+			perms = append(perms, permName)
 		}
 	}
+	return perms
+}
 
-	// Billing Manager: Focused access to billing, payment, and subscription management
-	var billingManagerRole Roles.Role
-	if err := db.First(&billingManagerRole, "name = ?", "billing_manager").Error; err != nil {
-		return fmt.Errorf("failed to find billing_manager role: %w", err)
+// getBillingManagerPermissions returns permissions for billing manager
+func getBillingManagerPermissions() []string {
+	return []string{
+		utils.Permissions["ALLOW_VIEW_BILLING"],
+		utils.Permissions["ALLOW_UPDATE_PAYMENT"],
+		utils.Permissions["ALLOW_CANCEL_SUBSCRIPTION"],
+		utils.Permissions["ALLOW_GET_USER"],
+		utils.Permissions["ALLOW_VIEW_POST"],
 	}
+}
 
-	billingPermissions := map[string]bool{
-		utils.Permissions["ALLOW_VIEW_BILLING"]:        true,
-		utils.Permissions["ALLOW_UPDATE_PAYMENT"]:      true,
-		utils.Permissions["ALLOW_CANCEL_SUBSCRIPTION"]: true,
+// getSupportPermissions returns permissions for support staff
+func getSupportPermissions() []string {
+	return []string{
+		utils.Permissions["ALLOW_GET_USER"],
+		utils.Permissions["ALLOW_VIEW_POST"],
+		utils.Permissions["ALLOW_VIEW_NOTIFICATION"],
+		utils.Permissions["ALLOW_CREATE_POST"],
 	}
+}
 
-	for _, perm := range permEntities {
-		if billingPermissions[perm.Name] {
-			rp := Roles.RolePermission{
-				RoleID:       billingManagerRole.ID,
-				PermissionID: perm.ID,
-			}
-			if err := db.FirstOrCreate(&rp, rp).Error; err != nil {
-				return fmt.Errorf("failed to assign permission to billing_manager: %w", err)
-			}
+// getTeamOwnerPermissions returns permissions for team owner
+// Full control including team deletion
+func getTeamOwnerPermissions() []string {
+	return []string{
+		utils.Permissions["ALLOW_CREATE_POST"],
+		utils.Permissions["ALLOW_UPDATE_POST"],
+		utils.Permissions["ALLOW_DELETE_POST"],
+		utils.Permissions["ALLOW_VIEW_POST"],
+		utils.Permissions["ALLOW_MANAGE_TEAM"],
+		utils.Permissions["ALLOW_DELETE_TEAM"],
+		utils.Permissions["ALLOW_INVITE_MEMBER"],
+		utils.Permissions["ALLOW_REMOVE_MEMBER"],
+		utils.Permissions["ALLOW_VIEW_NOTIFICATION"],
+		utils.Permissions["ALLOW_SEND_NOTIFICATION"],
+	}
+}
+
+// getTeamAdminPermissions returns permissions for team admin
+// Same as owner but cannot delete team
+func getTeamAdminPermissions() []string {
+	return []string{
+		utils.Permissions["ALLOW_CREATE_POST"],
+		utils.Permissions["ALLOW_UPDATE_POST"],
+		utils.Permissions["ALLOW_DELETE_POST"],
+		utils.Permissions["ALLOW_VIEW_POST"],
+		utils.Permissions["ALLOW_MANAGE_TEAM"],
+		utils.Permissions["ALLOW_INVITE_MEMBER"],
+		utils.Permissions["ALLOW_REMOVE_MEMBER"],
+		utils.Permissions["ALLOW_VIEW_NOTIFICATION"],
+		utils.Permissions["ALLOW_SEND_NOTIFICATION"],
+	}
+}
+
+// getTeamEditorPermissions returns permissions for team editor
+// Content management focused
+func getTeamEditorPermissions() []string {
+	return []string{
+		utils.Permissions["ALLOW_CREATE_POST"],
+		utils.Permissions["ALLOW_UPDATE_POST"],
+		utils.Permissions["ALLOW_DELETE_POST"],
+		utils.Permissions["ALLOW_VIEW_POST"],
+		utils.Permissions["ALLOW_VIEW_NOTIFICATION"],
+	}
+}
+
+// getTeamViewerPermissions returns permissions for team viewer
+// Read-only access
+func getTeamViewerPermissions() []string {
+	return []string{
+		utils.Permissions["ALLOW_VIEW_POST"],
+		utils.Permissions["ALLOW_VIEW_NOTIFICATION"],
+	}
+}
+
+// getTeamGuestPermissions returns permissions for team guest
+// Minimal public access
+func getTeamGuestPermissions() []string {
+	return []string{
+		utils.Permissions["ALLOW_VIEW_POST"],
+	}
+}
+
+// =================== Environment Helpers ===================
+
+// getEnv retrieves an environment variable value
+func getEnv(key string) string {
+	return os.Getenv(key)
+}
+
+// getEnvOrDefault retrieves an environment variable or returns a default value
+func getEnvOrDefault(key, defaultValue string) string {
+	if value := os.Getenv(key); value != "" {
+		return value
+	}
+	return defaultValue
+}
+
+// getEnvAsIntOrDefault retrieves an environment variable as int or returns a default value
+func getEnvAsIntOrDefault(key string, defaultValue int) int {
+	if value := os.Getenv(key); value != "" {
+		if intValue, err := strconv.Atoi(value); err == nil {
+			return intValue
 		}
 	}
+	return defaultValue
+}
 
-	// ---- Assign Permissions to Team Roles ----
-
-	// Team Owner: Full control over team resources including posts, members, and notifications
-	// Can delete the team and manage all team settings
-	var teamOwnerRole Roles.Role
-	if err := db.First(&teamOwnerRole, "name = ?", "team_owner").Error; err != nil {
-		return fmt.Errorf("failed to find team_owner role: %w", err)
+// maskEmail masks an email address for secure logging
+// Example: user@example.com -> u***r@example.com
+func maskEmail(email string) string {
+	if len(email) < 3 {
+		return "***"
 	}
 
-	teamOwnerPermissions := map[string]bool{
-		utils.Permissions["ALLOW_CREATE_POST"]:       true,
-		utils.Permissions["ALLOW_UPDATE_POST"]:       true,
-		utils.Permissions["ALLOW_DELETE_POST"]:       true,
-		utils.Permissions["ALLOW_VIEW_POST"]:         true,
-		utils.Permissions["ALLOW_MANAGE_TEAM"]:       true,
-		utils.Permissions["ALLOW_DELETE_TEAM"]:       true,
-		utils.Permissions["ALLOW_INVITE_MEMBER"]:     true,
-		utils.Permissions["ALLOW_REMOVE_MEMBER"]:     true,
-		utils.Permissions["ALLOW_VIEW_NOTIFICATION"]: true,
-		utils.Permissions["ALLOW_SEND_NOTIFICATION"]: true,
-	}
-
-	for _, perm := range permEntities {
-		if teamOwnerPermissions[perm.Name] {
-			rp := Roles.RolePermission{
-				RoleID:       teamOwnerRole.ID,
-				PermissionID: perm.ID,
-			}
-			if err := db.FirstOrCreate(&rp, rp).Error; err != nil {
-				return fmt.Errorf("failed to assign permission to team_owner: %w", err)
-			}
-		}
-	}
-
-	// Team Admin: Same as owner but cannot delete the team
-	// Can manage team operations and members but lacks destructive team actions
-	var teamAdminRole Roles.Role
-	if err := db.First(&teamAdminRole, "name = ?", "team_admin").Error; err != nil {
-		return fmt.Errorf("failed to find team_admin role: %w", err)
-	}
-
-	teamAdminPermissions := map[string]bool{
-		utils.Permissions["ALLOW_CREATE_POST"]:       true,
-		utils.Permissions["ALLOW_UPDATE_POST"]:       true,
-		utils.Permissions["ALLOW_DELETE_POST"]:       true,
-		utils.Permissions["ALLOW_VIEW_POST"]:         true,
-		utils.Permissions["ALLOW_MANAGE_TEAM"]:       true,
-		utils.Permissions["ALLOW_INVITE_MEMBER"]:     true,
-		utils.Permissions["ALLOW_REMOVE_MEMBER"]:     true,
-		utils.Permissions["ALLOW_VIEW_NOTIFICATION"]: true,
-		utils.Permissions["ALLOW_SEND_NOTIFICATION"]: true,
-	}
-
-	for _, perm := range permEntities {
-		if teamAdminPermissions[perm.Name] {
-			rp := Roles.RolePermission{
-				RoleID:       teamAdminRole.ID,
-				PermissionID: perm.ID,
-			}
-			if err := db.FirstOrCreate(&rp, rp).Error; err != nil {
-				return fmt.Errorf("failed to assign permission to team_admin: %w", err)
-			}
-		}
-	}
-
-	// Team Editor: Can create, update, and delete posts; view notifications
-	// Focused on content management without administrative privileges
-	var teamEditorRole Roles.Role
-	if err := db.First(&teamEditorRole, "name = ?", "team_editor").Error; err != nil {
-		return fmt.Errorf("failed to find team_editor role: %w", err)
-	}
-
-	teamEditorPermissions := map[string]bool{
-		utils.Permissions["ALLOW_CREATE_POST"]:       true,
-		utils.Permissions["ALLOW_UPDATE_POST"]:       true,
-		utils.Permissions["ALLOW_DELETE_POST"]:       true,
-		utils.Permissions["ALLOW_VIEW_POST"]:         true,
-		utils.Permissions["ALLOW_VIEW_NOTIFICATION"]: true,
-	}
-
-	for _, perm := range permEntities {
-		if teamEditorPermissions[perm.Name] {
-			rp := Roles.RolePermission{
-				RoleID:       teamEditorRole.ID,
-				PermissionID: perm.ID,
-			}
-			if err := db.FirstOrCreate(&rp, rp).Error; err != nil {
-				return fmt.Errorf("failed to assign permission to team_editor: %w", err)
-			}
-		}
-	}
-
-	// Team Viewer: Read-only access to posts and notifications
-	// Can view team content but cannot make modifications
-	var teamViewerRole Roles.Role
-	if err := db.First(&teamViewerRole, "name = ?", "team_viewer").Error; err != nil {
-		return fmt.Errorf("failed to find team_viewer role: %w", err)
-	}
-
-	teamViewerPermissions := map[string]bool{
-		utils.Permissions["ALLOW_VIEW_POST"]:         true,
-		utils.Permissions["ALLOW_VIEW_NOTIFICATION"]: true,
-	}
-
-	for _, perm := range permEntities {
-		if teamViewerPermissions[perm.Name] {
-			rp := Roles.RolePermission{
-				RoleID:       teamViewerRole.ID,
-				PermissionID: perm.ID,
-			}
-			if err := db.FirstOrCreate(&rp, rp).Error; err != nil {
-				return fmt.Errorf("failed to assign permission to team_viewer: %w", err)
-			}
+	atIndex := -1
+	for i, c := range email {
+		if c == '@' {
+			atIndex = i
+			break
 		}
 	}
 
-	// Team Guest: Minimal access to public posts only
-	// Most restricted role, typically for external collaborators
-	var teamGuestRole Roles.Role
-	if err := db.First(&teamGuestRole, "name = ?", "team_guest").Error; err != nil {
-		return fmt.Errorf("failed to find team_guest role: %w", err)
+	if atIndex <= 0 {
+		return email[:1] + "***"
 	}
 
-	teamGuestPermissions := map[string]bool{
-		utils.Permissions["ALLOW_VIEW_POST"]: true,
+	// Show first and last character before @
+	if atIndex == 1 {
+		return email[:1] + "***" + email[atIndex:]
 	}
 
-	for _, perm := range permEntities {
-		if teamGuestPermissions[perm.Name] {
-			rp := Roles.RolePermission{
-				RoleID:       teamGuestRole.ID,
-				PermissionID: perm.ID,
-			}
-			if err := db.FirstOrCreate(&rp, rp).Error; err != nil {
-				return fmt.Errorf("failed to assign permission to team_guest: %w", err)
-			}
-		}
-	}
-
-	// ---- Seed Default Admin User ----
-	// Creates the initial super admin account for system bootstrap
-	// Default credentials:
-	//   - Username: admin
-	//   - Email: ties.node@outlook.com
-	//   - Password: admin123 (pre-hashed with bcrypt)
-	// IMPORTANT: Change these credentials immediately after first login in production!
-	adminUser := Users.User{
-		Username:    "admin",
-		Email:       "ties.node@outlook.com",
-		PhoneNumber: 773598329,
-		Password:    "$2a$12$OqiRAY9.CA7pj1zK4p42wuq0d63xf0l/ZXD7uQMDrBWU4.uGvdt12", // admin123
-		Status:      true,
-		RoleID:      superAdminRole.ID,
-	}
-
-	if err := db.FirstOrCreate(&adminUser, Users.User{Email: "ties.node@outlook.com"}).Error; err != nil {
-		return fmt.Errorf("failed to create admin user: %w", err)
-	}
-	// ---- Seed Default Profile for Super Admin ----
-	// Creates a profile linked to the default super admin account
-	// This ensures the admin has a complete identity in the system
-	interests, _ := json.Marshal([]string{"System Administration", "Security", "Scaling"})
-	socialLinks, _ := json.Marshal([]string{"https://github.com/superadmin", "https://twitter.com/superadmin"})
-	adminProfile := Profiles.Profile{
-		UserID:          adminUser.ID,
-		ProfilePic:      "https://example.com/images/admin-profile.png",
-		CoverPhoto:      "https://example.com/images/admin-cover.jpg",
-		BackgroundColor: "#7b2cbf",
-		Gender:          "Other",
-		Location:        "Headquarters",
-		Bio:             "Super Admin of the system. Full access to all features.",
-		Interests:       datatypes.JSON(interests),
-		SocialLinks:     datatypes.JSON(socialLinks),
-	}
-
-	if err := db.FirstOrCreate(&adminProfile, Profiles.Profile{UserID: adminUser.ID}).Error; err != nil {
-		return fmt.Errorf("failed to create profile for super admin: %w", err)
-	}
-	fmt.Println("✅ Seed data completed successfully:")
-	fmt.Printf("   - %d categories created\n", len(categories))
-	fmt.Printf("   - %d roles initialized\n", len(allRoles))
-	fmt.Printf("   - %d permissions configured\n", len(permEntities))
-	fmt.Println("   - Role-permission mappings established")
-	fmt.Println("   - Default admin user created")
-	fmt.Println("⚠️  SECURITY WARNING: Change default admin credentials immediately!")
-
-	return nil
+	return email[:1] + "***" + email[atIndex-1:]
 }
