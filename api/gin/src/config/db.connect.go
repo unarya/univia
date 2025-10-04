@@ -12,7 +12,9 @@ import (
 	Profiles "github.com/deva-labs/univia/api/gin/src/modules/profile/models"
 	Roles "github.com/deva-labs/univia/api/gin/src/modules/role/models"
 	Users "github.com/deva-labs/univia/api/gin/src/modules/user/models"
-	"github.com/deva-labs/univia/api/gin/src/utils"
+	"github.com/deva-labs/univia/common/utils"
+	"github.com/google/uuid"
+	"golang.org/x/crypto/bcrypt"
 	"gorm.io/datatypes"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -191,7 +193,7 @@ func assignRolePermissions(db *gorm.DB, roles map[string]Roles.Role, permissions
 	}
 
 	// Create permission name to ID map for faster lookup
-	permMap := make(map[string]uint)
+	permMap := make(map[string]uuid.UUID)
 	for _, perm := range permissions {
 		permMap[perm.Name] = perm.ID
 	}
@@ -243,7 +245,7 @@ func seedDefaultAdminUser(db *gorm.DB, superAdminRole Roles.Role) error {
 	adminUser := Users.User{
 		Username:    config.Username,
 		Email:       config.Email,
-		PhoneNumber: config.PhoneNumber,
+		PhoneNumber: uint64(config.PhoneNumber),
 		Password:    string(hashedPassword),
 		Status:      true,
 		RoleID:      superAdminRole.ID,
@@ -321,7 +323,7 @@ func loadAdminConfig() AdminConfig {
 }
 
 // createAdminProfile creates the profile for the admin user
-func createAdminProfile(db *gorm.DB, userID uint, config AdminConfig) error {
+func createAdminProfile(db *gorm.DB, userID uuid.UUID, config AdminConfig) error {
 	interests, err := json.Marshal(config.Interests)
 	if err != nil {
 		return fmt.Errorf("failed to marshal interests: %w", err)

@@ -3,17 +3,18 @@ package users
 import (
 	"bytes"
 	"fmt"
-	"github.com/deva-labs/univia/api/gin/src/config"
-	model "github.com/deva-labs/univia/api/gin/src/modules/user/models"
-	users "github.com/deva-labs/univia/api/gin/src/modules/user/services"
-	"github.com/deva-labs/univia/api/gin/src/utils"
-	"github.com/deva-labs/univia/api/gin/src/utils/cache"
-	"github.com/deva-labs/univia/api/gin/src/utils/types"
 	"io"
 	"net/http"
 	"strconv"
 	"strings"
 	"time"
+
+	model "github.com/deva-labs/univia/api/gin/src/modules/user/models"
+	users "github.com/deva-labs/univia/api/gin/src/modules/user/services"
+	"github.com/deva-labs/univia/common/config"
+	"github.com/deva-labs/univia/common/utils"
+	"github.com/deva-labs/univia/common/utils/cache"
+	"github.com/deva-labs/univia/common/utils/types"
 
 	"github.com/gin-gonic/gin"
 )

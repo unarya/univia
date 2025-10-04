@@ -5,11 +5,12 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/deva-labs/univia/api/gin/src/config"
+	DBConfig "github.com/deva-labs/univia/api/gin/src/config"
 	permissions "github.com/deva-labs/univia/api/gin/src/modules/permission/models"
 	Role "github.com/deva-labs/univia/api/gin/src/modules/role/models"
 	RoleServices "github.com/deva-labs/univia/api/gin/src/modules/role/services"
-	"github.com/deva-labs/univia/api/gin/src/utils/cache"
+	"github.com/deva-labs/univia/common/config"
+	"github.com/deva-labs/univia/common/utils/cache"
 
 	"github.com/google/uuid"
 	"gorm.io/gorm"
@@ -17,7 +18,7 @@ import (
 
 // CheckPermission verifies if a role has a specific permission
 func CheckPermission(roleID uuid.UUID, permissionName string) bool {
-	db := config.DB
+	db := DBConfig.DB
 	cacheKey := fmt.Sprintf("permission:%s:%s", roleID, permissionName)
 	// Try cache
 	if results, err := cache.GetJSON[bool](config.Redis, cacheKey); err == nil && results != nil {
@@ -44,7 +45,7 @@ func CheckPermission(roleID uuid.UUID, permissionName string) bool {
 }
 
 func CreatePermission(permissionName string) (bool, error) {
-	db := config.DB
+	db := DBConfig.DB
 
 	var exists bool
 	err := db.Model(permissions.Permission{}).Select("name").Where("name = ?", permissionName).First(&permissions.Permission{}).Scan(&exists).Error
@@ -62,7 +63,7 @@ func CreatePermission(permissionName string) (bool, error) {
 }
 
 func ListAllPermissions() ([]map[string]interface{}, error) {
-	db := config.DB
+	db := DBConfig.DB
 
 	// Fetch all roles
 	roles, err := RoleServices.ListAllRoles()
@@ -123,7 +124,7 @@ func ListAllPermissions() ([]map[string]interface{}, error) {
 }
 
 func AddPermissionsToRole(roleID uuid.UUID, permissionIDs []uuid.UUID) (map[string]interface{}, error) {
-	db := config.DB
+	db := DBConfig.DB
 
 	// 1. Check if the Role exists
 	var role Role.Role
@@ -185,7 +186,7 @@ func AddPermissionsToRole(roleID uuid.UUID, permissionIDs []uuid.UUID) (map[stri
 
 // GetPermissionIDByName is a function to give a permissionID by name
 func GetPermissionIDByName(permissionName string) (uuid.UUID, error) {
-	db := config.DB
+	db := DBConfig.DB
 	var permission permissions.Permission
 	if err := db.Where("name = ?", permissionName).First(&permission).Error; err != nil {
 		return uuid.Nil, err

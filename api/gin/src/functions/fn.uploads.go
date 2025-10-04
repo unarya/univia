@@ -10,7 +10,7 @@ import (
 	"time"
 
 	"github.com/deva-labs/univia/api/gin/src/modules/post/models"
-	"github.com/deva-labs/univia/api/gin/src/utils"
+	"github.com/deva-labs/univia/common/utils"
 )
 
 // Allowed Media Types

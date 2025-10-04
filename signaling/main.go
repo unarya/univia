@@ -7,8 +7,8 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/deva-labs/univia/api/gin/src/config"
-	"github.com/deva-labs/univia/api/gin/src/utils/cache"
+	"github.com/deva-labs/univia/common/config"
+	"github.com/deva-labs/univia/common/utils/cache"
 	"github.com/deva-labs/univia/signaling/services"
 	"github.com/deva-labs/univia/signaling/store"
 	"github.com/google/uuid"
@@ -16,7 +16,7 @@ import (
 )
 
 func main() {
-	port := os.Getenv("PORT")
+	port := os.Getenv("SIGNALING_PORT")
 	if port == "" {
 		port = "2112"
 	}

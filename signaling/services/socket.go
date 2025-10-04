@@ -5,40 +5,36 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/deva-labs/univia/common/utils/types"
 	"github.com/deva-labs/univia/signaling/store"
 	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
 )
 
 // WebSocketMessage represents the JSON message format
-type WebSocketMessage struct {
-	Type       string `json:"type"`
-	Message    string `json:"message"`
-	ReceiverID string `json:"receiverId"`
-}
 
 // HandleMessage processes incoming WebSocket messages
-func HandleMessage(conn *websocket.Conn, messageType int, wsMessage WebSocketMessage) error {
-	var response WebSocketMessage
+func HandleMessage(conn *websocket.Conn, messageType int, wsMessage types.WebSocketMessage) error {
+	var response types.WebSocketMessage
 
 	switch wsMessage.Type {
 	case "notice":
-		response = WebSocketMessage{
+		response = types.WebSocketMessage{
 			Type:    "notice",
 			Message: "Received: " + wsMessage.Message,
 		}
 	case "bye":
-		response = WebSocketMessage{
+		response = types.WebSocketMessage{
 			Type:    "bye",
 			Message: "Goodbye: " + wsMessage.Message,
 		}
 	case "ping":
-		response = WebSocketMessage{
+		response = types.WebSocketMessage{
 			Type:    "ping",
 			Message: "Pong: " + wsMessage.Message,
 		}
 	default:
-		response = WebSocketMessage{
+		response = types.WebSocketMessage{
 			Type:    "echo",
 			Message: "Echo: " + wsMessage.Message,
 		}
@@ -53,7 +49,7 @@ func HandleMessage(conn *websocket.Conn, messageType int, wsMessage WebSocketMes
 }
 
 // sendJSONMessage sends a JSON-encoded message to the client
-func sendJSONMessage(conn *websocket.Conn, messageType int, response WebSocketMessage) error {
+func sendJSONMessage(conn *websocket.Conn, messageType int, response types.WebSocketMessage) error {
 	responseJSON, err := json.Marshal(response)
 	if err != nil {
 		return err
@@ -62,7 +58,7 @@ func sendJSONMessage(conn *websocket.Conn, messageType int, response WebSocketMe
 }
 
 // SendMessageToUser is a function using socket to send message
-func SendMessageToUser(userID uuid.UUID, message WebSocketMessage) error {
+func SendMessageToUser(userID uuid.UUID, message types.WebSocketMessage) error {
 	conn, exists := store.GetUserSocket(userID)
 	if !exists {
 		return fmt.Errorf("user %s not connected", userID)

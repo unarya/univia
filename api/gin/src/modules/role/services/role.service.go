@@ -2,6 +2,7 @@ package roles
 
 import (
 	"errors"
+
 	"github.com/deva-labs/univia/api/gin/src/config"
 	roles "github.com/deva-labs/univia/api/gin/src/modules/role/models"
 	Users "github.com/deva-labs/univia/api/gin/src/modules/user/models"
