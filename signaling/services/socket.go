@@ -4,24 +4,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
-	"net/http"
-	"univia/src/utils"
-	"univia/store"
 
-	"github.com/gin-gonic/gin"
+	"github.com/deva-labs/univia-api/signaling/store"
 	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
 )
-
-// Upgrade configuration for WebSocket
-var upgrader = websocket.Upgrader{
-	ReadBufferSize:  1024,
-	WriteBufferSize: 1024,
-	CheckOrigin: func(r *http.Request) bool {
-		// Allow all origins (adjust for production)
-		return true
-	},
-}
 
 // WebSocketMessage represents the JSON message format
 type WebSocketMessage struct {
@@ -29,53 +16,8 @@ type WebSocketMessage struct {
 	Message string `json:"message"`
 }
 
-// WebSocketHandler handles WebSocket connections and events
-func WebSocketHandler(c *gin.Context) {
-	// Get UserID to store
-	userID := c.Query("userId")
-	if userID == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "userId is required"})
-		return
-	}
-
-	conn, err := upgrader.Upgrade(c.Writer, c.Request, nil)
-	if err != nil {
-		log.Printf("Failed to upgrade WebSocket connection: %v", err)
-		return
-	}
-	defer func() {
-		conn.Close()
-		store.RemoveUserSocket(utils.ConvertStringToUint(userID))
-		log.Printf("Client disconnected: %s", conn.RemoteAddr())
-	}()
-
-	log.Printf("Client connected: %s", conn.RemoteAddr())
-	store.SetUserSocket(utils.ConvertStringToUint(userID), conn)
-
-	for {
-		// Read message from the client
-		messageType, message, err := conn.ReadMessage()
-		if err != nil {
-			log.Printf("Error reading message: %v", err)
-			break
-		}
-
-		// Parse the JSON message
-		var wsMessage WebSocketMessage
-		if err := json.Unmarshal(message, &wsMessage); err != nil {
-			log.Printf("Error unmarshalling message: %v", err)
-			continue
-		}
-
-		// Process the message
-		handleMessage(conn, messageType, wsMessage)
-	}
-
-	log.Printf("Client disconnected: %s", conn.RemoteAddr())
-}
-
-// handleMessage processes incoming WebSocket messages
-func handleMessage(conn *websocket.Conn, messageType int, wsMessage WebSocketMessage) {
+// HandleMessage processes incoming WebSocket messages
+func HandleMessage(conn *websocket.Conn, messageType int, wsMessage WebSocketMessage) {
 	var response WebSocketMessage
 
 	switch wsMessage.Type {

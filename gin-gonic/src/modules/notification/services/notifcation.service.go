@@ -16,7 +16,6 @@ import (
 func NotificationHandler(senderID, receiverID uuid.UUID, message, notiType string) *utils.ServiceError {
 	db := config.DB
 
-	// Prepare for new notification record
 	newNoti := notifications.Notification{
 		SenderID:   senderID,
 		ReceiverID: receiverID,
@@ -24,23 +23,34 @@ func NotificationHandler(senderID, receiverID uuid.UUID, message, notiType strin
 		NotiType:   notiType,
 	}
 
-	// Inserting record
 	if err := db.Create(&newNoti).Error; err != nil {
 		return &utils.ServiceError{
 			StatusCode: http.StatusInternalServerError,
 			Message:    err.Error(),
 		}
 	}
-	// Prepare message
-	content := services.WebSocketMessage{
-		Type:    newNoti.NotiType,
-		Message: newNoti.Message,
+
+	// Kafka event
+	event := services.WebSocketMessage{
+		Type:       newNoti.NotiType,
+		Message:    newNoti.Message,
+		ReceiverID: receiverID.String(),
 	}
-	// Send Notification on Socket
-	err := services.SendMessageToUser(receiverID, content)
+	payload, _ := json.Marshal(event)
+
+	err := kafkaWriter.WriteMessages(context.Background(),
+		kafka.Message{
+			Key:   []byte(receiverID.String()),
+			Value: payload,
+		},
+	)
 	if err != nil {
-		return nil
+		return &utils.ServiceError{
+			StatusCode: http.StatusInternalServerError,
+			Message:    err.Error(),
+		}
 	}
+
 	return nil
 }
 
