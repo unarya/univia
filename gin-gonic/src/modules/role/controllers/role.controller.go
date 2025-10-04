@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/deva-labs/univia-api/api/gin-gonic/src/config"
-	"github.com/deva-labs/univia-api/api/gin-gonic/src/modules/role/services"
-	"github.com/deva-labs/univia-api/api/gin-gonic/src/utils"
-	"github.com/deva-labs/univia-api/api/gin-gonic/src/utils/cache"
-	"github.com/deva-labs/univia-api/api/gin-gonic/src/utils/types"
+	"github.com/deva-labs/univia-api/gin-gonic/src/config"
+	"github.com/deva-labs/univia-api/gin-gonic/src/modules/role/services"
+	"github.com/deva-labs/univia-api/gin-gonic/src/utils"
+	"github.com/deva-labs/univia-api/gin-gonic/src/utils/cache"
+	"github.com/deva-labs/univia-api/gin-gonic/src/utils/types"
 
 	"github.com/gin-gonic/gin"
 )

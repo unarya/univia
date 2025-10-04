@@ -2,9 +2,9 @@ package roles
 
 import (
 	"errors"
-	"github.com/deva-labs/univia-api/api/gin-gonic/src/config"
-	roles "github.com/deva-labs/univia-api/api/gin-gonic/src/modules/role/models"
-	Users "github.com/deva-labs/univia-api/api/gin-gonic/src/modules/user/models"
+	"github.com/deva-labs/univia-api/gin-gonic/src/config"
+	roles "github.com/deva-labs/univia-api/gin-gonic/src/modules/role/models"
+	Users "github.com/deva-labs/univia-api/gin-gonic/src/modules/user/models"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"

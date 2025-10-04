@@ -9,10 +9,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/deva-labs/univia-api/api/gin-gonic/src/config"
-	"github.com/deva-labs/univia-api/api/gin-gonic/src/functions"
-	posts "github.com/deva-labs/univia-api/api/gin-gonic/src/modules/post/models"
-	"github.com/deva-labs/univia-api/api/gin-gonic/src/utils"
+	"github.com/deva-labs/univia-api/gin-gonic/src/config"
+	"github.com/deva-labs/univia-api/gin-gonic/src/functions"
+	posts "github.com/deva-labs/univia-api/gin-gonic/src/modules/post/models"
+	"github.com/deva-labs/univia-api/gin-gonic/src/utils"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"

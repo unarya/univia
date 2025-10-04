@@ -1,4 +1,4 @@
-module github.com/deva-labs/univia-api/api/gin-gonic
+module github.com/deva-labs/univia-api/gin-gonic
 
 go 1.25.0
 
