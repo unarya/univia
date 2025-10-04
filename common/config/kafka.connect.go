@@ -3,6 +3,8 @@ package config
 import (
 	"context"
 	"fmt"
+	"log"
+	"strconv"
 
 	"github.com/segmentio/kafka-go"
 )
@@ -10,14 +12,45 @@ import (
 var KafkaWriter *kafka.Writer
 
 func InitKafkaProducer() {
+	topic := "notifications"
+	broker := "kafka:9092"
+
+	// Tạo Kafka writer
 	KafkaWriter = &kafka.Writer{
-		Addr:     kafka.TCP("kafka:9092"),
-		Topic:    "notifications",
+		Addr:     kafka.TCP(broker),
+		Topic:    topic,
 		Balancer: &kafka.Hash{},
 	}
 
-	// Thử gửi 1 message test để kiểm tra kết nối
-	err := KafkaWriter.WriteMessages(context.Background(),
+	// Tạo topic nếu broker hỗ trợ CreateTopics API
+	conn, err := kafka.Dial("tcp", broker)
+	if err != nil {
+		log.Fatalf("failed to dial Kafka: %v", err)
+	}
+	defer conn.Close()
+
+	controller, err := conn.Controller()
+	if err != nil {
+		log.Fatalf("failed to get controller: %v", err)
+	}
+
+	c, err := kafka.Dial("tcp", controller.Host+":"+strconv.Itoa(controller.Port))
+	if err != nil {
+		log.Fatalf("failed to dial controller: %v", err)
+	}
+	defer c.Close()
+
+	err = c.CreateTopics(kafka.TopicConfig{
+		Topic:             topic,
+		NumPartitions:     1,
+		ReplicationFactor: 1,
+	})
+	if err != nil {
+		log.Println("⚠️  Topic may already exist:", err)
+	}
+
+	// Thử gửi test message
+	err = KafkaWriter.WriteMessages(context.Background(),
 		kafka.Message{
 			Key:   []byte("test-key"),
 			Value: []byte("Kafka connection test"),

@@ -61,6 +61,52 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/v1/auth/confirm-forgot-password": {
+            "post": {
+                "description": "handles the verification code process",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Verify the code",
+                "parameters": [
+                    {
+                        "description": "Verify Code",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/types.VerifyCodeRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Tokens response",
+                        "schema": {
+                            "$ref": "#/definitions/types.SuccessVerifyCodeResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid Input",
+                        "schema": {
+                            "$ref": "#/definitions/types.StatusBadRequest"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/types.StatusInternalError"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/auth/forgot-password": {
             "post": {
                 "description": "Send a verification email for password reset",
@@ -304,7 +350,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/users.User"
+                            "$ref": "#/definitions/github_com_deva-labs_univia_api_gin_src_modules_user_models.User"
                         }
                     }
                 ],
@@ -320,7 +366,7 @@ const docTemplate = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/users.User"
+                                            "$ref": "#/definitions/github_com_deva-labs_univia_api_gin_src_modules_user_models.User"
                                         },
                                         "status": {
                                             "$ref": "#/definitions/types.StatusOK"
@@ -430,7 +476,7 @@ const docTemplate = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/users.User"
+                                            "$ref": "#/definitions/github_com_deva-labs_univia_api_gin_src_modules_user_models.User"
                                         },
                                         "status": {
                                             "$ref": "#/definitions/types.StatusOK"
@@ -1384,7 +1430,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/routes.HealthResponse"
+                            "$ref": "#/definitions/src_routes.HealthResponse"
                         }
                     }
                 }
@@ -1403,13 +1449,13 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/routes.ReadySuccessResponse"
+                            "$ref": "#/definitions/src_routes.ReadySuccessResponse"
                         }
                     },
                     "503": {
                         "description": "Service Unavailable",
                         "schema": {
-                            "$ref": "#/definitions/routes.ReadyUnavailableResponse"
+                            "$ref": "#/definitions/src_routes.ReadyUnavailableResponse"
                         }
                     }
                 }
@@ -1417,7 +1463,7 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "roles.Role": {
+        "github_com_deva-labs_univia_api_gin_src_modules_role_models.Role": {
             "type": "object",
             "properties": {
                 "createdAt": {
@@ -1434,7 +1480,53 @@ const docTemplate = `{
                 }
             }
         },
-        "routes.HealthResponse": {
+        "github_com_deva-labs_univia_api_gin_src_modules_user_models.User": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "googleID": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "phoneNumber": {
+                    "type": "integer"
+                },
+                "role": {
+                    "description": "Foreign key to Role",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/github_com_deva-labs_univia_api_gin_src_modules_role_models.Role"
+                        }
+                    ]
+                },
+                "roleID": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "boolean"
+                },
+                "twitterID": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "src_routes.HealthResponse": {
             "type": "object",
             "properties": {
                 "status": {
@@ -1443,7 +1535,7 @@ const docTemplate = `{
                 }
             }
         },
-        "routes.ReadySuccessResponse": {
+        "src_routes.ReadySuccessResponse": {
             "type": "object",
             "properties": {
                 "status": {
@@ -1452,7 +1544,7 @@ const docTemplate = `{
                 }
             }
         },
-        "routes.ReadyUnavailableResponse": {
+        "src_routes.ReadyUnavailableResponse": {
             "type": "object",
             "properties": {
                 "status": {
@@ -1930,52 +2022,6 @@ const docTemplate = `{
                 "email": {
                     "type": "string",
                     "example": "ties.node@outlook.com"
-                }
-            }
-        },
-        "users.User": {
-            "type": "object",
-            "properties": {
-                "createdAt": {
-                    "type": "string"
-                },
-                "email": {
-                    "type": "string"
-                },
-                "googleID": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "password": {
-                    "type": "string"
-                },
-                "phoneNumber": {
-                    "type": "integer"
-                },
-                "role": {
-                    "description": "Foreign key to Role",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/roles.Role"
-                        }
-                    ]
-                },
-                "roleID": {
-                    "type": "string"
-                },
-                "status": {
-                    "type": "boolean"
-                },
-                "twitterID": {
-                    "type": "string"
-                },
-                "updatedAt": {
-                    "type": "string"
-                },
-                "username": {
-                    "type": "string"
                 }
             }
         }

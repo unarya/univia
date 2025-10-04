@@ -9,6 +9,7 @@ import (
 
 	"github.com/deva-labs/univia/common/config"
 	"github.com/deva-labs/univia/common/utils/cache"
+	"github.com/deva-labs/univia/common/utils/types"
 	"github.com/deva-labs/univia/signaling/services"
 	"github.com/deva-labs/univia/signaling/store"
 	"github.com/google/uuid"
@@ -82,7 +83,7 @@ func handleMessages(conn *websocket.Conn) {
 			break
 		}
 
-		var wsMsg services.WebSocketMessage
+		var wsMsg types.WebSocketMessage
 		if err := json.Unmarshal(msg, &wsMsg); err != nil {
 			log.Printf("Invalid message: %v", err)
 			continue
