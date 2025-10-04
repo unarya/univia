@@ -2,13 +2,14 @@ package main
 
 import (
 	"encoding/json"
-	"github.com/deva-labs/univia-api/signaling/services"
-	"github.com/deva-labs/univia-api/signaling/store"
-	"github.com/gorilla/websocket"
 	"log"
 	"net"
 	"net/http"
 	"os"
+
+	"github.com/deva-labs/univia/signaling/services"
+	"github.com/deva-labs/univia/signaling/store"
+	"github.com/gorilla/websocket"
 )
 
 func main() {

@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/deva-labs/univia-api/signaling/store"
+	"github.com/deva-labs/univia/signaling/store"
 	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
 )
