@@ -18,7 +18,7 @@ DB_NAME=${DB_NAME:-UniviaDB}
 DB_URL="mysql://${DB_USER}:${DB_PASS}@tcp(${DB_HOST}:${DB_PORT})/${DB_NAME}"
 
 echo "✅ Running migrations with database URL: ${DB_URL}"
-migrate -path ./migrations -mysql "${DB_URL}" up
+migrate -path ./migrations -database "${DB_URL}" up
 
 # Start the application with Air
 echo "🚀 Starting the application with Air..."

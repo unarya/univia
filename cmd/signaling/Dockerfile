@@ -19,15 +19,13 @@ WORKDIR /build
 
 # Copy dependency files first for better caching
 COPY go.mod go.sum ./
-
+COPY main.go ./
 # Download dependencies
 RUN go mod download && go mod verify
 
-# Copy source code
-COPY ../../signaling .
-
 # Build the application (enable CGO for libwebp)
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build \
+    -mod=mod \
     -ldflags='-w -s' \
     -o app ./main.go
 
@@ -42,10 +40,8 @@ RUN go install github.com/air-verse/air@latest && \
 
 WORKDIR /app
 COPY .air.toml ./
-COPY ../../internal/signaling/go.mod go.sum ./
+COPY go.mod go.sum ./
 RUN go mod tidy && go mod download
-
-COPY ../../signaling .
 
 RUN air init || true
 COPY entrypoint.sh /app/entrypoint.sh

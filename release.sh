@@ -63,8 +63,37 @@ fi
 # Create and push new tag
 git tag "${TAG}"
 git push origin "${TAG}"
-
 success "Released ${TAG} successfully!"
+
+# --------------------------------------------------------------------
+# Update go.mod dependencies to new version
+# --------------------------------------------------------------------
+log "Updating internal go.mod dependencies to ${TAG} ..."
+
+# Pattern: replace any line like
+#   github.com/deva-labs/univia v0.0.2-alpha.3
+#   → github.com/deva-labs/univia v0.0.2-alpha.4
+for modfile in $(find cmd -type f -name "go.mod"); do
+    if grep -q "github.com/deva-labs/univia" "$modfile"; then
+        log "Updating $modfile ..."
+        # Replace version in-place using sed
+        sed -i.bak -E "s#(github\.com/deva-labs/univia)[[:space:]]+v[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z]+\.[0-9]+)?#\1 ${TAG}#g" "$modfile"
+        rm -f "${modfile}.bak"
+        (cd "$(dirname "$modfile")" && go mod tidy >/dev/null 2>&1)
+    fi
+done
+
+# Commit dependency updates
+if ! git diff --quiet || ! git diff --cached --quiet; then
+    git add cmd/**/go.mod cmd/**/go.sum
+    git commit -m "chore: bump univia module to ${TAG}"
+    git push origin HEAD
+    success "Updated go.mod files to ${TAG}"
+else
+    log "No dependency changes to commit."
+fi
+
+# --------------------------------------------------------------------
 echo "---------------------------------------------------"
 echo "  • Stage        : ${STAGE}"
 echo "  • Base Version : ${BASE_VERSION}"

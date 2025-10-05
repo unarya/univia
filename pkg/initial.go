@@ -16,6 +16,10 @@ func InitInfrastructure() {
 	redis.ConnectRedis()
 }
 
+func ConnectRedis() {
+	redis.ConnectRedis()
+}
+
 func InitRoutes(gin *gin.Engine) {
 	routes.RegisterRoutes(gin)
 }

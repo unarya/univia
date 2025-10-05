@@ -350,7 +350,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_deva-labs_univia_api_gin_src_modules_user_models.User"
+                            "$ref": "#/definitions/github_com_deva-labs_univia_internal_api_modules_user_models.User"
                         }
                     }
                 ],
@@ -366,7 +366,7 @@ const docTemplate = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/github_com_deva-labs_univia_api_gin_src_modules_user_models.User"
+                                            "$ref": "#/definitions/github_com_deva-labs_univia_internal_api_modules_user_models.User"
                                         },
                                         "status": {
                                             "$ref": "#/definitions/github_com_deva-labs_univia_pkg_types.StatusOK"
@@ -476,7 +476,7 @@ const docTemplate = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/github_com_deva-labs_univia_api_gin_src_modules_user_models.User"
+                                            "$ref": "#/definitions/github_com_deva-labs_univia_internal_api_modules_user_models.User"
                                         },
                                         "status": {
                                             "$ref": "#/definitions/github_com_deva-labs_univia_pkg_types.StatusOK"
@@ -1430,7 +1430,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/internal_api_src_routes.HealthResponse"
+                            "$ref": "#/definitions/internal_api_routes.HealthResponse"
                         }
                     }
                 }
@@ -1449,13 +1449,13 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/internal_api_src_routes.ReadySuccessResponse"
+                            "$ref": "#/definitions/internal_api_routes.ReadySuccessResponse"
                         }
                     },
                     "503": {
                         "description": "Service Unavailable",
                         "schema": {
-                            "$ref": "#/definitions/internal_api_src_routes.ReadyUnavailableResponse"
+                            "$ref": "#/definitions/internal_api_routes.ReadyUnavailableResponse"
                         }
                     }
                 }
@@ -1463,7 +1463,7 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "github_com_deva-labs_univia_api_gin_src_modules_role_models.Role": {
+        "github_com_deva-labs_univia_internal_api_modules_role_models.Role": {
             "type": "object",
             "properties": {
                 "createdAt": {
@@ -1480,7 +1480,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_deva-labs_univia_api_gin_src_modules_user_models.User": {
+        "github_com_deva-labs_univia_internal_api_modules_user_models.User": {
             "type": "object",
             "properties": {
                 "createdAt": {
@@ -1505,7 +1505,7 @@ const docTemplate = `{
                     "description": "Foreign key to Role",
                     "allOf": [
                         {
-                            "$ref": "#/definitions/github_com_deva-labs_univia_api_gin_src_modules_role_models.Role"
+                            "$ref": "#/definitions/github_com_deva-labs_univia_internal_api_modules_role_models.Role"
                         }
                     ]
                 },
@@ -1998,7 +1998,7 @@ const docTemplate = `{
                 }
             }
         },
-        "internal_api_src_routes.HealthResponse": {
+        "internal_api_routes.HealthResponse": {
             "type": "object",
             "properties": {
                 "status": {
@@ -2007,7 +2007,7 @@ const docTemplate = `{
                 }
             }
         },
-        "internal_api_src_routes.ReadySuccessResponse": {
+        "internal_api_routes.ReadySuccessResponse": {
             "type": "object",
             "properties": {
                 "status": {
@@ -2016,7 +2016,7 @@ const docTemplate = `{
                 }
             }
         },
-        "internal_api_src_routes.ReadyUnavailableResponse": {
+        "internal_api_routes.ReadyUnavailableResponse": {
             "type": "object",
             "properties": {
                 "status": {

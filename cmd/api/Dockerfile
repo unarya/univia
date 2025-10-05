@@ -25,6 +25,7 @@ RUN go mod download && go mod verify
 
 # Build the application (enable CGO for libwebp)
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build \
+    -mod=mod \
     -ldflags='-w -s' \
     -o app ./main.go
 
@@ -44,8 +45,6 @@ WORKDIR /app
 COPY .air.toml ./
 COPY go.mod go.sum ./
 RUN go mod tidy && go mod download
-
-COPY ../../internal/api .
 
 RUN air init || true
 COPY entrypoint.sh /app/entrypoint.sh

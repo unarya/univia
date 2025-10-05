@@ -1,5 +1,5 @@
 definitions:
-  github_com_deva-labs_univia_api_gin_src_modules_role_models.Role:
+  github_com_deva-labs_univia_internal_api_modules_role_models.Role:
     properties:
       createdAt:
         type: string
@@ -10,7 +10,7 @@ definitions:
       updatedAt:
         type: string
     type: object
-  github_com_deva-labs_univia_api_gin_src_modules_user_models.User:
+  github_com_deva-labs_univia_internal_api_modules_user_models.User:
     properties:
       createdAt:
         type: string
@@ -26,7 +26,7 @@ definitions:
         type: integer
       role:
         allOf:
-        - $ref: '#/definitions/github_com_deva-labs_univia_api_gin_src_modules_role_models.Role'
+        - $ref: '#/definitions/github_com_deva-labs_univia_internal_api_modules_role_models.Role'
         description: Foreign key to Role
       roleID:
         type: string
@@ -363,19 +363,19 @@ definitions:
         example: ties.node@outlook.com
         type: string
     type: object
-  internal_api_src_routes.HealthResponse:
+  internal_api_routes.HealthResponse:
     properties:
       status:
         example: ok
         type: string
     type: object
-  internal_api_src_routes.ReadySuccessResponse:
+  internal_api_routes.ReadySuccessResponse:
     properties:
       status:
         example: ok
         type: string
     type: object
-  internal_api_src_routes.ReadyUnavailableResponse:
+  internal_api_routes.ReadyUnavailableResponse:
     properties:
       status:
         example: unavailable
@@ -601,7 +601,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/github_com_deva-labs_univia_api_gin_src_modules_user_models.User'
+          $ref: '#/definitions/github_com_deva-labs_univia_internal_api_modules_user_models.User'
       produces:
       - application/json
       responses:
@@ -612,7 +612,7 @@ paths:
             - $ref: '#/definitions/github_com_deva-labs_univia_pkg_types.SuccessResponse'
             - properties:
                 data:
-                  $ref: '#/definitions/github_com_deva-labs_univia_api_gin_src_modules_user_models.User'
+                  $ref: '#/definitions/github_com_deva-labs_univia_internal_api_modules_user_models.User'
                 status:
                   $ref: '#/definitions/github_com_deva-labs_univia_pkg_types.StatusOK'
               type: object
@@ -678,7 +678,7 @@ paths:
             - $ref: '#/definitions/github_com_deva-labs_univia_pkg_types.SuccessResponse'
             - properties:
                 data:
-                  $ref: '#/definitions/github_com_deva-labs_univia_api_gin_src_modules_user_models.User'
+                  $ref: '#/definitions/github_com_deva-labs_univia_internal_api_modules_user_models.User'
                 status:
                   $ref: '#/definitions/github_com_deva-labs_univia_pkg_types.StatusOK'
               type: object
@@ -1300,7 +1300,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/internal_api_src_routes.HealthResponse'
+            $ref: '#/definitions/internal_api_routes.HealthResponse'
       summary: Healthz
       tags:
       - Health Check
@@ -1312,11 +1312,11 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/internal_api_src_routes.ReadySuccessResponse'
+            $ref: '#/definitions/internal_api_routes.ReadySuccessResponse'
         "503":
           description: Service Unavailable
           schema:
-            $ref: '#/definitions/internal_api_src_routes.ReadyUnavailableResponse'
+            $ref: '#/definitions/internal_api_routes.ReadyUnavailableResponse'
       summary: Readyz
       tags:
       - Health Check
