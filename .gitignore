@@ -1,8 +1,4 @@
-/sql/*.idea
-/api/gin/go.mod/go.sum
-/api/gin/uploads
-/api/gin/*.sh
 .idea
-/api/gin/.env
 /infra/.env
-/signaling/.env
+/cmd/api/bin
+/cmd/signaling/bin
