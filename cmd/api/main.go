@@ -6,13 +6,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/deva-labs/univia/internal/infrastructure/kafka"
-	"github.com/deva-labs/univia/internal/infrastructure/minio"
-	"github.com/deva-labs/univia/internal/infrastructure/mysql"
-	"github.com/deva-labs/univia/internal/infrastructure/redis"
-
-	"github.com/deva-labs/univia/internal/api/routes"
-
+	"github.com/deva-labs/univia/pkg"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
@@ -41,13 +35,8 @@ func main() {
 		MaxAge:           12 * time.Hour,
 	}))
 
-	// Connect to the mysql
-	mysql.ConnectDatabase()
-	redis.ConnectRedis()
-	minio.ConnectMinio()
-	kafka.InitKafkaProducer()
-	// Register other routes
-	routes.RegisterRoutes(router)
+	pkg.InitInfrastructure()
+	pkg.InitRoutes(router)
 
 	// Start API and WebSocket server
 	addr := fmt.Sprintf("%s:%s", host, port)
