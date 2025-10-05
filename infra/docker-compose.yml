@@ -105,10 +105,10 @@ services:
         condition: service_started
     volumes:
       - ../:/app
-    working_dir: /app/api/gin
+    working_dir: /app/internal/api
     networks:
       - univia_network
-    entrypoint: ["/bin/sh", "-c", "/app/api/gin/entrypoint.sh"]
+    entrypoint: ["/bin/sh", "-c", "/app/cmd/api/entrypoint.sh"]
 
   signaling:
     image: univia-signaling:dev
@@ -122,10 +122,10 @@ services:
       - kafka
     volumes:
       - ../:/app
-    working_dir: /app/signaling
+    working_dir: /app/internal/signaling
     networks:
       - univia_network
-    entrypoint: ["/bin/sh", "-c", "/app/signaling/entrypoint.sh"]
+    entrypoint: ["/bin/sh", "-c", "/app/internal/signaling/entrypoint.sh"]
 
 volumes:
   db_data:
