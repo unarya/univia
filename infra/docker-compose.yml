@@ -95,7 +95,7 @@ services:
     ports:
       - "${APP_PORT}:2000"
     env_file:
-      - .env
+      - ../configs/.env
     depends_on:
       kafka:
         condition: service_healthy
@@ -117,7 +117,7 @@ services:
     ports:
       - "2112:2112"
     env_file:
-      - .env
+      - ../configs/.env
     depends_on:
       - kafka
     volumes:
