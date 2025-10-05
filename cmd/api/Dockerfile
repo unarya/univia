@@ -19,7 +19,7 @@ WORKDIR /build
 
 # Copy dependency files first for better caching
 COPY go.mod go.sum ./
-
+COPY main.go ./
 # Download dependencies
 RUN go mod download && go mod verify
 
