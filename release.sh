@@ -76,10 +76,18 @@ log "Updating internal go.mod dependencies to ${TAG} ..."
 for modfile in $(find cmd -type f -name "go.mod"); do
     if grep -q "github.com/deva-labs/univia" "$modfile"; then
         log "Updating $modfile ..."
-        # Replace version in-place using sed
-        sed -i.bak -E "s#(github\.com/deva-labs/univia)[[:space:]]+v[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z]+\.[0-9]+)?#\1 ${TAG}#g" "$modfile"
+        # Try replacing version
+        if ! sed -i.bak -E "s#(github\.com/deva-labs/univia)[[:space:]]+v[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z]+\.[0-9]+)?#\1 ${TAG}#g" "$modfile"; then
+            error "Failed to update version in $modfile"
+            exit 1
+        fi
         rm -f "${modfile}.bak"
-        (cd "$(dirname "$modfile")" && go mod tidy >/dev/null 2>&1)
+
+        # Run go mod tidy and catch any error explicitly
+        if ! (cd "$(dirname "$modfile")" && go mod tidy >/dev/null 2>&1); then
+            error "go mod tidy failed for $(dirname "$modfile")"
+            exit 1
+        fi
     fi
 done
 
