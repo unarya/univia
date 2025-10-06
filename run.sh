@@ -45,7 +45,6 @@ docker tag mysql:latest "$MYSQL_IMAGE_TAG"
 
 log "Stopping old containers..."
 cd "$INFRA_DIR" && docker compose down || error_exit "Failed to stop old containers."
-
 # ----------------------------------------------------------------------
 # BUILD STAGE
 # ----------------------------------------------------------------------
@@ -69,7 +68,7 @@ docker build \
 # DEPLOY STAGE
 # ----------------------------------------------------------------------
 log "Starting infrastructure stack..."
-cd "$INFRA_DIR" && docker compose up -d || error_exit "Failed to start infra stack."
+cd "$INFRA_DIR" && docker compose --env-file ../configs/.env up -d || error_exit "Failed to start infra stack."
 
 log "Listing running containers..."
 docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"

@@ -3,6 +3,9 @@ services:
     image: univia:mysql
     container_name: univia-mysql
     restart: always
+    env_file:
+      - path: ../configs/.env
+        required: true
     environment:
       MYSQL_ROOT_PASSWORD: ${DB_PASS}
       MYSQL_DATABASE: ${DB_NAME}
@@ -95,7 +98,8 @@ services:
     ports:
       - "${APP_PORT}:2000"
     env_file:
-      - ../configs/.env
+      - path: ../configs/.env
+        required: true
     depends_on:
       kafka:
         condition: service_healthy
@@ -117,9 +121,13 @@ services:
     ports:
       - "2112:2112"
     env_file:
-      - ../configs/.env
+      - path: ../configs/.env
+        required: true
     depends_on:
-      - kafka
+      kafka:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     volumes:
       - ../:/app
     working_dir: /app/cmd/signaling

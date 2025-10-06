@@ -10,9 +10,9 @@ import (
 )
 
 func InitInfrastructure() {
+	mysql.ConnectDatabase()
 	kafka.InitKafkaProducer()
 	minio.ConnectMinio()
-	mysql.ConnectDatabase()
 	redis.ConnectRedis()
 }
 
