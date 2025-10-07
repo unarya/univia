@@ -23,6 +23,6 @@ type RefreshToken struct {
 
 // BeforeCreate sets the default expiration time for the refresh token.
 func (r *RefreshToken) BeforeCreate(tx *gorm.DB) (err error) {
-	r.ExpiresAt = time.Now().Add(30 * 24 * time.Hour) // 30 days from now
+	r.ExpiresAt = time.Now().Add(90 * 24 * time.Hour) // 30 days from now
 	return
 }

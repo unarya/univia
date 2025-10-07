@@ -153,7 +153,7 @@ func seedRoles(db *gorm.DB) (map[string]Roles.Role, error) {
 
 	for _, roleName := range allRoles {
 		var role Roles.Role
-		if err := db.FirstOrCreate(&role, Roles.Role{Name: roleName}).Error; err != nil {
+		if err := db.FirstOrCreate(&role, Roles.Role{ID: uuid.New(), Name: roleName}).Error; err != nil {
 			return nil, fmt.Errorf("failed to create role %s: %w", roleName, err)
 		}
 		roleMap[roleName] = role
@@ -168,7 +168,7 @@ func seedPermissions(db *gorm.DB) ([]Permissions.Permission, error) {
 
 	for _, permName := range utils.Permissions {
 		var perm Permissions.Permission
-		if err := db.FirstOrCreate(&perm, Permissions.Permission{Name: permName}).Error; err != nil {
+		if err := db.FirstOrCreate(&perm, Permissions.Permission{ID: uuid.New(), Name: permName}).Error; err != nil {
 			return nil, fmt.Errorf("failed to create permission %s: %w", permName, err)
 		}
 		permEntities = append(permEntities, perm)

@@ -11,6 +11,8 @@ SELECT * FROM media;
 SELECT * FROM posts WHERE id = 2;
 SELECT * FROM schema_migrations;
 SELECT `id` FROM `roles` WHERE name = 'admin';
+SELECT * FROM users INNER JOIN user_sessions ON users.id = user_sessions.user_id;
+SELECT * FROM schema_migrations;
 SELECT posts.id, posts.content, posts.created_at, posts.updated_at,
 media.id AS media_id, media.path AS media_path, media.type AS media_type, media.status AS media_status,
        categories.id AS categories_id, categories.name AS categories_name

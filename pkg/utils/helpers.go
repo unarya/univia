@@ -2,9 +2,16 @@ package utils
 
 import (
 	"encoding/binary"
+	"fmt"
 	"math"
+	"net/http"
+	"os"
 	"strconv"
+	"time"
 
+	sessions "github.com/deva-labs/univia/internal/api/modules/session/model"
+	users "github.com/deva-labs/univia/internal/api/modules/user/models"
+	"github.com/deva-labs/univia/internal/infrastructure/redis"
 	"github.com/deva-labs/univia/pkg/types"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -156,4 +163,50 @@ func SendErrorResponse(c *gin.Context, statusCode int, message string, err error
 		response.Error = err.Error()
 	}
 	c.JSON(statusCode, response)
+}
+
+func NowPtr() *time.Time {
+	now := time.Now()
+	return &now
+}
+
+func SetSessionToRedis(session sessions.UserSession, user users.User, meta types.SessionMetadata) error {
+	// Save redis for signal handshaking
+	cacheKey := fmt.Sprintf("session:%s", session.SessionID)
+	cacheValue := map[string]interface{}{
+		"user_id":     user.ID,
+		"email":       user.Email,
+		"username":    user.Username,
+		"session_id":  session.SessionID,
+		"ip":          meta.IP,
+		"user_agent":  meta.UserAgent,
+		"created_at":  session.CreatedAt,
+		"last_active": session.LastActive,
+	}
+	err := redis.Redis.SetJSON(cacheKey, cacheValue, 12*time.Hour)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// SetHttpOnlyCookieForSession is a function to set http only cookie on a device
+func SetHttpOnlyCookieForSession(c *gin.Context, sessionID string) {
+	env := os.Getenv("NODE_ENV")
+	isProd := env == "production"
+
+	cookie := &http.Cookie{
+		Name:     "session_id",
+		Value:    sessionID,
+		Path:     "/",
+		HttpOnly: true,
+		Secure:   isProd,
+		SameSite: http.SameSiteLaxMode,
+	}
+
+	if isProd {
+		cookie.SameSite = http.SameSiteNoneMode
+	}
+
+	http.SetCookie(c.Writer, cookie)
 }

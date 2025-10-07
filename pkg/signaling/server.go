@@ -36,7 +36,7 @@ var upgrader = websocket.Upgrader{
 }
 
 func (s *Server) Start() error {
-	http.HandleFunc("/ws", s.handleWebSocket)
+	http.HandleFunc("/", s.handleWebSocket)
 	log.Printf("[Signaling] Listening on port %s", s.Port)
 	return http.ListenAndServe(":"+s.Port, nil)
 }
@@ -97,6 +97,10 @@ func (s *Server) getUserIDFromRedis(ip string) uuid.UUID {
 	val, err := redis.GetJSON[uuid.UUID](redis.Redis, "user:"+ip)
 	if err != nil {
 		log.Printf("Redis get user_id failed: %v", err)
+		return uuid.Nil
+	}
+	if val == nil {
+		log.Printf("Redis key not found for IP: %s", ip)
 		return uuid.Nil
 	}
 	return *val

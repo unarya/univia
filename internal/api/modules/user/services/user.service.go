@@ -13,10 +13,13 @@ import (
 
 	AccessTokens "github.com/deva-labs/univia/internal/api/modules/key_token/access_token/models"
 	RefreshTokens "github.com/deva-labs/univia/internal/api/modules/key_token/refresh_token/models"
+	refresh_token "github.com/deva-labs/univia/internal/api/modules/key_token/refresh_token/services"
 	Profiles "github.com/deva-labs/univia/internal/api/modules/profile/models"
 	roles "github.com/deva-labs/univia/internal/api/modules/role/services"
+	sessions "github.com/deva-labs/univia/internal/api/modules/session/model"
 	Users "github.com/deva-labs/univia/internal/api/modules/user/models"
 	"github.com/deva-labs/univia/internal/infrastructure/mysql"
+	"github.com/deva-labs/univia/pkg/types"
 	"github.com/deva-labs/univia/pkg/utils"
 
 	"github.com/google/uuid"
@@ -125,7 +128,7 @@ func RegisterUser(user Users.User) (map[string]interface{}, error) {
 func LoginUser(email, phoneNumber, password, username string) (string, int, error) {
 	db := mysql.DB
 
-	// Step 1: Xác định thông tin đầu vào để truy vấn
+	// Receive input
 	var existingUser Users.User
 	var err error
 
@@ -144,25 +147,25 @@ func LoginUser(email, phoneNumber, password, username string) (string, int, erro
 		return "", http.StatusUnauthorized, errors.New("invalid user")
 	}
 
-	// Step 2: Kiểm tra mật khẩu
+	// Password checking
 	if err := bcrypt.CompareHashAndPassword([]byte(existingUser.Password), []byte(password)); err != nil {
 		return "", http.StatusUnauthorized, errors.New("invalid credentials")
 	}
 
-	// Step 3: Tạo mã xác minh 6 chữ số
+	// Send verify code
 	verificationCode := generateVerificationCode()
 
-	// Step 4: Lưu mã xác minh
+	// Save verify code
 	if err := saveVerificationCode(existingUser.Email, verificationCode); err != nil {
 		return "", http.StatusInternalServerError, errors.New("failed to save verification code")
 	}
 
-	// Step 5: Gửi mã xác minh qua email
+	// Send verify code
 	if err := sendVerificationEmail(existingUser.Email, verificationCode); err != nil {
 		return "", http.StatusInternalServerError, errors.New(err.Error())
 	}
 
-	// Step 6: Trả về thành công
+	// Return
 	return existingUser.Email, http.StatusOK, nil
 }
 
@@ -249,7 +252,7 @@ func LoginGoogle(googleToken string) (map[string]interface{}, error) {
 	}
 
 	// Step 6: Generate hex tokens for the user
-	accessToken, refreshToken, err := generateHexTokens(existingUser.ID)
+	accessToken, refreshToken, err := refresh_token.GenerateHexTokens(existingUser.ID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to generate tokens: %w", err)
 	}
@@ -348,7 +351,7 @@ func LoginTwitter(username, email, image, profileBackgroundImage, profileBackgro
 	}
 
 	// Generate new tokens
-	accessToken, refreshToken, err := generateHexTokens(existingUser.ID)
+	accessToken, refreshToken, err := refresh_token.GenerateHexTokens(existingUser.ID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to generate tokens: %w", err)
 	}
@@ -360,44 +363,53 @@ func LoginTwitter(username, email, image, profileBackgroundImage, profileBackgro
 	}, nil
 }
 
-func generateHexTokens(userID uuid.UUID) (string, string, error) {
+func LoginBySessionID(sessionID string, user Users.User, meta types.SessionMetadata) (types.ResponseSession, int, error) {
 	db := mysql.DB
 
-	// Generate random hex strings for tokens
-	accessTokenBytes := make([]byte, 32) // 256-bit
-	refreshTokenBytes := make([]byte, 32)
-
-	_, err := rand.Read(accessTokenBytes)
+	var session sessions.UserSession
+	err := db.Where("session_id = ?", sessionID).First(&session).Error
 	if err != nil {
-		return "", "", errors.New("failed to generate access token")
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return types.ResponseSession{}, http.StatusNotFound, fmt.Errorf("session not found")
+		}
+		return types.ResponseSession{}, http.StatusInternalServerError, fmt.Errorf("failed to query session: %v", err)
 	}
-	_, err = rand.Read(refreshTokenBytes)
+
+	// Only allow re-login if session is currently inactive
+	if session.Status != "inactive" {
+		return types.ResponseSession{}, http.StatusBadRequest, fmt.Errorf("session is already active or revoked")
+	}
+
+	// Fetch the associated user
+	if err := db.Where("id = ?", session.UserID).First(&user).Error; err != nil {
+		return types.ResponseSession{}, http.StatusInternalServerError, fmt.Errorf("user not found for session: %v", err)
+	}
+
+	// Generate new tokens for this session
+	accessToken, refreshToken, err := refresh_token.GenerateHexTokens(session.UserID)
 	if err != nil {
-		return "", "", errors.New("failed to generate refresh token")
+		return types.ResponseSession{}, http.StatusInternalServerError, fmt.Errorf("failed to generate tokens: %v", err)
 	}
 
-	accessToken := hex.EncodeToString(accessTokenBytes)
-	refreshToken := hex.EncodeToString(refreshTokenBytes)
-
-	// Save access token to mysql
-	accessTokenEntry := AccessTokens.AccessToken{
-		UserID: userID,
-		Token:  accessToken,
-	}
-	if err := db.Create(&accessTokenEntry).Error; err != nil {
-		return "", "", err
+	// Store session in Redis for signaling handshake
+	if err := utils.SetSessionToRedis(session, user, meta); err != nil {
+		return types.ResponseSession{}, http.StatusInternalServerError, fmt.Errorf("failed to cache session: %v", err)
 	}
 
-	// Save refresh token to mysql
-	refreshTokenEntry := RefreshTokens.RefreshToken{
-		UserID: userID,
-		Token:  refreshToken,
-	}
-	if err := db.Create(&refreshTokenEntry).Error; err != nil {
-		return "", "", err
+	// Update session status to active
+	session.Status = "active"
+	session.LastActive = utils.NowPtr()
+	if err := db.Save(&session).Error; err != nil {
+		return types.ResponseSession{}, http.StatusInternalServerError, fmt.Errorf("failed to update session status: %v", err)
 	}
 
-	return accessToken, refreshToken, nil
+	response := types.ResponseSession{
+		AccessToken:  accessToken,
+		RefreshToken: refreshToken,
+		SessionID:    session.SessionID,
+	}
+
+	return response, http.StatusOK, nil
 }
 
 func DeleteAllTokensByUserID(userID uuid.UUID) error {

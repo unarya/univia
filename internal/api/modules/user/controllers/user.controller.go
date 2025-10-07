@@ -9,12 +9,12 @@ import (
 	"strings"
 	"time"
 
-	model "github.com/deva-labs/univia/internal/api/modules/user/models"
-	users "github.com/deva-labs/univia/internal/api/modules/user/services"
+	"github.com/deva-labs/univia/internal/api/modules/user/models"
+	usersService "github.com/deva-labs/univia/internal/api/modules/user/services"
+	"github.com/deva-labs/univia/internal/infrastructure/mysql"
 	"github.com/deva-labs/univia/internal/infrastructure/redis"
 	"github.com/deva-labs/univia/pkg/types"
 	"github.com/deva-labs/univia/pkg/utils"
-
 	"github.com/gin-gonic/gin"
 )
 
@@ -28,7 +28,7 @@ import (
 // @Produce      json
 // @Security     BearerAuth
 // @Param        Authorization header string true "Bearer <access_token>"
-// @Success      200 {object} types.SuccessResponse{status=types.StatusOK,data=model.User} "User info"
+// @Success      200 {object} types.SuccessResponse{status=types.StatusOK,data=users.User} "User info"
 // @Failure      401 {object} types.StatusUnauthorized "Unauthorized"
 // @Failure      403 {object} types.StatusForbidden "Forbidden: insufficient permissions"
 // @Failure      500 {object} types.StatusInternalError "Internal Server Error"
@@ -42,7 +42,7 @@ func GetUser(c *gin.Context) {
 	}
 
 	// Type assertion
-	currentUser, ok := user.(*model.User)
+	currentUser, ok := user.(*users.User)
 	if !ok {
 		utils.SendErrorResponse(c, http.StatusUnauthorized, "Invalid user data", nil)
 		return
@@ -58,7 +58,7 @@ func GetUser(c *gin.Context) {
 	}
 
 	// Fetch user info from service
-	userInfo, err := users.GetUserInfo(currentUser.ID)
+	userInfo, err := usersService.GetUserInfo(currentUser.ID)
 	if err != nil {
 		utils.SendErrorResponse(c, http.StatusInternalServerError, "Failed to get user", err)
 		return
@@ -78,19 +78,19 @@ func GetUser(c *gin.Context) {
 // @Tags         Authentication
 // @Accept       json
 // @Produce      json
-// @Param        request body model.User true "User data"
-// @Success      201 {object} types.SuccessResponse{status=types.StatusOK,data=model.User} "Created user"
+// @Param        request body users.User true "User data"
+// @Success      201 {object} types.SuccessResponse{status=types.StatusOK,data=users.User} "Created user"
 // @Failure      400 {object} types.StatusBadRequest "Invalid input"
 // @Failure      500 {object} types.StatusInternalError "Internal Server Error"
 // @Router       /api/v1/auth/register [post]
 func RegisterUser(c *gin.Context) {
-	var userData model.User
+	var userData users.User
 	if err := utils.BindJson(c, &userData); err != nil {
 		utils.SendErrorResponse(c, http.StatusBadRequest, "Invalid input", err)
 		return
 	}
 
-	response, err := users.RegisterUser(userData)
+	response, err := usersService.RegisterUser(userData)
 	if err != nil {
 		utils.SendErrorResponse(c, http.StatusInternalServerError, "Failed to create user", err)
 		return
@@ -120,13 +120,42 @@ func LoginUser(c *gin.Context) {
 		return
 	}
 
-	email, status, err := users.LoginUser(request.Email, request.PhoneNumber, request.Password, request.Username)
+	// Lấy session_id từ cookie (nếu có)
+	sessionID, _ := c.Cookie("session_id")
+
+	ip := c.ClientIP()
+	userAgent := c.Request.UserAgent()
+	meta := types.SessionMetadata{IP: ip, UserAgent: userAgent}
+
+	db := mysql.DB
+	var user users.User
+
+	// Case 1: Have session ID
+	if sessionID != "" {
+		response, status, err := usersService.LoginBySessionID(sessionID, user, meta)
+		if err != nil {
+			utils.SendErrorResponse(c, status, "Failed to login", err)
+			return
+		}
+
+		// Set cookie HttpOnly
+		utils.SetHttpOnlyCookieForSession(c, response.SessionID)
+		utils.SendSuccessResponse(c, status, "Retrieved the profile of user successfully", response)
+	}
+
+	// Case 2: Regular login
+	email, status, err := usersService.LoginUser(request.Email, request.PhoneNumber, request.Password, request.Username)
 	if err != nil {
 		utils.SendErrorResponse(c, status, err.Error(), nil)
 		return
 	}
 
-	utils.SendSuccessResponse(c, http.StatusOK, "Verification code sent to your email. Please verify to process.", email)
+	if err := db.Where("email = ?", email).First(&user).Error; err != nil {
+		utils.SendErrorResponse(c, http.StatusNotFound, "User not found", nil)
+		return
+	}
+
+	utils.SendSuccessResponse(c, http.StatusOK, "We have sent an verification code to your email", email)
 }
 
 // =================== LOGIN GOOGLE ===================
@@ -149,7 +178,7 @@ func LoginGoogle(c *gin.Context) {
 		return
 	}
 
-	response, err := users.LoginGoogle(request.Token)
+	response, err := usersService.LoginGoogle(request.Token)
 	if err != nil {
 		utils.SendErrorResponse(c, http.StatusBadRequest, err.Error(), nil)
 		return
@@ -182,7 +211,7 @@ func LoginTwitter(c *gin.Context) {
 		return
 	}
 
-	response, err := users.LoginTwitter(
+	response, err := usersService.LoginTwitter(
 		request.Username,
 		request.Email,
 		request.Image,
@@ -228,7 +257,7 @@ func RefreshAccessToken(c *gin.Context) {
 	}
 	refreshToken := tokenParts[1]
 
-	response, err := users.RefreshAccessToken(refreshToken, clientID)
+	response, err := usersService.RefreshAccessToken(refreshToken, clientID)
 	if err != nil {
 		utils.SendErrorResponse(c, http.StatusInternalServerError, "Failed to refresh token", err)
 		return
@@ -261,7 +290,7 @@ func ForgotPassword(c *gin.Context) {
 		return
 	}
 
-	status, err := users.ForgotPassword(request.Email)
+	status, err := usersService.ForgotPassword(request.Email)
 	if err != nil {
 		utils.SendErrorResponse(c, status, "Failed to send verification email", err)
 		return
@@ -294,7 +323,7 @@ func RenewPassword(c *gin.Context) {
 		return
 	}
 
-	status, err := users.RenewPassword(request.NewPassword, strconv.Itoa(int(request.UserID)))
+	status, err := usersService.RenewPassword(request.NewPassword, strconv.Itoa(int(request.UserID)))
 	if err != nil {
 		utils.SendErrorResponse(c, status, "Failed to change password", err)
 		return
@@ -327,7 +356,7 @@ func ChangePassword(c *gin.Context) {
 		return
 	}
 
-	status, err := users.ChangePassword(request.OldPassword, request.NewPassword, strconv.Itoa(int(request.UserID)))
+	status, err := usersService.ChangePassword(request.OldPassword, request.NewPassword, strconv.Itoa(int(request.UserID)))
 	if err != nil {
 		utils.SendErrorResponse(c, status, "Failed to change password", err)
 		return
@@ -369,7 +398,7 @@ func GetUserAvatar(c *gin.Context) {
 		fmt.Println(err)
 	}
 	// Continue
-	avatarUser, err := users.GetUserImageByID(request.UserID)
+	avatarUser, err := usersService.GetUserImageByID(request.UserID)
 	if err != nil {
 		utils.SendErrorResponse(c, http.StatusInternalServerError, err.Message, nil)
 		return

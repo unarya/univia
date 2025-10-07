@@ -22,6 +22,7 @@ FILES=(
   "verification_codes"
   "notifications"
   "follows"
+  "user_sessions"
 )
 
 i=1

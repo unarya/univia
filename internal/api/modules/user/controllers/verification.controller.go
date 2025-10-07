@@ -3,8 +3,9 @@ package users
 import (
 	"net/http"
 
-	Users "github.com/deva-labs/univia/internal/api/modules/user/models"
+	"github.com/deva-labs/univia/internal/api/modules/user/models"
 	verificationservices "github.com/deva-labs/univia/internal/api/modules/user/services"
+	"github.com/deva-labs/univia/pkg/types"
 	_ "github.com/deva-labs/univia/pkg/types"
 	"github.com/deva-labs/univia/pkg/utils"
 
@@ -24,7 +25,7 @@ import (
 // @Router /api/v1/auth/confirm-forgot-password [post]
 // VerifyCode handles the verification code process and token generation
 func VerifyCode(c *gin.Context) {
-	var code Users.VerificationCode
+	var code users.VerificationCode
 
 	// Parse JSON input
 	if err := utils.BindJson(c, &code); err != nil {
@@ -33,13 +34,13 @@ func VerifyCode(c *gin.Context) {
 	}
 
 	// Call the service to verify the code and generate tokens
-	token, err := verificationservices.VerifyCode(code.Code, code.Email)
+	err := verificationservices.VerifyCode(code.Code, code.Email)
 	if err != nil {
 		utils.SendErrorResponse(c, http.StatusUnauthorized, "Unauthorized: ", err)
 		return
 	}
 
-	utils.SendSuccessResponse(c, http.StatusOK, "Verification successful", token)
+	utils.SendSuccessResponse(c, http.StatusOK, "Verification successful", nil)
 }
 
 // VerifyCodeAndGenerateToken godoc
@@ -56,20 +57,27 @@ func VerifyCode(c *gin.Context) {
 // VerifyCode handles the verification code process and token generation
 // VerifyCodeAndGenerateToken handles the verification code process and token generation
 func VerifyCodeAndGenerateToken(c *gin.Context) {
-	var code Users.VerificationCode
+	var code users.VerificationCode
 
-	// Parse JSON input
 	if err := utils.BindJson(c, &code); err != nil {
 		utils.SendErrorResponse(c, http.StatusBadRequest, "Invalid input", err)
 		return
 	}
 
-	// Call the service to verify the code and generate tokens
-	response, status, err := verificationservices.VerifyCodeAndGenerateTokens(code)
+	ip := c.ClientIP()
+	userAgent := c.Request.UserAgent()
+
+	meta := types.SessionMetadata{
+		IP:        ip,
+		UserAgent: userAgent,
+	}
+
+	response, status, err := verificationservices.VerifyCodeAndGenerateTokens(code, meta)
 	if err != nil {
 		utils.SendErrorResponse(c, status, err.Error(), nil)
 		return
 	}
+	utils.SetHttpOnlyCookieForSession(c, response.SessionID)
 
 	utils.SendSuccessResponse(c, http.StatusOK, "Verification successful", response)
 }

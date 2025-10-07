@@ -3,9 +3,13 @@ package users
 import (
 	"fmt"
 
-	"github.com/deva-labs/univia/internal/api/modules/key_token/access_token/models"
-	users "github.com/deva-labs/univia/internal/api/modules/user/models"
+	refreshTokenService "github.com/deva-labs/univia/internal/api/modules/key_token/refresh_token/services"
+	"github.com/deva-labs/univia/internal/api/modules/session/model"
+	"github.com/deva-labs/univia/internal/api/modules/user/models"
 	"github.com/deva-labs/univia/internal/infrastructure/mysql"
+	"github.com/deva-labs/univia/pkg/types"
+	"github.com/deva-labs/univia/pkg/utils"
+	"github.com/google/uuid"
 
 	"math/rand"
 	"net/http"
@@ -70,74 +74,96 @@ func sendVerificationEmail(email, code string) error {
 }
 
 // VerifyCodeAndGenerateTokens Function to verify the code and generate tokens
-func VerifyCodeAndGenerateTokens(code users.VerificationCode) (map[string]interface{}, int, error) {
+func VerifyCodeAndGenerateTokens(code users.VerificationCode, meta types.SessionMetadata) (types.ResponseSession, int, error) {
 	db := mysql.DB
-	// Step 1: Retrieve the user associated with the email
+
 	var user users.User
 	if err := db.Where("email = ?", code.Email).First(&user).Error; err != nil {
-		return nil, http.StatusNotFound, fmt.Errorf("invalid user")
+		return types.ResponseSession{}, http.StatusNotFound, err
 	}
 
-	// Step 2: Retrieve the verification record
 	var verification users.VerificationCode
 	if err := db.Where("email = ?", code.Email).First(&verification).Error; err != nil {
-		return nil, http.StatusNotFound, fmt.Errorf("verification record not found")
+		return types.ResponseSession{}, http.StatusNotFound, err
 	}
 
-	// Step 3: Check if the code is expired
+	// Check valid
 	if verification.ExpiresAt.Before(time.Now()) {
-		db.Delete(&verification) // Ensure to delete expired verification code
-		return nil, http.StatusUnauthorized, fmt.Errorf("verification code has expired")
+		db.Delete(&verification)
+		return types.ResponseSession{}, http.StatusUnauthorized, fmt.Errorf("verification code has expired")
 	}
 
-	// Step 4: Check valid code
+	// Check code
 	if verification.Code != code.Code {
-		verification.InputCount += 1
+		verification.InputCount++
 		db.Save(&verification)
 
-		// Step 5: Lock user after 5 failed attempts
 		if verification.InputCount >= 5 {
 			db.Delete(&verification)
 			user.Status = false
 			db.Save(&user)
-			return nil, http.StatusUnauthorized, fmt.Errorf("too many time argument, your account had been suspended, please get contact to admin")
+			return types.ResponseSession{}, http.StatusUnauthorized, fmt.Errorf("too many failed attempts, your account has been suspended")
 		}
-		return nil, http.StatusUnauthorized, fmt.Errorf("invalid verification code")
+
+		return types.ResponseSession{}, http.StatusUnauthorized, fmt.Errorf("invalid verification code")
 	}
 
-	// Step 6: Delete all existing tokens for the user
-	if err := DeleteAllTokensByUserID(user.ID); err != nil {
-		return nil, http.StatusInternalServerError, fmt.Errorf("failed to delete existing tokens")
-	}
-
-	// Step 7: Generate new tokens
-	accessToken, refreshToken, err := generateHexTokens(user.ID)
+	// Init tokens
+	accessToken, refreshToken, err := refreshTokenService.GenerateHexTokens(user.ID)
 	if err != nil {
-		return nil, http.StatusInternalServerError, fmt.Errorf("failed to generate tokens")
+		return types.ResponseSession{}, http.StatusInternalServerError, err
 	}
 
-	// Step 8: Return the tokens with success status
-	return map[string]interface{}{
-		"access_token":  accessToken,
-		"refresh_token": refreshToken,
+	// Get refresh token id
+	rID, err := refreshTokenService.GetRefreshTokenIDByToken(refreshToken)
+	if err != nil {
+		return types.ResponseSession{}, http.StatusInternalServerError, err
+	}
+
+	// Init new session record
+	session := sessions.UserSession{
+		ID:             uuid.New(),
+		SessionID:      uuid.NewString(),
+		UserID:         user.ID,
+		IP:             meta.IP,
+		UserAgent:      meta.UserAgent,
+		RefreshTokenID: rID,
+		LastActive:     utils.NowPtr(),
+	}
+	if err := db.Create(&session).Error; err != nil {
+		return types.ResponseSession{}, http.StatusInternalServerError, err
+	}
+
+	// Save redis for signal handshaking
+	err = utils.SetSessionToRedis(session, user, meta)
+	if err != nil {
+		return types.ResponseSession{}, http.StatusInternalServerError, err
+	}
+	// Delete verification record
+	db.Delete(&verification)
+
+	return types.ResponseSession{
+		AccessToken:  accessToken,
+		RefreshToken: refreshToken,
+		SessionID:    session.SessionID,
 	}, http.StatusOK, nil
 }
 
-func VerifyCode(code, email string) (map[string]interface{}, error) {
+func VerifyCode(code, email string) error {
 	// Import db queries
 	db := mysql.DB
 	var user users.User
 	if err := db.Where("email = ?", email).First(&user).Error; err != nil {
-		return nil, err
+		return err
 	}
 	var verification users.VerificationCode
 	if err := db.Where("email = ? AND code = ?", email, code).First(&verification).Error; err != nil {
-		return nil, err
+		return err
 	}
 	// Step 3: Check if the code is expired
 	if verification.ExpiresAt.Before(time.Now()) {
 		db.Delete(&verification) // Ensure to delete expired verification code
-		return nil, fmt.Errorf("verification code has expired")
+		return fmt.Errorf("verification code has expired")
 	}
 	// Step 4: Check valid code
 	if verification.Code != code {
@@ -149,33 +175,14 @@ func VerifyCode(code, email string) (map[string]interface{}, error) {
 			db.Delete(&verification)
 			user.Status = false
 			db.Save(&user)
-			return nil, fmt.Errorf("too many time argument, your account had been suspended, please get contact to admin")
+			return fmt.Errorf("too many time argument, your account had been suspended, please get contact to admin")
 		}
-		return nil, fmt.Errorf("invalid verification code")
+		return fmt.Errorf("invalid verification code")
 	}
 	// Step 6: Delete all existing tokens for the user
 	if err := DeleteAllTokensByUserID(user.ID); err != nil {
-		return nil, fmt.Errorf("failed to delete existing tokens")
+		return fmt.Errorf("failed to delete existing tokens")
 	}
 
-	// Step 7: Get New Token
-	token, err := GenerateAccessToken()
-	if err != nil {
-		return nil, fmt.Errorf("failed to generate access token")
-	}
-	// Step 8: Save token to user
-	accessTokenEntry := access_token.AccessToken{
-		UserID: user.ID,
-		Token:  token,
-	}
-	if err := db.Create(&accessTokenEntry).Error; err != nil {
-		return nil, fmt.Errorf("failed to save access token")
-	}
-
-	// Step 9: Return the token and user ID
-	response := map[string]interface{}{
-		"token":   accessTokenEntry.Token,
-		"user_id": accessTokenEntry.UserID,
-	}
-	return response, nil
+	return nil
 }
