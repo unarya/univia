@@ -5,12 +5,12 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/deva-labs/univia/internal/api/modules/permission/services"
-	"github.com/deva-labs/univia/internal/infrastructure/redis"
-	_ "github.com/deva-labs/univia/pkg/types"
-	"github.com/deva-labs/univia/pkg/utils"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	"github.com/unarya/univia/internal/api/modules/permission/services"
+	"github.com/unarya/univia/internal/infrastructure/redis"
+	_ "github.com/unarya/univia/pkg/types"
+	"github.com/unarya/univia/pkg/utils"
 )
 
 // CreatePermission godoc

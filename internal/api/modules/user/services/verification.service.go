@@ -3,13 +3,13 @@ package users
 import (
 	"fmt"
 
-	refreshTokenService "github.com/deva-labs/univia/internal/api/modules/key_token/refresh_token/services"
-	"github.com/deva-labs/univia/internal/api/modules/session/model"
-	"github.com/deva-labs/univia/internal/api/modules/user/models"
-	"github.com/deva-labs/univia/internal/infrastructure/mysql"
-	"github.com/deva-labs/univia/pkg/types"
-	"github.com/deva-labs/univia/pkg/utils"
 	"github.com/google/uuid"
+	refreshTokenService "github.com/unarya/univia/internal/api/modules/key_token/refresh_token/services"
+	"github.com/unarya/univia/internal/api/modules/session/model"
+	"github.com/unarya/univia/internal/api/modules/user/models"
+	"github.com/unarya/univia/internal/infrastructure/mysql"
+	"github.com/unarya/univia/pkg/types"
+	"github.com/unarya/univia/pkg/utils"
 
 	"math/rand"
 	"net/http"

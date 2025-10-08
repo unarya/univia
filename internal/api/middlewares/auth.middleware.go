@@ -5,11 +5,11 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/deva-labs/univia/internal/api/modules/key_token/access_token/services"
-	PermissionServices "github.com/deva-labs/univia/internal/api/modules/permission/services"
-	"github.com/deva-labs/univia/internal/api/modules/user/models"
-	"github.com/deva-labs/univia/pkg/utils"
 	"github.com/gin-gonic/gin"
+	"github.com/unarya/univia/internal/api/modules/key_token/access_token/services"
+	PermissionServices "github.com/unarya/univia/internal/api/modules/permission/services"
+	"github.com/unarya/univia/internal/api/modules/user/models"
+	"github.com/unarya/univia/pkg/utils"
 )
 
 func AuthMiddleware() gin.HandlerFunc {

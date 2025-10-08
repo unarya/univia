@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/deva-labs/univia/internal/api/modules/role/services"
-	"github.com/deva-labs/univia/internal/infrastructure/redis"
-	"github.com/deva-labs/univia/pkg/types"
-	"github.com/deva-labs/univia/pkg/utils"
+	"github.com/unarya/univia/internal/api/modules/role/services"
+	"github.com/unarya/univia/internal/infrastructure/redis"
+	"github.com/unarya/univia/pkg/types"
+	"github.com/unarya/univia/pkg/utils"
 
 	"github.com/gin-gonic/gin"
 )

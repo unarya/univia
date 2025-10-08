@@ -5,12 +5,12 @@ import (
 	"fmt"
 	"time"
 
-	permissions "github.com/deva-labs/univia/internal/api/modules/permission/models"
-	Role "github.com/deva-labs/univia/internal/api/modules/role/models"
-	RoleServices "github.com/deva-labs/univia/internal/api/modules/role/services"
-	"github.com/deva-labs/univia/internal/infrastructure/mysql"
-	"github.com/deva-labs/univia/internal/infrastructure/redis"
 	"github.com/google/uuid"
+	permissions "github.com/unarya/univia/internal/api/modules/permission/models"
+	Role "github.com/unarya/univia/internal/api/modules/role/models"
+	RoleServices "github.com/unarya/univia/internal/api/modules/role/services"
+	"github.com/unarya/univia/internal/infrastructure/mysql"
+	"github.com/unarya/univia/internal/infrastructure/redis"
 	"gorm.io/gorm"
 )
 

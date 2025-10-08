@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/deva-labs/univia/internal/signaling/store"
-	"github.com/deva-labs/univia/pkg/types"
 	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
+	"github.com/unarya/univia/internal/signaling/store"
+	"github.com/unarya/univia/pkg/types"
 )
 
 // WebSocketMessage represents the JSON message format

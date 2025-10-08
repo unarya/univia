@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"time"
 
-	AccessTokens "github.com/deva-labs/univia/internal/api/modules/key_token/access_token/models"
-	Users "github.com/deva-labs/univia/internal/api/modules/user/models"
-	"github.com/deva-labs/univia/internal/infrastructure/mysql"
-	"github.com/deva-labs/univia/internal/infrastructure/redis"
+	AccessTokens "github.com/unarya/univia/internal/api/modules/key_token/access_token/models"
+	Users "github.com/unarya/univia/internal/api/modules/user/models"
+	"github.com/unarya/univia/internal/infrastructure/mysql"
+	"github.com/unarya/univia/internal/infrastructure/redis"
 )
 
 func VerifyToken(token string) (*Users.User, error) {

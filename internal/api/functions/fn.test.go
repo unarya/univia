@@ -3,8 +3,8 @@ package functions
 import (
 	"fmt"
 
-	"github.com/deva-labs/univia/pkg/utils"
 	"github.com/graphql-go/graphql"
+	"github.com/unarya/univia/pkg/utils"
 )
 
 // TestGraphQL is a test function for GraphQL

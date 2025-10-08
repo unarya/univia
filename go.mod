@@ -1,4 +1,4 @@
-module github.com/deva-labs/univia
+module github.com/unarya/univia
 
 go 1.25.0
 

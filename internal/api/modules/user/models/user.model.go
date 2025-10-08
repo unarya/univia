@@ -3,7 +3,7 @@ package users
 import (
 	"time"
 
-	Roles "github.com/deva-labs/univia/internal/api/modules/role/models"
+	Roles "github.com/unarya/univia/internal/api/modules/role/models"
 
 	"github.com/google/uuid"
 )

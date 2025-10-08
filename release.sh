@@ -71,13 +71,13 @@ success "Released ${TAG} successfully!"
 log "Updating internal go.mod dependencies to ${TAG} ..."
 
 # Pattern: replace any line like
-#   github.com/deva-labs/univia v0.0.2-alpha.3
-#   → github.com/deva-labs/univia v0.0.2-alpha.4
+#   github.com/unarya/univia v0.0.2-alpha.3
+#   → github.com/unarya/univia v0.0.2-alpha.4
 for modfile in $(find cmd -type f -name "go.mod"); do
-    if grep -q "github.com/deva-labs/univia" "$modfile"; then
+    if grep -q "github.com/unarya/univia" "$modfile"; then
         log "Updating $modfile ..."
         # Try replacing version
-        if ! sed -i.bak -E "s#(github\.com/deva-labs/univia)[[:space:]]+v[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z]+\.[0-9]+)?#\1 ${TAG}#g" "$modfile"; then
+        if ! sed -i.bak -E "s#(github\.com/unarya/univia)[[:space:]]+v[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z]+\.[0-9]+)?#\1 ${TAG}#g" "$modfile"; then
             error "Failed to update version in $modfile"
             exit 1
         fi
