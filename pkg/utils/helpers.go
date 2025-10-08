@@ -9,12 +9,12 @@ import (
 	"strconv"
 	"time"
 
-	sessions "github.com/deva-labs/univia/internal/api/modules/session/model"
-	users "github.com/deva-labs/univia/internal/api/modules/user/models"
-	"github.com/deva-labs/univia/internal/infrastructure/redis"
-	"github.com/deva-labs/univia/pkg/types"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	sessions "github.com/unarya/univia/internal/api/modules/session/model"
+	users "github.com/unarya/univia/internal/api/modules/user/models"
+	"github.com/unarya/univia/internal/infrastructure/redis"
+	"github.com/unarya/univia/pkg/types"
 )
 
 func Paginate(total int64, page, perPage int) (map[string]interface{}, error) {

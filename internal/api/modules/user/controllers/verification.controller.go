@@ -3,11 +3,11 @@ package users
 import (
 	"net/http"
 
-	"github.com/deva-labs/univia/internal/api/modules/user/models"
-	verificationservices "github.com/deva-labs/univia/internal/api/modules/user/services"
-	"github.com/deva-labs/univia/pkg/types"
-	_ "github.com/deva-labs/univia/pkg/types"
-	"github.com/deva-labs/univia/pkg/utils"
+	"github.com/unarya/univia/internal/api/modules/user/models"
+	verificationservices "github.com/unarya/univia/internal/api/modules/user/services"
+	"github.com/unarya/univia/pkg/types"
+	_ "github.com/unarya/univia/pkg/types"
+	"github.com/unarya/univia/pkg/utils"
 
 	"github.com/gin-gonic/gin"
 )

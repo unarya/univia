@@ -6,10 +6,10 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/deva-labs/univia/internal/api/modules/key_token/access_token/models"
-	"github.com/deva-labs/univia/internal/api/modules/key_token/refresh_token/models"
-	"github.com/deva-labs/univia/internal/infrastructure/mysql"
 	"github.com/google/uuid"
+	"github.com/unarya/univia/internal/api/modules/key_token/access_token/models"
+	"github.com/unarya/univia/internal/api/modules/key_token/refresh_token/models"
+	"github.com/unarya/univia/internal/infrastructure/mysql"
 	"gorm.io/gorm"
 )
 

@@ -4,8 +4,8 @@ import (
 	"log"
 	"os"
 
-	"github.com/deva-labs/univia/pkg"
-	"github.com/deva-labs/univia/pkg/signaling"
+	"github.com/unarya/univia/pkg"
+	"github.com/unarya/univia/pkg/signaling"
 )
 
 func main() {

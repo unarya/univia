@@ -9,13 +9,13 @@ import (
 	"strings"
 	"time"
 
-	"github.com/deva-labs/univia/internal/api/modules/user/models"
-	usersService "github.com/deva-labs/univia/internal/api/modules/user/services"
-	"github.com/deva-labs/univia/internal/infrastructure/mysql"
-	"github.com/deva-labs/univia/internal/infrastructure/redis"
-	"github.com/deva-labs/univia/pkg/types"
-	"github.com/deva-labs/univia/pkg/utils"
 	"github.com/gin-gonic/gin"
+	"github.com/unarya/univia/internal/api/modules/user/models"
+	usersService "github.com/unarya/univia/internal/api/modules/user/services"
+	"github.com/unarya/univia/internal/infrastructure/mysql"
+	"github.com/unarya/univia/internal/infrastructure/redis"
+	"github.com/unarya/univia/pkg/types"
+	"github.com/unarya/univia/pkg/utils"
 )
 
 // =================== GET USER ===================

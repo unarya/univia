@@ -6,9 +6,9 @@ import (
 	"os"
 	"time"
 
-	"github.com/deva-labs/univia/pkg"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"github.com/unarya/univia/pkg"
 )
 
 func main() {

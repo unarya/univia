@@ -4,11 +4,11 @@ import (
 	"net/http"
 	"time"
 
-	posts "github.com/deva-labs/univia/internal/api/modules/post/services"
-	"github.com/deva-labs/univia/internal/infrastructure/redis"
-	_ "github.com/deva-labs/univia/pkg/types"
-	"github.com/deva-labs/univia/pkg/utils"
 	"github.com/gin-gonic/gin"
+	posts "github.com/unarya/univia/internal/api/modules/post/services"
+	"github.com/unarya/univia/internal/infrastructure/redis"
+	_ "github.com/unarya/univia/pkg/types"
+	"github.com/unarya/univia/pkg/utils"
 )
 
 // ListCategories godoc

@@ -35,7 +35,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_deva-labs_univia_pkg_types.ChangePasswordRequest"
+                            "$ref": "#/definitions/github_com_unarya_univia_pkg_types.ChangePasswordRequest"
                         }
                     }
                 ],
@@ -43,19 +43,19 @@ const docTemplate = `{
                     "200": {
                         "description": "Password changed successfully",
                         "schema": {
-                            "$ref": "#/definitions/github_com_deva-labs_univia_pkg_types.SuccessResponse"
+                            "$ref": "#/definitions/github_com_unarya_univia_pkg_types.SuccessResponse"
                         }
                     },
                     "400": {
                         "description": "Invalid input",
                         "schema": {
-                            "$ref": "#/definitions/github_com_deva-labs_univia_pkg_types.StatusBadRequest"
+                            "$ref": "#/definitions/github_com_unarya_univia_pkg_types.StatusBadRequest"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_deva-labs_univia_pkg_types.StatusInternalError"
+                            "$ref": "#/definitions/github_com_unarya_univia_pkg_types.StatusInternalError"
                         }
                     }
                 }
@@ -81,7 +81,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_deva-labs_univia_pkg_types.VerifyCodeRequest"
+                            "$ref": "#/definitions/github_com_unarya_univia_pkg_types.VerifyCodeRequest"
                         }
                     }
                 ],
@@ -89,19 +89,19 @@ const docTemplate = `{
                     "200": {
                         "description": "Tokens response",
                         "schema": {
-                            "$ref": "#/definitions/github_com_deva-labs_univia_pkg_types.SuccessVerifyCodeResponse"
+                            "$ref": "#/definitions/github_com_unarya_univia_pkg_types.SuccessVerifyCodeResponse"
                         }
                     },
                     "400": {
                         "description": "Invalid Input",
                         "schema": {
-                            "$ref": "#/definitions/github_com_deva-labs_univia_pkg_types.StatusBadRequest"
+                            "$ref": "#/definitions/github_com_unarya_univia_pkg_types.StatusBadRequest"
                         }
                     },
                     "500": {
                         "description": "Internal server error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_deva-labs_univia_pkg_types.StatusInternalError"
+                            "$ref": "#/definitions/github_com_unarya_univia_pkg_types.StatusInternalError"
                         }
                     }
                 }
@@ -127,7 +127,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_deva-labs_univia_pkg_types.ForgotPasswordRequest"
+                            "$ref": "#/definitions/github_com_unarya_univia_pkg_types.ForgotPasswordRequest"
                         }
                     }
                 ],
@@ -135,19 +135,19 @@ const docTemplate = `{
                     "200": {
                         "description": "Verification email sent",
                         "schema": {
-                            "$ref": "#/definitions/github_com_deva-labs_univia_pkg_types.SuccessResponse"
+                            "$ref": "#/definitions/github_com_unarya_univia_pkg_types.SuccessResponse"
                         }
                     },
                     "400": {
                         "description": "Invalid input",
                         "schema": {
-                            "$ref": "#/definitions/github_com_deva-labs_univia_pkg_types.StatusBadRequest"
+                            "$ref": "#/definitions/github_com_unarya_univia_pkg_types.StatusBadRequest"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_deva-labs_univia_pkg_types.StatusInternalError"
+                            "$ref": "#/definitions/github_com_unarya_univia_pkg_types.StatusInternalError"
                         }
                     }
                 }
@@ -173,7 +173,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_deva-labs_univia_pkg_types.LoginRequest"
+                            "$ref": "#/definitions/github_com_unarya_univia_pkg_types.LoginRequest"
                         }
                     }
                 ],
@@ -181,19 +181,19 @@ const docTemplate = `{
                     "200": {
                         "description": "Login success with verification code sent (data is email)",
                         "schema": {
-                            "$ref": "#/definitions/github_com_deva-labs_univia_pkg_types.SuccessLoginEmailResponse"
+                            "$ref": "#/definitions/github_com_unarya_univia_pkg_types.SuccessLoginEmailResponse"
                         }
                     },
                     "400": {
                         "description": "Invalid input",
                         "schema": {
-                            "$ref": "#/definitions/github_com_deva-labs_univia_pkg_types.StatusBadRequest"
+                            "$ref": "#/definitions/github_com_unarya_univia_pkg_types.StatusBadRequest"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/github_com_deva-labs_univia_pkg_types.StatusUnauthorized"
+                            "$ref": "#/definitions/github_com_unarya_univia_pkg_types.StatusUnauthorized"
                         }
                     }
                 }
@@ -219,7 +219,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_deva-labs_univia_pkg_types.GoogleLoginRequest"
+                            "$ref": "#/definitions/github_com_unarya_univia_pkg_types.GoogleLoginRequest"
                         }
                     }
                 ],
@@ -227,13 +227,13 @@ const docTemplate = `{
                     "200": {
                         "description": "Login success with tokens",
                         "schema": {
-                            "$ref": "#/definitions/github_com_deva-labs_univia_pkg_types.SuccessResponse"
+                            "$ref": "#/definitions/github_com_unarya_univia_pkg_types.SuccessResponse"
                         }
                     },
                     "400": {
                         "description": "Invalid input",
                         "schema": {
-                            "$ref": "#/definitions/github_com_deva-labs_univia_pkg_types.StatusBadRequest"
+                            "$ref": "#/definitions/github_com_unarya_univia_pkg_types.StatusBadRequest"
                         }
                     }
                 }
@@ -259,7 +259,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_deva-labs_univia_pkg_types.TwitterLoginRequest"
+                            "$ref": "#/definitions/github_com_unarya_univia_pkg_types.TwitterLoginRequest"
                         }
                     }
                 ],
@@ -267,13 +267,13 @@ const docTemplate = `{
                     "200": {
                         "description": "Login success with tokens",
                         "schema": {
-                            "$ref": "#/definitions/github_com_deva-labs_univia_pkg_types.SuccessResponse"
+                            "$ref": "#/definitions/github_com_unarya_univia_pkg_types.SuccessResponse"
                         }
                     },
                     "400": {
                         "description": "Invalid input",
                         "schema": {
-                            "$ref": "#/definitions/github_com_deva-labs_univia_pkg_types.StatusBadRequest"
+                            "$ref": "#/definitions/github_com_unarya_univia_pkg_types.StatusBadRequest"
                         }
                     }
                 }
@@ -312,19 +312,19 @@ const docTemplate = `{
                     "200": {
                         "description": "New tokens",
                         "schema": {
-                            "$ref": "#/definitions/github_com_deva-labs_univia_pkg_types.SuccessResponse"
+                            "$ref": "#/definitions/github_com_unarya_univia_pkg_types.SuccessResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/github_com_deva-labs_univia_pkg_types.StatusUnauthorized"
+                            "$ref": "#/definitions/github_com_unarya_univia_pkg_types.StatusUnauthorized"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_deva-labs_univia_pkg_types.StatusInternalError"
+                            "$ref": "#/definitions/github_com_unarya_univia_pkg_types.StatusInternalError"
                         }
                     }
                 }
@@ -350,7 +350,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_deva-labs_univia_internal_api_modules_user_models.User"
+                            "$ref": "#/definitions/github_com_unarya_univia_internal_api_modules_user_models.User"
                         }
                     }
                 ],
@@ -360,16 +360,16 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/github_com_deva-labs_univia_pkg_types.SuccessResponse"
+                                    "$ref": "#/definitions/github_com_unarya_univia_pkg_types.SuccessResponse"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/github_com_deva-labs_univia_internal_api_modules_user_models.User"
+                                            "$ref": "#/definitions/github_com_unarya_univia_internal_api_modules_user_models.User"
                                         },
                                         "status": {
-                                            "$ref": "#/definitions/github_com_deva-labs_univia_pkg_types.StatusOK"
+                                            "$ref": "#/definitions/github_com_unarya_univia_pkg_types.StatusOK"
                                         }
                                     }
                                 }
@@ -379,13 +379,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Invalid input",
                         "schema": {
-                            "$ref": "#/definitions/github_com_deva-labs_univia_pkg_types.StatusBadRequest"
+                            "$ref": "#/definitions/github_com_unarya_univia_pkg_types.StatusBadRequest"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_deva-labs_univia_pkg_types.StatusInternalError"
+                            "$ref": "#/definitions/github_com_unarya_univia_pkg_types.StatusInternalError"
                         }
                     }
                 }
@@ -411,7 +411,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_deva-labs_univia_pkg_types.RenewPasswordRequest"
+                            "$ref": "#/definitions/github_com_unarya_univia_pkg_types.RenewPasswordRequest"
                         }
                     }
                 ],
@@ -419,19 +419,19 @@ const docTemplate = `{
                     "200": {
                         "description": "Password changed successfully",
                         "schema": {
-                            "$ref": "#/definitions/github_com_deva-labs_univia_pkg_types.SuccessResponse"
+                            "$ref": "#/definitions/github_com_unarya_univia_pkg_types.SuccessResponse"
                         }
                     },
                     "400": {
                         "description": "Invalid input",
                         "schema": {
-                            "$ref": "#/definitions/github_com_deva-labs_univia_pkg_types.StatusBadRequest"
+                            "$ref": "#/definitions/github_com_unarya_univia_pkg_types.StatusBadRequest"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_deva-labs_univia_pkg_types.StatusInternalError"
+                            "$ref": "#/definitions/github_com_unarya_univia_pkg_types.StatusInternalError"
                         }
                     }
                 }
@@ -470,16 +470,16 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/github_com_deva-labs_univia_pkg_types.SuccessResponse"
+                                    "$ref": "#/definitions/github_com_unarya_univia_pkg_types.SuccessResponse"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/github_com_deva-labs_univia_internal_api_modules_user_models.User"
+                                            "$ref": "#/definitions/github_com_unarya_univia_internal_api_modules_user_models.User"
                                         },
                                         "status": {
-                                            "$ref": "#/definitions/github_com_deva-labs_univia_pkg_types.StatusOK"
+                                            "$ref": "#/definitions/github_com_unarya_univia_pkg_types.StatusOK"
                                         }
                                     }
                                 }
@@ -489,19 +489,19 @@ const docTemplate = `{
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/github_com_deva-labs_univia_pkg_types.StatusUnauthorized"
+                            "$ref": "#/definitions/github_com_unarya_univia_pkg_types.StatusUnauthorized"
                         }
                     },
                     "403": {
                         "description": "Forbidden: insufficient permissions",
                         "schema": {
-                            "$ref": "#/definitions/github_com_deva-labs_univia_pkg_types.StatusForbidden"
+                            "$ref": "#/definitions/github_com_unarya_univia_pkg_types.StatusForbidden"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_deva-labs_univia_pkg_types.StatusInternalError"
+                            "$ref": "#/definitions/github_com_unarya_univia_pkg_types.StatusInternalError"
                         }
                     }
                 }
@@ -527,7 +527,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_deva-labs_univia_pkg_types.VerifyCodeRequest"
+                            "$ref": "#/definitions/github_com_unarya_univia_pkg_types.VerifyCodeRequest"
                         }
                     }
                 ],
@@ -535,19 +535,19 @@ const docTemplate = `{
                     "200": {
                         "description": "Tokens response",
                         "schema": {
-                            "$ref": "#/definitions/github_com_deva-labs_univia_pkg_types.SuccessVerifyCodeResponse"
+                            "$ref": "#/definitions/github_com_unarya_univia_pkg_types.SuccessVerifyCodeResponse"
                         }
                     },
                     "400": {
                         "description": "Invalid Input",
                         "schema": {
-                            "$ref": "#/definitions/github_com_deva-labs_univia_pkg_types.StatusBadRequest"
+                            "$ref": "#/definitions/github_com_unarya_univia_pkg_types.StatusBadRequest"
                         }
                     },
                     "500": {
                         "description": "Internal server error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_deva-labs_univia_pkg_types.StatusInternalError"
+                            "$ref": "#/definitions/github_com_unarya_univia_pkg_types.StatusInternalError"
                         }
                     }
                 }
@@ -602,7 +602,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_deva-labs_univia_pkg_types.LikeRequest"
+                            "$ref": "#/definitions/github_com_unarya_univia_pkg_types.LikeRequest"
                         }
                     }
                 ],
@@ -610,19 +610,19 @@ const docTemplate = `{
                     "200": {
                         "description": "Successfully Like A Post",
                         "schema": {
-                            "$ref": "#/definitions/github_com_deva-labs_univia_pkg_types.SuccessLikeAPostResponse"
+                            "$ref": "#/definitions/github_com_unarya_univia_pkg_types.SuccessLikeAPostResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_deva-labs_univia_pkg_types.StatusBadRequest"
+                            "$ref": "#/definitions/github_com_unarya_univia_pkg_types.StatusBadRequest"
                         }
                     },
                     "500": {
                         "description": "Internal server error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_deva-labs_univia_pkg_types.StatusInternalError"
+                            "$ref": "#/definitions/github_com_unarya_univia_pkg_types.StatusInternalError"
                         }
                     }
                 }
@@ -657,7 +657,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_deva-labs_univia_pkg_types.LikeRequest"
+                            "$ref": "#/definitions/github_com_unarya_univia_pkg_types.LikeRequest"
                         }
                     }
                 ],
@@ -665,19 +665,19 @@ const docTemplate = `{
                     "200": {
                         "description": "Successfully Like A Post",
                         "schema": {
-                            "$ref": "#/definitions/github_com_deva-labs_univia_pkg_types.SuccessDisLikeAPostResponse"
+                            "$ref": "#/definitions/github_com_unarya_univia_pkg_types.SuccessDisLikeAPostResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_deva-labs_univia_pkg_types.StatusBadRequest"
+                            "$ref": "#/definitions/github_com_unarya_univia_pkg_types.StatusBadRequest"
                         }
                     },
                     "500": {
                         "description": "Internal server error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_deva-labs_univia_pkg_types.StatusInternalError"
+                            "$ref": "#/definitions/github_com_unarya_univia_pkg_types.StatusInternalError"
                         }
                     }
                 }
@@ -715,7 +715,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_deva-labs_univia_pkg_types.ListNotificationRequest"
+                            "$ref": "#/definitions/github_com_unarya_univia_pkg_types.ListNotificationRequest"
                         }
                     }
                 ],
@@ -783,7 +783,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_deva-labs_univia_pkg_types.UpdateSeenRequest"
+                            "$ref": "#/definitions/github_com_unarya_univia_pkg_types.UpdateSeenRequest"
                         }
                     }
                 ],
@@ -900,7 +900,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_deva-labs_univia_pkg_types.AssignPermissionRequest"
+                            "$ref": "#/definitions/github_com_unarya_univia_pkg_types.AssignPermissionRequest"
                         }
                     }
                 ],
@@ -961,7 +961,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_deva-labs_univia_pkg_types.CreatePermissionRequest"
+                            "$ref": "#/definitions/github_com_unarya_univia_pkg_types.CreatePermissionRequest"
                         }
                     }
                 ],
@@ -1067,19 +1067,19 @@ const docTemplate = `{
                     "400": {
                         "description": "ID is required",
                         "schema": {
-                            "$ref": "#/definitions/github_com_deva-labs_univia_pkg_types.StatusBadRequest"
+                            "$ref": "#/definitions/github_com_unarya_univia_pkg_types.StatusBadRequest"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/github_com_deva-labs_univia_pkg_types.StatusUnauthorized"
+                            "$ref": "#/definitions/github_com_unarya_univia_pkg_types.StatusUnauthorized"
                         }
                     },
                     "500": {
                         "description": "Internal server error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_deva-labs_univia_pkg_types.StatusInternalError"
+                            "$ref": "#/definitions/github_com_unarya_univia_pkg_types.StatusInternalError"
                         }
                     }
                 }
@@ -1145,19 +1145,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_deva-labs_univia_pkg_types.StatusBadRequest"
+                            "$ref": "#/definitions/github_com_unarya_univia_pkg_types.StatusBadRequest"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/github_com_deva-labs_univia_pkg_types.StatusUnauthorized"
+                            "$ref": "#/definitions/github_com_unarya_univia_pkg_types.StatusUnauthorized"
                         }
                     },
                     "500": {
                         "description": "Internal server error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_deva-labs_univia_pkg_types.StatusInternalError"
+                            "$ref": "#/definitions/github_com_unarya_univia_pkg_types.StatusInternalError"
                         }
                     }
                 }
@@ -1177,19 +1177,19 @@ const docTemplate = `{
                     "200": {
                         "description": "Successfully List Categories",
                         "schema": {
-                            "$ref": "#/definitions/github_com_deva-labs_univia_pkg_types.SuccessListCategoriesResponse"
+                            "$ref": "#/definitions/github_com_unarya_univia_pkg_types.SuccessListCategoriesResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_deva-labs_univia_pkg_types.StatusBadRequest"
+                            "$ref": "#/definitions/github_com_unarya_univia_pkg_types.StatusBadRequest"
                         }
                     },
                     "500": {
                         "description": "Internal server error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_deva-labs_univia_pkg_types.StatusInternalError"
+                            "$ref": "#/definitions/github_com_unarya_univia_pkg_types.StatusInternalError"
                         }
                     }
                 }
@@ -1251,19 +1251,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_deva-labs_univia_pkg_types.StatusBadRequest"
+                            "$ref": "#/definitions/github_com_unarya_univia_pkg_types.StatusBadRequest"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/github_com_deva-labs_univia_pkg_types.StatusUnauthorized"
+                            "$ref": "#/definitions/github_com_unarya_univia_pkg_types.StatusUnauthorized"
                         }
                     },
                     "500": {
                         "description": "Internal server error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_deva-labs_univia_pkg_types.StatusInternalError"
+                            "$ref": "#/definitions/github_com_unarya_univia_pkg_types.StatusInternalError"
                         }
                     }
                 }
@@ -1297,13 +1297,13 @@ const docTemplate = `{
                     "200": {
                         "description": "Successfully List All Roles",
                         "schema": {
-                            "$ref": "#/definitions/github_com_deva-labs_univia_pkg_types.SuccessListRolesResponse"
+                            "$ref": "#/definitions/github_com_unarya_univia_pkg_types.SuccessListRolesResponse"
                         }
                     },
                     "500": {
                         "description": "Internal server error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_deva-labs_univia_pkg_types.StatusInternalError"
+                            "$ref": "#/definitions/github_com_unarya_univia_pkg_types.StatusInternalError"
                         }
                     }
                 }
@@ -1327,7 +1327,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_deva-labs_univia_pkg_types.CreateRoleRequest"
+                            "$ref": "#/definitions/github_com_unarya_univia_pkg_types.CreateRoleRequest"
                         }
                     }
                 ],
@@ -1335,19 +1335,19 @@ const docTemplate = `{
                     "201": {
                         "description": "Role Created Successfully",
                         "schema": {
-                            "$ref": "#/definitions/github_com_deva-labs_univia_pkg_types.SuccessCreateRoleResponse"
+                            "$ref": "#/definitions/github_com_unarya_univia_pkg_types.SuccessCreateRoleResponse"
                         }
                     },
                     "400": {
                         "description": "Invalid Input",
                         "schema": {
-                            "$ref": "#/definitions/github_com_deva-labs_univia_pkg_types.StatusBadRequest"
+                            "$ref": "#/definitions/github_com_unarya_univia_pkg_types.StatusBadRequest"
                         }
                     },
                     "500": {
                         "description": "Internal server error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_deva-labs_univia_pkg_types.StatusInternalError"
+                            "$ref": "#/definitions/github_com_unarya_univia_pkg_types.StatusInternalError"
                         }
                     }
                 }
@@ -1385,7 +1385,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_deva-labs_univia_pkg_types.GetUserAvatarRequest"
+                            "$ref": "#/definitions/github_com_unarya_univia_pkg_types.GetUserAvatarRequest"
                         }
                     }
                 ],
@@ -1393,25 +1393,25 @@ const docTemplate = `{
                     "200": {
                         "description": "Avatar URL",
                         "schema": {
-                            "$ref": "#/definitions/github_com_deva-labs_univia_pkg_types.SuccessResponse"
+                            "$ref": "#/definitions/github_com_unarya_univia_pkg_types.SuccessResponse"
                         }
                     },
                     "400": {
                         "description": "Invalid input",
                         "schema": {
-                            "$ref": "#/definitions/github_com_deva-labs_univia_pkg_types.StatusBadRequest"
+                            "$ref": "#/definitions/github_com_unarya_univia_pkg_types.StatusBadRequest"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/github_com_deva-labs_univia_pkg_types.StatusUnauthorized"
+                            "$ref": "#/definitions/github_com_unarya_univia_pkg_types.StatusUnauthorized"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_deva-labs_univia_pkg_types.StatusInternalError"
+                            "$ref": "#/definitions/github_com_unarya_univia_pkg_types.StatusInternalError"
                         }
                     }
                 }
@@ -1463,7 +1463,7 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "github_com_deva-labs_univia_internal_api_modules_role_models.Role": {
+        "github_com_unarya_univia_internal_api_modules_role_models.Role": {
             "type": "object",
             "properties": {
                 "createdAt": {
@@ -1480,7 +1480,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_deva-labs_univia_internal_api_modules_user_models.User": {
+        "github_com_unarya_univia_internal_api_modules_user_models.User": {
             "type": "object",
             "properties": {
                 "createdAt": {
@@ -1505,7 +1505,7 @@ const docTemplate = `{
                     "description": "Foreign key to Role",
                     "allOf": [
                         {
-                            "$ref": "#/definitions/github_com_deva-labs_univia_internal_api_modules_role_models.Role"
+                            "$ref": "#/definitions/github_com_unarya_univia_internal_api_modules_role_models.Role"
                         }
                     ]
                 },
@@ -1526,7 +1526,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_deva-labs_univia_pkg_types.AssignPermissionRequest": {
+        "github_com_unarya_univia_pkg_types.AssignPermissionRequest": {
             "type": "object",
             "properties": {
                 "permission_ids": {
@@ -1544,7 +1544,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_deva-labs_univia_pkg_types.ChangePasswordRequest": {
+        "github_com_unarya_univia_pkg_types.ChangePasswordRequest": {
             "type": "object",
             "required": [
                 "new_password",
@@ -1567,7 +1567,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_deva-labs_univia_pkg_types.CreatePermissionRequest": {
+        "github_com_unarya_univia_pkg_types.CreatePermissionRequest": {
             "type": "object",
             "properties": {
                 "name": {
@@ -1576,7 +1576,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_deva-labs_univia_pkg_types.CreateRoleRequest": {
+        "github_com_unarya_univia_pkg_types.CreateRoleRequest": {
             "type": "object",
             "properties": {
                 "name": {
@@ -1585,7 +1585,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_deva-labs_univia_pkg_types.ForgotPasswordRequest": {
+        "github_com_unarya_univia_pkg_types.ForgotPasswordRequest": {
             "type": "object",
             "required": [
                 "email"
@@ -1597,7 +1597,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_deva-labs_univia_pkg_types.GetUserAvatarRequest": {
+        "github_com_unarya_univia_pkg_types.GetUserAvatarRequest": {
             "type": "object",
             "required": [
                 "user_id"
@@ -1609,7 +1609,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_deva-labs_univia_pkg_types.GoogleLoginRequest": {
+        "github_com_unarya_univia_pkg_types.GoogleLoginRequest": {
             "type": "object",
             "required": [
                 "token"
@@ -1621,7 +1621,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_deva-labs_univia_pkg_types.LikeRequest": {
+        "github_com_unarya_univia_pkg_types.LikeRequest": {
             "type": "object",
             "properties": {
                 "post_id": {
@@ -1629,7 +1629,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_deva-labs_univia_pkg_types.ListNotificationRequest": {
+        "github_com_unarya_univia_pkg_types.ListNotificationRequest": {
             "type": "object",
             "properties": {
                 "all": {
@@ -1662,7 +1662,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_deva-labs_univia_pkg_types.LoginRequest": {
+        "github_com_unarya_univia_pkg_types.LoginRequest": {
             "type": "object",
             "required": [
                 "password"
@@ -1686,7 +1686,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_deva-labs_univia_pkg_types.RenewPasswordRequest": {
+        "github_com_unarya_univia_pkg_types.RenewPasswordRequest": {
             "type": "object",
             "required": [
                 "new_password",
@@ -1704,7 +1704,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_deva-labs_univia_pkg_types.RoleResponse": {
+        "github_com_unarya_univia_pkg_types.RoleResponse": {
             "type": "object",
             "properties": {
                 "id": {
@@ -1717,7 +1717,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_deva-labs_univia_pkg_types.StatusBadRequest": {
+        "github_com_unarya_univia_pkg_types.StatusBadRequest": {
             "type": "object",
             "properties": {
                 "code": {
@@ -1730,7 +1730,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_deva-labs_univia_pkg_types.StatusCreated": {
+        "github_com_unarya_univia_pkg_types.StatusCreated": {
             "type": "object",
             "properties": {
                 "code": {
@@ -1743,7 +1743,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_deva-labs_univia_pkg_types.StatusForbidden": {
+        "github_com_unarya_univia_pkg_types.StatusForbidden": {
             "type": "object",
             "properties": {
                 "code": {
@@ -1756,7 +1756,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_deva-labs_univia_pkg_types.StatusInternalError": {
+        "github_com_unarya_univia_pkg_types.StatusInternalError": {
             "type": "object",
             "properties": {
                 "code": {
@@ -1769,7 +1769,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_deva-labs_univia_pkg_types.StatusOK": {
+        "github_com_unarya_univia_pkg_types.StatusOK": {
             "type": "object",
             "properties": {
                 "code": {
@@ -1782,7 +1782,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_deva-labs_univia_pkg_types.StatusResponseVerification": {
+        "github_com_unarya_univia_pkg_types.StatusResponseVerification": {
             "type": "object",
             "properties": {
                 "code": {
@@ -1795,7 +1795,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_deva-labs_univia_pkg_types.StatusUnauthorized": {
+        "github_com_unarya_univia_pkg_types.StatusUnauthorized": {
             "type": "object",
             "properties": {
                 "code": {
@@ -1808,7 +1808,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_deva-labs_univia_pkg_types.StatusVerificationCode": {
+        "github_com_unarya_univia_pkg_types.StatusVerificationCode": {
             "type": "object",
             "properties": {
                 "code": {
@@ -1821,35 +1821,18 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_deva-labs_univia_pkg_types.SuccessCreateRoleResponse": {
+        "github_com_unarya_univia_pkg_types.SuccessCreateRoleResponse": {
             "type": "object",
             "properties": {
                 "data": {
-                    "$ref": "#/definitions/github_com_deva-labs_univia_pkg_types.RoleResponse"
+                    "$ref": "#/definitions/github_com_unarya_univia_pkg_types.RoleResponse"
                 },
                 "status": {
-                    "$ref": "#/definitions/github_com_deva-labs_univia_pkg_types.StatusCreated"
+                    "$ref": "#/definitions/github_com_unarya_univia_pkg_types.StatusCreated"
                 }
             }
         },
-        "github_com_deva-labs_univia_pkg_types.SuccessDisLikeAPostResponse": {
-            "type": "object",
-            "properties": {
-                "data": {
-                    "type": "object",
-                    "properties": {
-                        "totalLikes": {
-                            "type": "integer",
-                            "example": 1
-                        }
-                    }
-                },
-                "status": {
-                    "$ref": "#/definitions/github_com_deva-labs_univia_pkg_types.StatusOK"
-                }
-            }
-        },
-        "github_com_deva-labs_univia_pkg_types.SuccessLikeAPostResponse": {
+        "github_com_unarya_univia_pkg_types.SuccessDisLikeAPostResponse": {
             "type": "object",
             "properties": {
                 "data": {
@@ -1862,11 +1845,28 @@ const docTemplate = `{
                     }
                 },
                 "status": {
-                    "$ref": "#/definitions/github_com_deva-labs_univia_pkg_types.StatusOK"
+                    "$ref": "#/definitions/github_com_unarya_univia_pkg_types.StatusOK"
                 }
             }
         },
-        "github_com_deva-labs_univia_pkg_types.SuccessListCategoriesResponse": {
+        "github_com_unarya_univia_pkg_types.SuccessLikeAPostResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "object",
+                    "properties": {
+                        "totalLikes": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                },
+                "status": {
+                    "$ref": "#/definitions/github_com_unarya_univia_pkg_types.StatusOK"
+                }
+            }
+        },
+        "github_com_unarya_univia_pkg_types.SuccessListCategoriesResponse": {
             "type": "object",
             "properties": {
                 "data": {
@@ -1879,25 +1879,25 @@ const docTemplate = `{
                     ]
                 },
                 "status": {
-                    "$ref": "#/definitions/github_com_deva-labs_univia_pkg_types.StatusOK"
+                    "$ref": "#/definitions/github_com_unarya_univia_pkg_types.StatusOK"
                 }
             }
         },
-        "github_com_deva-labs_univia_pkg_types.SuccessListRolesResponse": {
+        "github_com_unarya_univia_pkg_types.SuccessListRolesResponse": {
             "type": "object",
             "properties": {
                 "data": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/github_com_deva-labs_univia_pkg_types.RoleResponse"
+                        "$ref": "#/definitions/github_com_unarya_univia_pkg_types.RoleResponse"
                     }
                 },
                 "status": {
-                    "$ref": "#/definitions/github_com_deva-labs_univia_pkg_types.StatusOK"
+                    "$ref": "#/definitions/github_com_unarya_univia_pkg_types.StatusOK"
                 }
             }
         },
-        "github_com_deva-labs_univia_pkg_types.SuccessLoginEmailResponse": {
+        "github_com_unarya_univia_pkg_types.SuccessLoginEmailResponse": {
             "type": "object",
             "properties": {
                 "data": {
@@ -1905,31 +1905,31 @@ const docTemplate = `{
                     "example": "example@hotmail.com"
                 },
                 "status": {
-                    "$ref": "#/definitions/github_com_deva-labs_univia_pkg_types.StatusResponseVerification"
+                    "$ref": "#/definitions/github_com_unarya_univia_pkg_types.StatusResponseVerification"
                 }
             }
         },
-        "github_com_deva-labs_univia_pkg_types.SuccessResponse": {
+        "github_com_unarya_univia_pkg_types.SuccessResponse": {
             "type": "object",
             "properties": {
                 "data": {},
                 "status": {
-                    "$ref": "#/definitions/github_com_deva-labs_univia_pkg_types.StatusOK"
+                    "$ref": "#/definitions/github_com_unarya_univia_pkg_types.StatusOK"
                 }
             }
         },
-        "github_com_deva-labs_univia_pkg_types.SuccessVerifyCodeResponse": {
+        "github_com_unarya_univia_pkg_types.SuccessVerifyCodeResponse": {
             "type": "object",
             "properties": {
                 "data": {
-                    "$ref": "#/definitions/github_com_deva-labs_univia_pkg_types.TokenData"
+                    "$ref": "#/definitions/github_com_unarya_univia_pkg_types.TokenData"
                 },
                 "status": {
-                    "$ref": "#/definitions/github_com_deva-labs_univia_pkg_types.StatusVerificationCode"
+                    "$ref": "#/definitions/github_com_unarya_univia_pkg_types.StatusVerificationCode"
                 }
             }
         },
-        "github_com_deva-labs_univia_pkg_types.TokenData": {
+        "github_com_unarya_univia_pkg_types.TokenData": {
             "type": "object",
             "properties": {
                 "access_token": {
@@ -1942,7 +1942,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_deva-labs_univia_pkg_types.TwitterLoginRequest": {
+        "github_com_unarya_univia_pkg_types.TwitterLoginRequest": {
             "type": "object",
             "required": [
                 "email",
@@ -1976,7 +1976,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_deva-labs_univia_pkg_types.UpdateSeenRequest": {
+        "github_com_unarya_univia_pkg_types.UpdateSeenRequest": {
             "type": "object",
             "properties": {
                 "notification_id": {
@@ -1985,7 +1985,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_deva-labs_univia_pkg_types.VerifyCodeRequest": {
+        "github_com_unarya_univia_pkg_types.VerifyCodeRequest": {
             "type": "object",
             "properties": {
                 "code": {

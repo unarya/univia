@@ -9,8 +9,8 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/deva-labs/univia/internal/api/modules/post/models"
-	"github.com/deva-labs/univia/pkg/utils"
+	"github.com/unarya/univia/internal/api/modules/post/models"
+	"github.com/unarya/univia/pkg/utils"
 )
 
 // Allowed Media Types

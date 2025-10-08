@@ -1,12 +1,12 @@
 package pkg
 
 import (
-	"github.com/deva-labs/univia/internal/api/routes"
-	"github.com/deva-labs/univia/internal/infrastructure/kafka"
-	"github.com/deva-labs/univia/internal/infrastructure/minio"
-	"github.com/deva-labs/univia/internal/infrastructure/mysql"
-	"github.com/deva-labs/univia/internal/infrastructure/redis"
 	"github.com/gin-gonic/gin"
+	"github.com/unarya/univia/internal/api/routes"
+	"github.com/unarya/univia/internal/infrastructure/kafka"
+	"github.com/unarya/univia/internal/infrastructure/minio"
+	"github.com/unarya/univia/internal/infrastructure/mysql"
+	"github.com/unarya/univia/internal/infrastructure/redis"
 )
 
 func InitInfrastructure() {

@@ -3,9 +3,9 @@ package sessions
 import (
 	"time"
 
-	"github.com/deva-labs/univia/internal/api/modules/key_token/refresh_token/models"
-	"github.com/deva-labs/univia/internal/api/modules/user/models"
 	"github.com/google/uuid"
+	"github.com/unarya/univia/internal/api/modules/key_token/refresh_token/models"
+	"github.com/unarya/univia/internal/api/modules/user/models"
 )
 
 type UserSession struct {

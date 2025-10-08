@@ -3,7 +3,7 @@ package posts
 import (
 	"time"
 
-	Users "github.com/deva-labs/univia/internal/api/modules/user/models"
+	Users "github.com/unarya/univia/internal/api/modules/user/models"
 
 	"github.com/google/uuid"
 )

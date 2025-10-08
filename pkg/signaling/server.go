@@ -9,10 +9,10 @@ import (
 	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
 
-	"github.com/deva-labs/univia/internal/infrastructure/redis"
-	"github.com/deva-labs/univia/internal/signaling/services"
-	"github.com/deva-labs/univia/internal/signaling/store"
-	"github.com/deva-labs/univia/pkg/types"
+	"github.com/unarya/univia/internal/infrastructure/redis"
+	"github.com/unarya/univia/internal/signaling/services"
+	"github.com/unarya/univia/internal/signaling/store"
+	"github.com/unarya/univia/pkg/types"
 )
 
 type Server struct {

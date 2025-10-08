@@ -3,8 +3,8 @@ package posts
 import (
 	"errors"
 
-	posts "github.com/deva-labs/univia/internal/api/modules/post/models"
-	"github.com/deva-labs/univia/internal/infrastructure/mysql"
+	posts "github.com/unarya/univia/internal/api/modules/post/models"
+	"github.com/unarya/univia/internal/infrastructure/mysql"
 )
 
 // ListAllCategories retrieves all categories from the mysql

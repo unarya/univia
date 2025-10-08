@@ -4,9 +4,9 @@ import (
 	"log"
 	"time"
 
-	"github.com/deva-labs/univia/internal/api/modules/session/model"
-	"github.com/deva-labs/univia/internal/api/modules/user/models"
-	"github.com/deva-labs/univia/internal/infrastructure/mysql"
+	"github.com/unarya/univia/internal/api/modules/session/model"
+	"github.com/unarya/univia/internal/api/modules/user/models"
+	"github.com/unarya/univia/internal/infrastructure/mysql"
 	"gorm.io/gorm"
 )
 

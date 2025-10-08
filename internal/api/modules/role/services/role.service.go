@@ -3,9 +3,9 @@ package roles
 import (
 	"errors"
 
-	roles "github.com/deva-labs/univia/internal/api/modules/role/models"
-	Users "github.com/deva-labs/univia/internal/api/modules/user/models"
-	"github.com/deva-labs/univia/internal/infrastructure/mysql"
+	roles "github.com/unarya/univia/internal/api/modules/role/models"
+	Users "github.com/unarya/univia/internal/api/modules/user/models"
+	"github.com/unarya/univia/internal/infrastructure/mysql"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"

@@ -3,7 +3,7 @@ package roles
 import (
 	"time"
 
-	Permissions "github.com/deva-labs/univia/internal/api/modules/permission/models"
+	Permissions "github.com/unarya/univia/internal/api/modules/permission/models"
 
 	"github.com/google/uuid"
 )

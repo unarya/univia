@@ -44,7 +44,7 @@ univia/
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/deva-labs/univia.git
+git clone https://github.com/unarya/univia.git
 cd univia
 ```
 

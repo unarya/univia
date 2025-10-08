@@ -9,10 +9,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/deva-labs/univia/internal/api/functions"
-	posts "github.com/deva-labs/univia/internal/api/modules/post/models"
-	"github.com/deva-labs/univia/internal/infrastructure/mysql"
-	"github.com/deva-labs/univia/pkg/utils"
+	"github.com/unarya/univia/internal/api/functions"
+	posts "github.com/unarya/univia/internal/api/modules/post/models"
+	"github.com/unarya/univia/internal/infrastructure/mysql"
+	"github.com/unarya/univia/pkg/utils"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"

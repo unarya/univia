@@ -7,13 +7,13 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/deva-labs/univia/internal/api/functions"
-	"github.com/deva-labs/univia/internal/api/modules/notification/models"
-	kafkaClient "github.com/deva-labs/univia/internal/infrastructure/kafka"
-	"github.com/deva-labs/univia/internal/infrastructure/mysql"
-	"github.com/deva-labs/univia/pkg/types"
-	"github.com/deva-labs/univia/pkg/utils"
 	"github.com/segmentio/kafka-go"
+	"github.com/unarya/univia/internal/api/functions"
+	"github.com/unarya/univia/internal/api/modules/notification/models"
+	kafkaClient "github.com/unarya/univia/internal/infrastructure/kafka"
+	"github.com/unarya/univia/internal/infrastructure/mysql"
+	"github.com/unarya/univia/pkg/types"
+	"github.com/unarya/univia/pkg/utils"
 
 	"github.com/google/uuid"
 )
