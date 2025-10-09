@@ -15,6 +15,7 @@ import (
 	users "github.com/unarya/univia/internal/api/modules/user/models"
 	"github.com/unarya/univia/internal/infrastructure/redis"
 	"github.com/unarya/univia/pkg/types"
+	"gorm.io/gorm"
 )
 
 func Paginate(total int64, page, perPage int) (map[string]interface{}, error) {
@@ -170,7 +171,7 @@ func NowPtr() *time.Time {
 	return &now
 }
 
-func SetSessionToRedis(session sessions.UserSession, user users.User, meta types.SessionMetadata) error {
+func SetSessionToRedis(db *gorm.DB, session sessions.UserSession, user users.User, meta types.SessionMetadata) error {
 	// Save redis for signal handshaking
 	cacheKey := fmt.Sprintf("session:%s", session.SessionID)
 	cacheValue := map[string]interface{}{
@@ -184,20 +185,42 @@ func SetSessionToRedis(session sessions.UserSession, user users.User, meta types
 		"last_active": session.LastActive,
 	}
 	err := redis.Redis.SetJSON(cacheKey, cacheValue, 12*time.Hour)
+
+	// Update session status to active
+	session.Status = "active"
+	session.LastActive = NowPtr()
+	if err := db.Save(&session).Error; err != nil {
+		return err
+	}
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
+func SetSessionToRedisByUserID(c *gin.Context, db *gorm.DB, user users.User) (uuid.UUID, error) {
+	var session sessions.UserSession
+	err := db.Where("user_id = ?", user.ID).
+		First(&session).Error
+	if err != nil {
+		return uuid.Nil, err
+	}
+	// Store session in Redis for signaling handshake
+	meta, _ := GetSessionMetadata(c)
+	if err := SetSessionToRedis(db, session, user, meta); err != nil {
+		return uuid.Nil, err
+	}
+	return session.SessionID, nil
+}
+
 // SetHttpOnlyCookieForSession is a function to set http only cookie on a device
-func SetHttpOnlyCookieForSession(c *gin.Context, sessionID string) {
+func SetHttpOnlyCookieForSession(c *gin.Context, sessionID uuid.UUID) {
 	env := os.Getenv("NODE_ENV")
 	isProd := env == "production"
 
 	cookie := &http.Cookie{
 		Name:     "session_id",
-		Value:    sessionID,
+		Value:    sessionID.String(),
 		Path:     "/",
 		HttpOnly: true,
 		Secure:   isProd,
@@ -209,4 +232,42 @@ func SetHttpOnlyCookieForSession(c *gin.Context, sessionID string) {
 	}
 
 	http.SetCookie(c.Writer, cookie)
+}
+
+// SetHttpOnlyCookieForUser is a function to set http only cookie on a device
+func SetHttpOnlyCookieForUser(c *gin.Context, userID string) {
+	env := os.Getenv("NODE_ENV")
+	isProd := env == "production"
+
+	cookie := &http.Cookie{
+		Name:     "user_id",
+		Value:    userID,
+		Path:     "/",
+		HttpOnly: true,
+		Secure:   isProd,
+		SameSite: http.SameSiteLaxMode,
+	}
+
+	if isProd {
+		cookie.SameSite = http.SameSiteNoneMode
+	}
+
+	http.SetCookie(c.Writer, cookie)
+}
+
+func GetHttpOnlyCookieForSession(c *gin.Context) string {
+	results, _ := c.Cookie("session_id")
+	return results
+}
+
+func GetHttpOnlyCookieForUser(c *gin.Context, cookieName string) string {
+	results, _ := c.Cookie(cookieName)
+	return results
+}
+
+func GetSessionMetadata(c *gin.Context) (types.SessionMetadata, error) {
+	ip := c.ClientIP()
+	userAgent := c.Request.UserAgent()
+	meta := types.SessionMetadata{IP: ip, UserAgent: userAgent}
+	return meta, nil
 }

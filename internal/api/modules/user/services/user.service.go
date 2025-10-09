@@ -11,6 +11,7 @@ import (
 	"math/rand"
 	"net/http"
 
+	"github.com/gin-gonic/gin"
 	AccessTokens "github.com/unarya/univia/internal/api/modules/key_token/access_token/models"
 	RefreshTokens "github.com/unarya/univia/internal/api/modules/key_token/refresh_token/models"
 	refresh_token "github.com/unarya/univia/internal/api/modules/key_token/refresh_token/services"
@@ -170,17 +171,19 @@ func LoginUser(email, phoneNumber, password, username string) (string, int, erro
 }
 
 // LoginGoogle is the function to login by google service and return the tokens
-func LoginGoogle(googleToken string) (map[string]interface{}, error) {
+func LoginGoogle(c *gin.Context, googleToken string) (types.ResponseSession, error) {
 	userRoleID, err := roles.GetRoleID("user")
 	if err != nil {
-		return nil, err
+		return types.ResponseSession{}, err
 	}
+
 	// Step 1: Send the access token to Google's userinfo endpoint
 	userInfoURL := fmt.Sprintf("https://www.googleapis.com/oauth2/v3/userinfo?access_token=%s", googleToken)
 	response, err := http.Get(userInfoURL)
 	if err != nil {
-		return nil, fmt.Errorf("failed to connect to Google userinfo API: %w", err)
+		return types.ResponseSession{}, fmt.Errorf("failed to connect to Google userinfo API: %w", err)
 	}
+
 	defer func(Body io.ReadCloser) {
 		err := Body.Close()
 		if err != nil {
@@ -191,7 +194,7 @@ func LoginGoogle(googleToken string) (map[string]interface{}, error) {
 	// Step 2: Check the response status
 	if response.StatusCode != http.StatusOK {
 		bodyBytes, _ := ioutil.ReadAll(response.Body)
-		return nil, fmt.Errorf("failed to fetch user info from Google API: %s", string(bodyBytes))
+		return types.ResponseSession{}, fmt.Errorf("failed to fetch user info from Google API: %s", string(bodyBytes))
 	}
 
 	// Step 3: Parse the JSON response
@@ -203,7 +206,7 @@ func LoginGoogle(googleToken string) (map[string]interface{}, error) {
 		Picture       string `json:"picture"`        // Profile picture URL
 	}
 	if err := json.NewDecoder(response.Body).Decode(&googleUserInfo); err != nil {
-		return nil, fmt.Errorf("failed to decode Google user info: %w", err)
+		return types.ResponseSession{}, fmt.Errorf("failed to decode Google user info: %w", err)
 	}
 
 	// Step 4: Check if the user exists in the mysql
@@ -219,7 +222,7 @@ func LoginGoogle(googleToken string) (map[string]interface{}, error) {
 				RoleID:   userRoleID, // Default for new user
 			}
 			if err := db.Create(&newUser).Error; err != nil {
-				return nil, fmt.Errorf("failed to create user: %v", err)
+				return types.ResponseSession{}, fmt.Errorf("failed to create user: %v", err)
 			}
 
 			// Create a profile for the new user
@@ -229,49 +232,93 @@ func LoginGoogle(googleToken string) (map[string]interface{}, error) {
 				Birthday:   nil,
 			}
 			if err := db.Create(&newProfile).Error; err != nil {
-				return nil, fmt.Errorf("failed to create profile: %v", err)
+				return types.ResponseSession{}, fmt.Errorf("failed to create profile: %v", err)
 			}
 			existingUser = newUser // Assign the newly created user to `existingUser`
 		} else {
-			return nil, fmt.Errorf("failed to query user: %v", err)
+			return types.ResponseSession{}, fmt.Errorf("failed to query user: %v", err)
 		}
 	} else {
 		// User exists, check if Google ID is missing and update it
 		if existingUser.GoogleID == "" {
 			existingUser.GoogleID = googleUserInfo.Sub
 			if err := db.Save(&existingUser).Error; err != nil {
-				return nil, fmt.Errorf("failed to update Google ID: %v", err)
+				return types.ResponseSession{}, fmt.Errorf("failed to update Google ID: %v", err)
 			}
+		}
+
+		// Get necessary values from cookie
+		sessionID := utils.GetHttpOnlyCookieForSession(c)
+		userID := utils.GetHttpOnlyCookieForUser(c, existingUser.ID.String())
+		meta, err := utils.GetSessionMetadata(c)
+		if err != nil {
+			utils.SendErrorResponse(c, http.StatusBadRequest, "Failed to get session metadata", err)
+		}
+		var user Users.User
+
+		// Have session ID
+		if sessionID != "" && userID != "" {
+			response, status, err := LoginBySessionID(sessionID, user, meta)
+			if err != nil {
+				utils.SendErrorResponse(c, status, "Failed to login", err)
+				return types.ResponseSession{}, err
+			}
+
+			var session sessions.UserSession
+			err = db.Where("user_id = ?", existingUser.ID).
+				First(&session).Error
+			if err != nil {
+				return types.ResponseSession{}, fmt.Errorf("failed to find session: %w", err)
+			}
+			// Store session in Redis for signaling handshake
+			meta, _ := utils.GetSessionMetadata(c)
+			if err := utils.SetSessionToRedis(db, session, existingUser, meta); err != nil {
+				return types.ResponseSession{}, fmt.Errorf("failed to cache session: %v", err)
+			}
+			return types.ResponseSession{
+				SessionID:    response.SessionID,
+				AccessToken:  response.AccessToken,
+				RefreshToken: response.RefreshToken,
+				UserID:       response.UserID,
+			}, nil
 		}
 	}
 
 	// Step 5: Delete all tokens for the user (cleanup)
 	err = DeleteAllTokensByUserID(existingUser.ID)
 	if err != nil {
-		return nil, fmt.Errorf("failed to delete tokens: %w", err)
+		return types.ResponseSession{}, fmt.Errorf("failed to delete tokens: %w", err)
 	}
 
 	// Step 6: Generate hex tokens for the user
 	accessToken, refreshToken, err := refresh_token.GenerateHexTokens(existingUser.ID)
 	if err != nil {
-		return nil, fmt.Errorf("failed to generate tokens: %w", err)
+		return types.ResponseSession{}, fmt.Errorf("failed to generate tokens: %w", err)
 	}
 
+	// Set cookies HttpOnly
+	sessionID, err := utils.SetSessionToRedisByUserID(c, db, existingUser)
+	utils.SetHttpOnlyCookieForSession(c, sessionID)
+	utils.SetHttpOnlyCookieForUser(c, existingUser.ID.String())
+
 	// Step 7: Return the tokens and user info
-	return map[string]interface{}{
-		"access_token":  accessToken,
-		"refresh_token": refreshToken,
+	return types.ResponseSession{
+		AccessToken:  accessToken,
+		RefreshToken: refreshToken,
+		SessionID:    sessionID,
+		UserID:       existingUser.ID,
 	}, nil
 }
 
-// LoginTwitter is the function to help user login via twitter service and return the tokens
-func LoginTwitter(username, email, image, profileBackgroundImage, profileBackgroundColor, twitterId string) (map[string]interface{}, error) {
+// LoginTwitter is the function to help user login via Twitter service and return the tokens
+func LoginTwitter(c *gin.Context, username, email, image, profileBackgroundImage, profileBackgroundColor, twitterId string) (types.ResponseSession, error) {
 	db := mysql.DB
 	// Query for new user role
 	userRoleID, err := roles.GetRoleID("user")
 	if err != nil {
-		return nil, fmt.Errorf("failed to get user role ID: %w", err)
+		return types.ResponseSession{}, fmt.Errorf("failed to get user role ID: %w", err)
 	}
+
 	// Check if the user exists by email
 	var existingUser Users.User
 	if err := db.Where("email = ?", email).First(&existingUser).Error; err != nil {
@@ -284,7 +331,7 @@ func LoginTwitter(username, email, image, profileBackgroundImage, profileBackgro
 				RoleID:    userRoleID,
 			}
 			if err := db.Create(&newUser).Error; err != nil {
-				return nil, fmt.Errorf("failed to create user: %v", err)
+				return types.ResponseSession{}, fmt.Errorf("failed to create user: %v", err)
 			}
 
 			// Create a profile for the new user
@@ -296,13 +343,13 @@ func LoginTwitter(username, email, image, profileBackgroundImage, profileBackgro
 				Birthday:        nil,
 			}
 			if err := db.Create(&newProfile).Error; err != nil {
-				return nil, fmt.Errorf("failed to create profile: %v", err)
+				return types.ResponseSession{}, fmt.Errorf("failed to create profile: %v", err)
 			}
 
 			existingUser = newUser // Assign the newly created user to `existingUser`
 		} else {
 			// Other errors while querying the mysql
-			return nil, fmt.Errorf("failed to query user: %v", err)
+			return types.ResponseSession{}, fmt.Errorf("failed to query user: %v", err)
 		}
 	} else {
 		// User exists, update Twitter ID if missing
@@ -323,11 +370,11 @@ func LoginTwitter(username, email, image, profileBackgroundImage, profileBackgro
 					Birthday:        nil,
 				}
 				if err := db.Create(&newProfile).Error; err != nil {
-					return nil, fmt.Errorf("failed to create profile: %v", err)
+					return types.ResponseSession{}, fmt.Errorf("failed to create profile: %v", err)
 				}
 			} else {
 				// Other errors while querying the profile
-				return nil, fmt.Errorf("failed to query profile: %v", err)
+				return types.ResponseSession{}, fmt.Errorf("failed to query profile: %v", err)
 			}
 		} else {
 			// Update existing profile fields if they are missing or outdated
@@ -339,27 +386,55 @@ func LoginTwitter(username, email, image, profileBackgroundImage, profileBackgro
 				existingProfile.BackgroundColor = profileBackgroundColor
 			}
 			if err := db.Save(&existingProfile).Error; err != nil {
-				return nil, fmt.Errorf("failed to update profile: %v", err)
+				return types.ResponseSession{}, fmt.Errorf("failed to update profile: %v", err)
 			}
+		}
+
+		// Get necessary values from cookie
+		sessionID := utils.GetHttpOnlyCookieForSession(c)
+		userID := utils.GetHttpOnlyCookieForUser(c, existingUser.ID.String())
+		meta, err := utils.GetSessionMetadata(c)
+		if err != nil {
+			utils.SendErrorResponse(c, http.StatusBadRequest, "Failed to get session metadata", err)
+		}
+		var user Users.User
+
+		// Have session ID
+		if sessionID != "" && userID != "" {
+			response, status, err := LoginBySessionID(sessionID, user, meta)
+			if err != nil {
+				utils.SendErrorResponse(c, status, "Failed to login", err)
+				return types.ResponseSession{}, err
+			}
+
+			return types.ResponseSession{
+				SessionID:    response.SessionID,
+				AccessToken:  response.AccessToken,
+				RefreshToken: response.RefreshToken,
+				UserID:       response.UserID,
+			}, nil
 		}
 	}
 
 	// Clean up old tokens
 	err = DeleteAllTokensByUserID(existingUser.ID)
 	if err != nil {
-		return nil, fmt.Errorf("failed to delete tokens: %w", err)
+		return types.ResponseSession{}, fmt.Errorf("failed to delete tokens: %w", err)
 	}
 
 	// Generate new tokens
 	accessToken, refreshToken, err := refresh_token.GenerateHexTokens(existingUser.ID)
 	if err != nil {
-		return nil, fmt.Errorf("failed to generate tokens: %w", err)
+		return types.ResponseSession{}, fmt.Errorf("failed to generate tokens: %w", err)
 	}
 
+	sessionID, err := utils.SetSessionToRedisByUserID(c, db, existingUser)
 	// Return the tokens and user info
-	return map[string]interface{}{
-		"access_token":  accessToken,
-		"refresh_token": refreshToken,
+	return types.ResponseSession{
+		AccessToken:  accessToken,
+		RefreshToken: refreshToken,
+		SessionID:    sessionID,
+		UserID:       existingUser.ID,
 	}, nil
 }
 
@@ -392,21 +467,15 @@ func LoginBySessionID(sessionID string, user Users.User, meta types.SessionMetad
 	}
 
 	// Store session in Redis for signaling handshake
-	if err := utils.SetSessionToRedis(session, user, meta); err != nil {
+	if err := utils.SetSessionToRedis(db, session, user, meta); err != nil {
 		return types.ResponseSession{}, http.StatusInternalServerError, fmt.Errorf("failed to cache session: %v", err)
-	}
-
-	// Update session status to active
-	session.Status = "active"
-	session.LastActive = utils.NowPtr()
-	if err := db.Save(&session).Error; err != nil {
-		return types.ResponseSession{}, http.StatusInternalServerError, fmt.Errorf("failed to update session status: %v", err)
 	}
 
 	response := types.ResponseSession{
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,
 		SessionID:    session.SessionID,
+		UserID:       session.UserID,
 	}
 
 	return response, http.StatusOK, nil

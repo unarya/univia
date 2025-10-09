@@ -122,8 +122,7 @@ func VerifyCodeAndGenerateTokens(code users.VerificationCode, meta types.Session
 
 	// Init new session record
 	session := sessions.UserSession{
-		ID:             uuid.New(),
-		SessionID:      uuid.NewString(),
+		SessionID:      uuid.New(),
 		UserID:         user.ID,
 		IP:             meta.IP,
 		UserAgent:      meta.UserAgent,
@@ -135,10 +134,11 @@ func VerifyCodeAndGenerateTokens(code users.VerificationCode, meta types.Session
 	}
 
 	// Save redis for signal handshaking
-	err = utils.SetSessionToRedis(session, user, meta)
+	err = utils.SetSessionToRedis(db, session, user, meta)
 	if err != nil {
 		return types.ResponseSession{}, http.StatusInternalServerError, err
 	}
+
 	// Delete verification record
 	db.Delete(&verification)
 
@@ -146,6 +146,7 @@ func VerifyCodeAndGenerateTokens(code users.VerificationCode, meta types.Session
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,
 		SessionID:    session.SessionID,
+		UserID:       user.ID,
 	}, http.StatusOK, nil
 }
 

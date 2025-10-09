@@ -120,27 +120,28 @@ func LoginUser(c *gin.Context) {
 		return
 	}
 
-	// Lấy session_id từ cookie (nếu có)
-	sessionID, _ := c.Cookie("session_id")
-
-	ip := c.ClientIP()
-	userAgent := c.Request.UserAgent()
-	meta := types.SessionMetadata{IP: ip, UserAgent: userAgent}
+	// Get necessary values from cookie
+	cookieName := fmt.Sprintf("userSession:%s", request.Email)
+	sessionID := utils.GetHttpOnlyCookieForSession(c)
+	userID := utils.GetHttpOnlyCookieForUser(c, cookieName)
+	meta, err := utils.GetSessionMetadata(c)
+	if err != nil {
+		utils.SendErrorResponse(c, http.StatusBadRequest, "Failed to get session metadata", err)
+	}
 
 	db := mysql.DB
 	var user users.User
 
 	// Case 1: Have session ID
-	if sessionID != "" {
+	if sessionID != "" && userID != "" {
 		response, status, err := usersService.LoginBySessionID(sessionID, user, meta)
 		if err != nil {
 			utils.SendErrorResponse(c, status, "Failed to login", err)
 			return
 		}
 
-		// Set cookie HttpOnly
-		utils.SetHttpOnlyCookieForSession(c, response.SessionID)
 		utils.SendSuccessResponse(c, status, "Retrieved the profile of user successfully", response)
+		return
 	}
 
 	// Case 2: Regular login
@@ -178,9 +179,9 @@ func LoginGoogle(c *gin.Context) {
 		return
 	}
 
-	response, err := usersService.LoginGoogle(request.Token)
+	response, err := usersService.LoginGoogle(c, request.Token)
 	if err != nil {
-		utils.SendErrorResponse(c, http.StatusBadRequest, err.Error(), nil)
+		utils.SendErrorResponse(c, http.StatusBadRequest, "Failed to login by google", nil)
 		return
 	}
 
@@ -212,6 +213,7 @@ func LoginTwitter(c *gin.Context) {
 	}
 
 	response, err := usersService.LoginTwitter(
+		c,
 		request.Username,
 		request.Email,
 		request.Image,
@@ -224,6 +226,9 @@ func LoginTwitter(c *gin.Context) {
 		return
 	}
 
+	// Set cookie HttpOnly
+	utils.SetHttpOnlyCookieForSession(c, response.SessionID)
+	utils.SetHttpOnlyCookieForUser(c, response.UserID.String())
 	utils.SendSuccessResponse(c, http.StatusOK, "Login successful", response)
 }
 

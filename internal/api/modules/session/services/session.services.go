@@ -4,6 +4,7 @@ import (
 	"log"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/unarya/univia/internal/api/modules/session/model"
 	"github.com/unarya/univia/internal/api/modules/user/models"
 	"github.com/unarya/univia/internal/infrastructure/mysql"
@@ -20,7 +21,7 @@ func RevokeSession(db *gorm.DB, sessionID string) error {
 		}).Error
 }
 
-func CheckValidDevice(email, sessionID string) bool {
+func CheckValidDevice(email string, sessionID uuid.UUID) bool {
 	db := mysql.DB
 	var results []struct {
 		users.User           `gorm:"embedded"` // Embed struct User
@@ -37,7 +38,7 @@ func CheckValidDevice(email, sessionID string) bool {
 		return false
 	}
 
-	// Xử lý kết quả
+	// Process results
 	for _, r := range results {
 		if r.UserSession.Status != "revoked" {
 			return true

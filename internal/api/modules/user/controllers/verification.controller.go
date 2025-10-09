@@ -5,7 +5,6 @@ import (
 
 	"github.com/unarya/univia/internal/api/modules/user/models"
 	verificationservices "github.com/unarya/univia/internal/api/modules/user/services"
-	"github.com/unarya/univia/pkg/types"
 	_ "github.com/unarya/univia/pkg/types"
 	"github.com/unarya/univia/pkg/utils"
 
@@ -64,12 +63,9 @@ func VerifyCodeAndGenerateToken(c *gin.Context) {
 		return
 	}
 
-	ip := c.ClientIP()
-	userAgent := c.Request.UserAgent()
-
-	meta := types.SessionMetadata{
-		IP:        ip,
-		UserAgent: userAgent,
+	meta, err := utils.GetSessionMetadata(c)
+	if err != nil {
+		utils.SendErrorResponse(c, http.StatusUnauthorized, "Unauthorized", err)
 	}
 
 	response, status, err := verificationservices.VerifyCodeAndGenerateTokens(code, meta)
@@ -77,7 +73,10 @@ func VerifyCodeAndGenerateToken(c *gin.Context) {
 		utils.SendErrorResponse(c, status, err.Error(), nil)
 		return
 	}
+
+	// Set cookies and response
 	utils.SetHttpOnlyCookieForSession(c, response.SessionID)
+	utils.SetHttpOnlyCookieForUser(c, response.UserID.String())
 
 	utils.SendSuccessResponse(c, http.StatusOK, "Verification successful", response)
 }

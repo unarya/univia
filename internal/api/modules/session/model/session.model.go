@@ -10,8 +10,8 @@ import (
 
 type UserSession struct {
 	ID             uuid.UUID                  `gorm:"type:uuid;primaryKey;default:uuid_generate_v4()"`
-	SessionID      string                     `gorm:"type:char(36);uniqueIndex;not null"`
-	UserID         uuid.UUID                  `gorm:"index;not null"`
+	SessionID      uuid.UUID                  `gorm:"type:char(36);not null"`
+	UserID         uuid.UUID                  `gorm:"type:char(36);uniqueIndex;not null"`
 	User           users.User                 `gorm:"foreignKey:UserID;references:ID"`
 	IP             string                     `gorm:"type:varchar(64)"`
 	UserAgent      string                     `gorm:"type:text"`

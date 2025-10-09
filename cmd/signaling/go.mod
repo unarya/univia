@@ -2,7 +2,7 @@ module univia-signaling
 
 go 1.25.0
 
-require github.com/unarya/univia v0.0.3-alpha.2
+require github.com/unarya/univia v0.0.1-alpha.1
 
 require (
 	filippo.io/edwards25519 v1.1.0 // indirect
