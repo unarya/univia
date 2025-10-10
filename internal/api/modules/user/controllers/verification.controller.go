@@ -64,11 +64,12 @@ func VerifyCodeAndGenerateToken(c *gin.Context) {
 	}
 
 	meta, err := utils.GetSessionMetadata(c)
+	sessionID := utils.GetHttpOnlyCookieForSession(c)
 	if err != nil {
 		utils.SendErrorResponse(c, http.StatusUnauthorized, "Unauthorized", err)
 	}
 
-	response, status, err := verificationservices.VerifyCodeAndGenerateTokens(code, meta)
+	response, status, err := verificationservices.VerifyCodeAndGenerateTokens(c, code, meta, sessionID)
 	if err != nil {
 		utils.SendErrorResponse(c, status, err.Error(), nil)
 		return
