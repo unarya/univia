@@ -153,11 +153,22 @@ func seedRoles(db *gorm.DB) (map[string]Roles.Role, error) {
 
 	for _, roleName := range allRoles {
 		var role Roles.Role
+		// Always use WHERE + FirstOrCreate to ensure no duplicate
 		if err := db.
-			Where(Roles.Role{Name: roleName}).
-			Attrs(Roles.Role{Name: roleName}).
+			Where("name = ?", roleName).
+			Attrs(Roles.Role{
+				ID:   uuid.New(),
+				Name: roleName,
+			}).
 			FirstOrCreate(&role).Error; err != nil {
 			return nil, fmt.Errorf("failed to create or fetch role %s: %w", roleName, err)
+		}
+
+		// Ensure valid ID
+		if role.ID == uuid.Nil {
+			if err := db.Where("name = ?", roleName).First(&role).Error; err != nil {
+				return nil, fmt.Errorf("failed to reload role %s: %w", roleName, err)
+			}
 		}
 
 		roleMap[roleName] = role
@@ -173,12 +184,20 @@ func seedPermissions(db *gorm.DB) ([]Permissions.Permission, error) {
 	for _, permName := range utils.Permissions {
 		var perm Permissions.Permission
 
-		// Tìm theo Name, nếu chưa có thì tạo mới với ID mới
 		if err := db.
 			Where("name = ?", permName).
-			Attrs(Permissions.Permission{Name: permName}).
+			Attrs(Permissions.Permission{
+				ID:   uuid.New(),
+				Name: permName,
+			}).
 			FirstOrCreate(&perm).Error; err != nil {
 			return nil, fmt.Errorf("failed to create or fetch permission %s: %w", permName, err)
+		}
+
+		if perm.ID == uuid.Nil {
+			if err := db.Where("name = ?", permName).First(&perm).Error; err != nil {
+				return nil, fmt.Errorf("failed to reload permission %s: %w", permName, err)
+			}
 		}
 
 		permEntities = append(permEntities, perm)
@@ -202,23 +221,23 @@ func assignRolePermissions(db *gorm.DB, roles map[string]Roles.Role, permissions
 		"team_guest":      getTeamGuestPermissions(),
 	}
 
-	// Create permission name to ID map for faster lookup
+	// Build map of permission name → ID
 	permMap := make(map[string]uuid.UUID)
 	for _, perm := range permissions {
 		permMap[perm.Name] = perm.ID
 	}
 
-	// Assign permissions to each role
+	// Assign permissions to roles
 	for roleName, permNames := range permissionSets {
 		role, exists := roles[roleName]
-		if !exists {
-			return fmt.Errorf("role %s not found", roleName)
+		if !exists || role.ID == uuid.Nil {
+			return fmt.Errorf("invalid role %s (missing ID)", roleName)
 		}
 
 		for _, permName := range permNames {
 			permID, exists := permMap[permName]
-			if !exists {
-				continue // Skip if permission doesn't exist
+			if !exists || permID == uuid.Nil {
+				continue
 			}
 
 			rp := Roles.RolePermission{
@@ -226,10 +245,9 @@ func assignRolePermissions(db *gorm.DB, roles map[string]Roles.Role, permissions
 				PermissionID: permID,
 			}
 
-			if err := db.FirstOrCreate(&rp, Roles.RolePermission{
-				RoleID:       rp.RoleID,
-				PermissionID: rp.PermissionID,
-			}).Error; err != nil {
+			if err := db.
+				Where("role_id = ? AND permission_id = ?", role.ID, permID).
+				FirstOrCreate(&rp).Error; err != nil {
 				return fmt.Errorf("failed to assign permission %s to role %s: %w", permName, roleName, err)
 			}
 		}
@@ -253,6 +271,7 @@ func seedDefaultAdminUser(db *gorm.DB, superAdminRole Roles.Role) error {
 
 	// Create admin user
 	adminUser := Users.User{
+		ID:          uuid.New(),
 		Username:    config.Username,
 		Email:       config.Email,
 		PhoneNumber: uint64(config.PhoneNumber),
@@ -265,14 +284,8 @@ func seedDefaultAdminUser(db *gorm.DB, superAdminRole Roles.Role) error {
 		return fmt.Errorf("failed to create admin user: %w", err)
 	}
 
-	// Fetch the admin user ID from mysql (in case it was just created or already exists)
-	var existingUser Users.User
-	if err := db.Where("email = ?", adminUser.Email).First(&existingUser).Error; err != nil {
-		return fmt.Errorf("failed to fetch admin user ID: %w", err)
-	}
-
 	// Create admin profile with configured values
-	if err := createAdminProfile(db, existingUser.ID, config); err != nil {
+	if err := createAdminProfile(db, adminUser.ID, config); err != nil {
 		return err
 	}
 

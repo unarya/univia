@@ -16,6 +16,7 @@ CREATE TABLE IF NOT EXISTS user_sessions (
 )ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- Indexing
-CREATE INDEX idx_user_sessions_session_id_user_id ON user_sessions (session_id, user_id);
+CREATE INDEX idx_user_sessions_session_id ON user_sessions (session_id);
+CREATE INDEX idx_user_sessions_user_id ON user_sessions (user_id);
 CREATE INDEX idx_user_sessions_rtoken_id ON user_sessions (refresh_token_id);
 
