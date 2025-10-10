@@ -18,6 +18,7 @@ import (
 	Profiles "github.com/unarya/univia/internal/api/modules/profile/models"
 	roles "github.com/unarya/univia/internal/api/modules/role/services"
 	sessions "github.com/unarya/univia/internal/api/modules/session/model"
+	"github.com/unarya/univia/internal/api/modules/session/queries"
 	Users "github.com/unarya/univia/internal/api/modules/user/models"
 	"github.com/unarya/univia/internal/infrastructure/mysql"
 	"github.com/unarya/univia/pkg/types"
@@ -177,6 +178,10 @@ func LoginGoogle(c *gin.Context, googleToken string) (types.ResponseSession, err
 		return types.ResponseSession{}, err
 	}
 
+	// Get necessary values from cookie
+	sessionID := utils.GetHttpOnlyCookieForSession(c)
+	meta, _ := utils.GetSessionMetadata(c)
+
 	// Step 1: Send the access token to Google's userinfo endpoint
 	userInfoURL := fmt.Sprintf("https://www.googleapis.com/oauth2/v3/userinfo?access_token=%s", googleToken)
 	response, err := http.Get(userInfoURL)
@@ -247,8 +252,6 @@ func LoginGoogle(c *gin.Context, googleToken string) (types.ResponseSession, err
 			}
 		}
 
-		// Get necessary values from cookie
-		sessionID := utils.GetHttpOnlyCookieForSession(c)
 		userID := utils.GetHttpOnlyCookieForUser(c, existingUser.ID.String())
 		meta, err := utils.GetSessionMetadata(c)
 		if err != nil {
@@ -270,8 +273,6 @@ func LoginGoogle(c *gin.Context, googleToken string) (types.ResponseSession, err
 			if err != nil {
 				return types.ResponseSession{}, fmt.Errorf("failed to find session: %w", err)
 			}
-			// Store session in Redis for signaling handshake
-			meta, _ := utils.GetSessionMetadata(c)
 			if err := utils.SetSessionToRedis(db, session, existingUser, meta); err != nil {
 				return types.ResponseSession{}, fmt.Errorf("failed to cache session: %v", err)
 			}
@@ -296,16 +297,39 @@ func LoginGoogle(c *gin.Context, googleToken string) (types.ResponseSession, err
 		return types.ResponseSession{}, fmt.Errorf("failed to generate tokens: %w", err)
 	}
 
+	var rID uuid.UUID
+	if err := db.Model(&RefreshTokens.RefreshToken{}).
+		Select("id").
+		Where("token = ?", refreshToken).
+		Scan(&rID).Error; err != nil {
+		return types.ResponseSession{}, fmt.Errorf("failed to find refresh token: %v", err)
+	}
+	// Create new session record
+	if sessionID == "" {
+		// Init new session record
+		sID, err := queries.InsertNewSessionByUserID(existingUser.ID, rID, meta)
+		if err != nil {
+			return types.ResponseSession{}, fmt.Errorf("failed to insert new session: %v", err)
+		}
+		sessionID = sID.String()
+	}
+
+	// Session exists
+	err = queries.InsertIntoSessionByValidSession(utils.ConvertStringToUuid(sessionID), existingUser.ID, rID, meta)
+	if err != nil {
+		return types.ResponseSession{}, fmt.Errorf("failed to insert new session: %v", err)
+	}
+
 	// Set cookies HttpOnly
-	sessionID, err := utils.SetSessionToRedisByUserID(c, db, existingUser)
-	utils.SetHttpOnlyCookieForSession(c, sessionID)
+	sID, err := utils.SetSessionToRedisByUserID(c, db, existingUser)
+	utils.SetHttpOnlyCookieForSession(c, sID)
 	utils.SetHttpOnlyCookieForUser(c, existingUser.ID.String())
 
 	// Step 7: Return the tokens and user info
 	return types.ResponseSession{
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,
-		SessionID:    sessionID,
+		SessionID:    sID,
 		UserID:       existingUser.ID,
 	}, nil
 }
@@ -313,6 +337,13 @@ func LoginGoogle(c *gin.Context, googleToken string) (types.ResponseSession, err
 // LoginTwitter is the function to help user login via Twitter service and return the tokens
 func LoginTwitter(c *gin.Context, username, email, image, profileBackgroundImage, profileBackgroundColor, twitterId string) (types.ResponseSession, error) {
 	db := mysql.DB
+
+	// Get necessary values from cookie
+	sessionID := utils.GetHttpOnlyCookieForSession(c)
+	meta, err := utils.GetSessionMetadata(c)
+	if err != nil {
+		utils.SendErrorResponse(c, http.StatusBadRequest, "Failed to get session metadata", err)
+	}
 	// Query for new user role
 	userRoleID, err := roles.GetRoleID("user")
 	if err != nil {
@@ -390,13 +421,8 @@ func LoginTwitter(c *gin.Context, username, email, image, profileBackgroundImage
 			}
 		}
 
-		// Get necessary values from cookie
-		sessionID := utils.GetHttpOnlyCookieForSession(c)
 		userID := utils.GetHttpOnlyCookieForUser(c, existingUser.ID.String())
-		meta, err := utils.GetSessionMetadata(c)
-		if err != nil {
-			utils.SendErrorResponse(c, http.StatusBadRequest, "Failed to get session metadata", err)
-		}
+
 		var user Users.User
 
 		// Have session ID
@@ -427,13 +453,34 @@ func LoginTwitter(c *gin.Context, username, email, image, profileBackgroundImage
 	if err != nil {
 		return types.ResponseSession{}, fmt.Errorf("failed to generate tokens: %w", err)
 	}
+	var rID uuid.UUID
+	if err := db.Model(&RefreshTokens.RefreshToken{}).
+		Select("id").
+		Where("token = ?", refreshToken).
+		Scan(&rID).Error; err != nil {
+		return types.ResponseSession{}, fmt.Errorf("failed to find refresh token: %v", err)
+	}
+	// Create new session record
+	if sessionID == "" {
+		// Init new session record
+		sID, err := queries.InsertNewSessionByUserID(existingUser.ID, rID, meta)
+		if err != nil {
+			return types.ResponseSession{}, fmt.Errorf("failed to insert new session: %v", err)
+		}
+		sessionID = sID.String()
+	}
 
-	sessionID, err := utils.SetSessionToRedisByUserID(c, db, existingUser)
+	// Session exists
+	err = queries.InsertIntoSessionByValidSession(utils.ConvertStringToUuid(sessionID), existingUser.ID, rID, meta)
+	if err != nil {
+		return types.ResponseSession{}, fmt.Errorf("failed to insert new session: %v", err)
+	}
+	sID, err := utils.SetSessionToRedisByUserID(c, db, existingUser)
 	// Return the tokens and user info
 	return types.ResponseSession{
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,
-		SessionID:    sessionID,
+		SessionID:    sID,
 		UserID:       existingUser.ID,
 	}, nil
 }

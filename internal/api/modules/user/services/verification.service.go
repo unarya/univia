@@ -3,9 +3,11 @@ package users
 import (
 	"fmt"
 
+	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	RefreshTokens "github.com/unarya/univia/internal/api/modules/key_token/refresh_token/models"
 	refreshTokenService "github.com/unarya/univia/internal/api/modules/key_token/refresh_token/services"
-	"github.com/unarya/univia/internal/api/modules/session/model"
+	"github.com/unarya/univia/internal/api/modules/session/queries"
 	"github.com/unarya/univia/internal/api/modules/user/models"
 	"github.com/unarya/univia/internal/infrastructure/mysql"
 	"github.com/unarya/univia/pkg/types"
@@ -74,7 +76,7 @@ func sendVerificationEmail(email, code string) error {
 }
 
 // VerifyCodeAndGenerateTokens Function to verify the code and generate tokens
-func VerifyCodeAndGenerateTokens(code users.VerificationCode, meta types.SessionMetadata) (types.ResponseSession, int, error) {
+func VerifyCodeAndGenerateTokens(c *gin.Context, code users.VerificationCode, meta types.SessionMetadata, sessionID string) (types.ResponseSession, int, error) {
 	db := mysql.DB
 
 	var user users.User
@@ -114,30 +116,29 @@ func VerifyCodeAndGenerateTokens(code users.VerificationCode, meta types.Session
 		return types.ResponseSession{}, http.StatusInternalServerError, err
 	}
 
-	// Get refresh token id
-	rID, err := refreshTokenService.GetRefreshTokenIDByToken(refreshToken)
-	if err != nil {
-		return types.ResponseSession{}, http.StatusInternalServerError, err
+	var rID uuid.UUID
+	if err := db.Model(&RefreshTokens.RefreshToken{}).
+		Select("id").
+		Where("token = ?", refreshToken).
+		Scan(&rID).Error; err != nil {
+		return types.ResponseSession{}, http.StatusInternalServerError, fmt.Errorf("failed to find refresh token: %v", err)
+	}
+	// Create new session record
+	if sessionID == "" {
+		// Init new session record
+		sID, err := queries.InsertNewSessionByUserID(user.ID, rID, meta)
+		if err != nil {
+			return types.ResponseSession{}, http.StatusInternalServerError, fmt.Errorf("failed to insert new session: %v", err)
+		}
+		sessionID = sID.String()
 	}
 
-	// Init new session record
-	session := sessions.UserSession{
-		SessionID:      uuid.New(),
-		UserID:         user.ID,
-		IP:             meta.IP,
-		UserAgent:      meta.UserAgent,
-		RefreshTokenID: rID,
-		LastActive:     utils.NowPtr(),
-	}
-	if err := db.Create(&session).Error; err != nil {
-		return types.ResponseSession{}, http.StatusInternalServerError, err
-	}
-
-	// Save redis for signal handshaking
-	err = utils.SetSessionToRedis(db, session, user, meta)
+	// Session exists
+	err = queries.InsertIntoSessionByValidSession(utils.ConvertStringToUuid(sessionID), user.ID, rID, meta)
 	if err != nil {
-		return types.ResponseSession{}, http.StatusInternalServerError, err
+		return types.ResponseSession{}, http.StatusInternalServerError, fmt.Errorf("failed to insert new session: %v", err)
 	}
+	sID, err := utils.SetSessionToRedisByUserID(c, db, user)
 
 	// Delete verification record
 	db.Delete(&verification)
@@ -145,7 +146,7 @@ func VerifyCodeAndGenerateTokens(code users.VerificationCode, meta types.Session
 	return types.ResponseSession{
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,
-		SessionID:    session.SessionID,
+		SessionID:    sID,
 		UserID:       user.ID,
 	}, http.StatusOK, nil
 }

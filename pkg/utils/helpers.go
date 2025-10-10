@@ -70,8 +70,8 @@ func ConvertInt64ToUUID(i int64) uuid.UUID {
 	return uuid.Must(uuid.FromBytes(b))
 }
 
-// ConvertStringToUint is the function to convert string to uuid.UUID format
-func ConvertStringToUint(str string) uuid.UUID {
+// ConvertStringToUuid is the function to convert string to uuid.UUID format
+func ConvertStringToUuid(str string) uuid.UUID {
 	uuid, err := uuid.Parse(str)
 	if err != nil {
 		panic(err)
