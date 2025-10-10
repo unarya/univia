@@ -10,6 +10,11 @@ SELECT users.*, profiles.* FROM `users` INNER JOIN profiles ON profiles.user_id 
 SELECT * FROM media;
 SELECT * FROM posts WHERE id = 2;
 SELECT * FROM schema_migrations;
+EXPLAIN SELECT us.*
+        FROM user_sessions AS us
+                 JOIN users AS u ON u.id = us.user_id
+        WHERE u.email = 'ties.node@outlook.com';
+SELECT * FROM users WHERE email = 'ties.node@outlook.com';
 SELECT `id` FROM `roles` WHERE name = 'admin';
 SELECT * FROM users INNER JOIN user_sessions ON users.id = user_sessions.user_id;
 SELECT * FROM schema_migrations;
