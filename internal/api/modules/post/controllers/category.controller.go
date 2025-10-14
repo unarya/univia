@@ -18,7 +18,7 @@ import (
 // @Produce      json
 // @Success 200 {object} types.SuccessListCategoriesResponse "Successfully List Categories"
 // @Failure 400 {object} types.StatusBadRequest "Bad Request"
-// @Failure 500 {object} types.StatusInternalError "Internal server error"
+// @Failure 500 {object} types.StatusInternalError "Internal orchestrator error"
 // @Router /api/v1/posts/categories [get]
 func ListCategories(c *gin.Context) {
 	// Cache

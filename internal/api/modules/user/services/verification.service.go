@@ -47,7 +47,7 @@ func saveVerificationCode(email, code string) error {
 
 // sendVerificationEmail sends a verification email with the given code
 func sendVerificationEmail(email, code string) error {
-	// Email server mysqluration
+	// Email orchestrator mysqluration
 	smtpHost := os.Getenv("SMTP_HOST")     // E.g., "smtp.gmail.com"
 	smtpPort := os.Getenv("SMTP_PORT")     // E.g., "587"
 	smtpUsername := os.Getenv("SMTP_USER") // Your email address

@@ -99,7 +99,7 @@ const docTemplate = `{
                         }
                     },
                     "500": {
-                        "description": "Internal server error",
+                        "description": "Internal orchestrator error",
                         "schema": {
                             "$ref": "#/definitions/github_com_unarya_univia_pkg_types.StatusInternalError"
                         }
@@ -545,7 +545,7 @@ const docTemplate = `{
                         }
                     },
                     "500": {
-                        "description": "Internal server error",
+                        "description": "Internal orchestrator error",
                         "schema": {
                             "$ref": "#/definitions/github_com_unarya_univia_pkg_types.StatusInternalError"
                         }
@@ -620,7 +620,7 @@ const docTemplate = `{
                         }
                     },
                     "500": {
-                        "description": "Internal server error",
+                        "description": "Internal orchestrator error",
                         "schema": {
                             "$ref": "#/definitions/github_com_unarya_univia_pkg_types.StatusInternalError"
                         }
@@ -675,7 +675,7 @@ const docTemplate = `{
                         }
                     },
                     "500": {
-                        "description": "Internal server error",
+                        "description": "Internal orchestrator error",
                         "schema": {
                             "$ref": "#/definitions/github_com_unarya_univia_pkg_types.StatusInternalError"
                         }
@@ -1077,7 +1077,7 @@ const docTemplate = `{
                         }
                     },
                     "500": {
-                        "description": "Internal server error",
+                        "description": "Internal orchestrator error",
                         "schema": {
                             "$ref": "#/definitions/github_com_unarya_univia_pkg_types.StatusInternalError"
                         }
@@ -1155,7 +1155,7 @@ const docTemplate = `{
                         }
                     },
                     "500": {
-                        "description": "Internal server error",
+                        "description": "Internal orchestrator error",
                         "schema": {
                             "$ref": "#/definitions/github_com_unarya_univia_pkg_types.StatusInternalError"
                         }
@@ -1187,7 +1187,7 @@ const docTemplate = `{
                         }
                     },
                     "500": {
-                        "description": "Internal server error",
+                        "description": "Internal orchestrator error",
                         "schema": {
                             "$ref": "#/definitions/github_com_unarya_univia_pkg_types.StatusInternalError"
                         }
@@ -1261,7 +1261,7 @@ const docTemplate = `{
                         }
                     },
                     "500": {
-                        "description": "Internal server error",
+                        "description": "Internal orchestrator error",
                         "schema": {
                             "$ref": "#/definitions/github_com_unarya_univia_pkg_types.StatusInternalError"
                         }
@@ -1301,7 +1301,7 @@ const docTemplate = `{
                         }
                     },
                     "500": {
-                        "description": "Internal server error",
+                        "description": "Internal orchestrator error",
                         "schema": {
                             "$ref": "#/definitions/github_com_unarya_univia_pkg_types.StatusInternalError"
                         }
@@ -1345,7 +1345,7 @@ const docTemplate = `{
                         }
                     },
                     "500": {
-                        "description": "Internal server error",
+                        "description": "Internal orchestrator error",
                         "schema": {
                             "$ref": "#/definitions/github_com_unarya_univia_pkg_types.StatusInternalError"
                         }

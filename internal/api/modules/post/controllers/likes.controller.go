@@ -24,7 +24,7 @@ import (
 // @Param        request body types.LikeRequest true "Post ID Required"
 // @Success 200 {object} types.SuccessLikeAPostResponse "Successfully Like A Post"
 // @Failure 400 {object} types.StatusBadRequest "Bad Request"
-// @Failure 500 {object} types.StatusInternalError "Internal server error"
+// @Failure 500 {object} types.StatusInternalError "Internal orchestrator error"
 // @Router /api/v1/likes [get]
 func Like(c *gin.Context) {
 	var request struct {
@@ -69,7 +69,7 @@ func Like(c *gin.Context) {
 // @Param        request body types.LikeRequest true "Post ID Required"
 // @Success 200 {object} types.SuccessDisLikeAPostResponse "Successfully Like A Post"
 // @Failure 400 {object} types.StatusBadRequest "Bad Request"
-// @Failure 500 {object} types.StatusInternalError "Internal server error"
+// @Failure 500 {object} types.StatusInternalError "Internal orchestrator error"
 // @Router /api/v1/likes/undo [get]
 func DisLike(c *gin.Context) {
 	var request struct {

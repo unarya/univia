@@ -38,9 +38,9 @@ func main() {
 	pkg.InitInfrastructure()
 	pkg.InitRoutes(router)
 
-	// Start API and WebSocket server
+	// Start API and WebSocket orchestrator
 	addr := fmt.Sprintf("%s:%s", host, port)
 	if err := router.Run(addr); err != nil {
-		log.Fatalf("Could not start server: %v\n", err)
+		log.Fatalf("Could not start orchestrator: %v\n", err)
 	}
 }

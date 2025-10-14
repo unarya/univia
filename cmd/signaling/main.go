@@ -17,6 +17,6 @@ func main() {
 	pkg.ConnectRedis()
 	server := signaling.NewServer(port)
 	if err := server.Start(); err != nil {
-		log.Fatalf("Signaling server failed: %v", err)
+		log.Fatalf("Signaling orchestrator failed: %v", err)
 	}
 }

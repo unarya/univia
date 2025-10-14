@@ -20,7 +20,7 @@ import (
 // @Param request body	types.VerifyCodeRequest true "Verify Code"
 // @Success 200 {object} types.SuccessVerifyCodeResponse "Tokens response"
 // @Failure 400 {object} types.StatusBadRequest "Invalid Input"
-// @Failure 500 {object} types.StatusInternalError "Internal server error"
+// @Failure 500 {object} types.StatusInternalError "Internal orchestrator error"
 // @Router /api/v1/auth/confirm-forgot-password [post]
 // VerifyCode handles the verification code process and token generation
 func VerifyCode(c *gin.Context) {
@@ -51,7 +51,7 @@ func VerifyCode(c *gin.Context) {
 // @Param request body	types.VerifyCodeRequest true "Verify Code"
 // @Success 200 {object} types.SuccessVerifyCodeResponse "Tokens response"
 // @Failure 400 {object} types.StatusBadRequest "Invalid Input"
-// @Failure 500 {object} types.StatusInternalError "Internal server error"
+// @Failure 500 {object} types.StatusInternalError "Internal orchestrator error"
 // @Router /api/v1/auth/verification [post]
 // VerifyCode handles the verification code process and token generation
 // VerifyCodeAndGenerateToken handles the verification code process and token generation

@@ -438,7 +438,7 @@ paths:
           schema:
             $ref: '#/definitions/github_com_unarya_univia_pkg_types.StatusBadRequest'
         "500":
-          description: Internal server error
+          description: Internal orchestrator error
           schema:
             $ref: '#/definitions/github_com_unarya_univia_pkg_types.StatusInternalError'
       summary: Verify the code
@@ -723,7 +723,7 @@ paths:
           schema:
             $ref: '#/definitions/github_com_unarya_univia_pkg_types.StatusBadRequest'
         "500":
-          description: Internal server error
+          description: Internal orchestrator error
           schema:
             $ref: '#/definitions/github_com_unarya_univia_pkg_types.StatusInternalError'
       summary: Verify the code and generate token
@@ -769,7 +769,7 @@ paths:
           schema:
             $ref: '#/definitions/github_com_unarya_univia_pkg_types.StatusBadRequest'
         "500":
-          description: Internal server error
+          description: Internal orchestrator error
           schema:
             $ref: '#/definitions/github_com_unarya_univia_pkg_types.StatusInternalError'
       security:
@@ -804,7 +804,7 @@ paths:
           schema:
             $ref: '#/definitions/github_com_unarya_univia_pkg_types.StatusBadRequest'
         "500":
-          description: Internal server error
+          description: Internal orchestrator error
           schema:
             $ref: '#/definitions/github_com_unarya_univia_pkg_types.StatusInternalError'
       security:
@@ -1067,7 +1067,7 @@ paths:
           schema:
             $ref: '#/definitions/github_com_unarya_univia_pkg_types.StatusUnauthorized'
         "500":
-          description: Internal server error
+          description: Internal orchestrator error
           schema:
             $ref: '#/definitions/github_com_unarya_univia_pkg_types.StatusInternalError'
       security:
@@ -1119,7 +1119,7 @@ paths:
           schema:
             $ref: '#/definitions/github_com_unarya_univia_pkg_types.StatusUnauthorized'
         "500":
-          description: Internal server error
+          description: Internal orchestrator error
           schema:
             $ref: '#/definitions/github_com_unarya_univia_pkg_types.StatusInternalError'
       security:
@@ -1142,7 +1142,7 @@ paths:
           schema:
             $ref: '#/definitions/github_com_unarya_univia_pkg_types.StatusBadRequest'
         "500":
-          description: Internal server error
+          description: Internal orchestrator error
           schema:
             $ref: '#/definitions/github_com_unarya_univia_pkg_types.StatusInternalError'
       summary: List categories
@@ -1189,7 +1189,7 @@ paths:
           schema:
             $ref: '#/definitions/github_com_unarya_univia_pkg_types.StatusUnauthorized'
         "500":
-          description: Internal server error
+          description: Internal orchestrator error
           schema:
             $ref: '#/definitions/github_com_unarya_univia_pkg_types.StatusInternalError'
       security:
@@ -1214,7 +1214,7 @@ paths:
           schema:
             $ref: '#/definitions/github_com_unarya_univia_pkg_types.SuccessListRolesResponse'
         "500":
-          description: Internal server error
+          description: Internal orchestrator error
           schema:
             $ref: '#/definitions/github_com_unarya_univia_pkg_types.StatusInternalError'
       security:
@@ -1245,7 +1245,7 @@ paths:
           schema:
             $ref: '#/definitions/github_com_unarya_univia_pkg_types.StatusBadRequest'
         "500":
-          description: Internal server error
+          description: Internal orchestrator error
           schema:
             $ref: '#/definitions/github_com_unarya_univia_pkg_types.StatusInternalError'
       summary: Create a new role

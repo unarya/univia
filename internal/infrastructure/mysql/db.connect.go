@@ -271,7 +271,6 @@ func seedDefaultAdminUser(db *gorm.DB, superAdminRole Roles.Role) error {
 
 	// Create admin user
 	adminUser := Users.User{
-		ID:          uuid.New(),
 		Username:    config.Username,
 		Email:       config.Email,
 		PhoneNumber: uint64(config.PhoneNumber),
@@ -283,9 +282,15 @@ func seedDefaultAdminUser(db *gorm.DB, superAdminRole Roles.Role) error {
 	if err := db.Where(Users.User{Email: adminUser.Email}).FirstOrCreate(&adminUser).Error; err != nil {
 		return fmt.Errorf("failed to create admin user: %w", err)
 	}
+	var adminID uuid.UUID
+	var user Users.User
 
+	if err := db.Model(&Users.User{}).First(&user).Error; err != nil {
+		return fmt.Errorf("failed to find admin user: %w", err)
+	}
+	adminID = user.ID
 	// Create admin profile with configured values
-	if err := createAdminProfile(db, adminUser.ID, config); err != nil {
+	if err := createAdminProfile(db, adminID, config); err != nil {
 		return err
 	}
 
@@ -388,7 +393,7 @@ func getAllPermissionNames(permissions []Permissions.Permission) []string {
 }
 
 // getGeneralAdminPermissions returns permissions for general admin
-// Excludes sensitive billing and server management
+// Excludes sensitive billing and orchestrator management
 func getGeneralAdminPermissions() []string {
 	excluded := map[string]bool{
 		utils.Permissions["ALLOW_VIEW_BILLING"]:        true,
