@@ -36,9 +36,8 @@ func RegisterRoutes(router *gin.Engine) {
 	{
 		authRoutes.GET("user-info", authMiddleware(), authzMiddleware(needPermission["ALLOW_GET_USER"]), UserControllers.GetUser) // 1
 		authRoutes.POST("register", UserControllers.RegisterUser)                                                                 // 2
-		authRoutes.POST("login", UserControllers.LoginUser)                                                                       // 3
 		authRoutes.POST("login/google", UserControllers.LoginGoogle)                                                              // 4
-		authRoutes.POST("login/twitter", UserControllers.LoginTwitter)                                                            // 5
+		authRoutes.POST("login", UserControllers.LoginUser)                                                                       // 5
 		authRoutes.POST("verification", UserControllers.VerifyCodeAndGenerateToken)                                               // 6
 		authRoutes.POST("refresh-access-token", UserControllers.RefreshAccessToken)                                               // 7
 		authRoutes.POST("forgot-password", UserControllers.ForgotPassword)                                                        // 8

@@ -188,50 +188,6 @@ func LoginGoogle(c *gin.Context) {
 	utils.SendSuccessResponse(c, http.StatusOK, "Login successful", response)
 }
 
-// =================== LOGIN TWITTER ===================
-
-// LoginTwitter godoc
-// @Summary      Login with Twitter
-// @Description  Login using Twitter account info
-// @Tags         Authentication
-// @Accept       json
-// @Produce      json
-// @Param        request body types.TwitterLoginRequest true "Twitter login request"
-// @Success      200 {object} types.SuccessResponse "Login success with tokens"
-// @Failure      400 {object} types.StatusBadRequest "Invalid input"
-// @Router       /api/v1/auth/login/twitter [post]
-func LoginTwitter(c *gin.Context) {
-	// Read and log the raw request body
-	body, _ := io.ReadAll(c.Request.Body)
-	c.Request.Body = io.NopCloser(bytes.NewBuffer(body))
-
-	var request types.TwitterLoginRequest
-
-	if err := utils.BindJson(c, &request); err != nil {
-		utils.SendErrorResponse(c, http.StatusBadRequest, "Invalid input", err)
-		return
-	}
-
-	response, err := usersService.LoginTwitter(
-		c,
-		request.Username,
-		request.Email,
-		request.Image,
-		request.ProfileBackgroundImage,
-		request.ProfileBackgroundColor,
-		request.TwitterID,
-	)
-	if err != nil {
-		utils.SendErrorResponse(c, http.StatusBadRequest, err.Error(), nil)
-		return
-	}
-
-	// Set cookie HttpOnly
-	utils.SetHttpOnlyCookieForSession(c, response.SessionID)
-	utils.SetHttpOnlyCookieForUser(c, response.UserID.String())
-	utils.SendSuccessResponse(c, http.StatusOK, "Login successful", response)
-}
-
 // =================== REFRESH TOKEN ===================
 
 // RefreshAccessToken godoc
