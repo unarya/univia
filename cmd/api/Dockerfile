@@ -61,10 +61,10 @@ FROM gcr.io/distroless/base-debian12:nonroot AS production
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 COPY --from=builder /usr/share/zoneinfo /usr/share/zoneinfo
 
-# Copy binary và set quyền thực thi
+# Copy binary and set permissions
 COPY --chmod=755 --from=builder /build/app /app
 
-# Copy libwebp và dependency liên quan
+# Copy libwebp and necessary dependency
 COPY --from=builder /usr/lib/libwebp.so* /usr/lib/
 COPY --from=builder /lib/x86_64-linux-gnu/libjpeg.so* /lib/x86_64-linux-gnu/
 COPY --from=builder /lib/x86_64-linux-gnu/libpng*.so* /lib/x86_64-linux-gnu/

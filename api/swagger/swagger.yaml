@@ -96,6 +96,14 @@ definitions:
     required:
     - user_id
     type: object
+  github_com_unarya_univia_pkg_types.GoogleLoginRequest:
+    properties:
+      token:
+        example: google-oauth-token
+        type: string
+    required:
+    - token
+    type: object
   github_com_unarya_univia_pkg_types.LikeRequest:
     properties:
       post_id:
@@ -469,6 +477,32 @@ paths:
           schema:
             $ref: '#/definitions/github_com_unarya_univia_pkg_types.StatusUnauthorized'
       summary: Login with email/username/phone
+      tags:
+      - Authentication
+  /api/v1/auth/login/google:
+    post:
+      consumes:
+      - application/json
+      description: Login using Google OAuth token
+      parameters:
+      - description: Google login request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_unarya_univia_pkg_types.GoogleLoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Login success with tokens
+          schema:
+            $ref: '#/definitions/github_com_unarya_univia_pkg_types.SuccessResponse'
+        "400":
+          description: Invalid input
+          schema:
+            $ref: '#/definitions/github_com_unarya_univia_pkg_types.StatusBadRequest'
+      summary: Login with Google
       tags:
       - Authentication
   /api/v1/auth/refresh-access-token:

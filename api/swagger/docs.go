@@ -199,6 +199,46 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/v1/auth/login/google": {
+            "post": {
+                "description": "Login using Google OAuth token",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Login with Google",
+                "parameters": [
+                    {
+                        "description": "Google login request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_unarya_univia_pkg_types.GoogleLoginRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Login success with tokens",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_unarya_univia_pkg_types.SuccessResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_unarya_univia_pkg_types.StatusBadRequest"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/auth/refresh-access-token": {
             "post": {
                 "description": "Refresh JWT token with refresh token + client id",
@@ -1526,6 +1566,18 @@ const docTemplate = `{
                 "user_id": {
                     "type": "integer",
                     "example": 1
+                }
+            }
+        },
+        "github_com_unarya_univia_pkg_types.GoogleLoginRequest": {
+            "type": "object",
+            "required": [
+                "token"
+            ],
+            "properties": {
+                "token": {
+                    "type": "string",
+                    "example": "google-oauth-token"
                 }
             }
         },

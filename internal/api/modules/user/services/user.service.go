@@ -334,6 +334,16 @@ func LoginGoogle(c *gin.Context, googleToken string) (types.ResponseSession, err
 	}, nil
 }
 
+// LoginGithub is a function help user to log in with GitHub. Required GitHubUserInformation
+
+func LoginGithub(r GithubUserInformation) (types.ResponseSession, error) {
+
+	return types.ResponseSession{}, nil
+}
+
+type GithubUserInformation struct {
+}
+
 func LoginBySessionID(sessionID string, user Users.User, meta types.SessionMetadata) (types.ResponseSession, int, error) {
 	db := mysql.DB
 
