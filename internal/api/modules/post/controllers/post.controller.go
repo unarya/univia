@@ -29,7 +29,7 @@ import (
 // @Success 201 {object} map[string]interface{} "Post Created Successfully"
 // @Failure 400 {object} types.StatusBadRequest "Bad Request"
 // @Failure 401 {object} types.StatusUnauthorized "Unauthorized"
-// @Failure 500 {object} types.StatusInternalError "Internal server error"
+// @Failure 500 {object} types.StatusInternalError "Internal orchestrator error"
 // @Router /api/v1/posts/create [post]
 func CreatePost(c *gin.Context) {
 	// Step 1: Parse form data
@@ -85,7 +85,7 @@ func CreatePost(c *gin.Context) {
 // @Success 200 {object} map[string]interface{} "List all posts successfully"
 // @Failure 400 {object} types.StatusBadRequest "Invalid input"
 // @Failure 401 {object} types.StatusUnauthorized "Unauthorized"
-// @Failure 500 {object} types.StatusInternalError "Internal server error"
+// @Failure 500 {object} types.StatusInternalError "Internal orchestrator error"
 // @Router /api/v1/posts [post]
 
 func ListAllPost(c *gin.Context) {
@@ -131,7 +131,7 @@ func ListAllPost(c *gin.Context) {
 // @Success 200 {object} map[string]interface{} "Successfully get details of this post"
 // @Failure 400 {object} types.StatusBadRequest "ID is required"
 // @Failure 401 {object} types.StatusUnauthorized "Unauthorized"
-// @Failure 500 {object} types.StatusInternalError "Internal server error"
+// @Failure 500 {object} types.StatusInternalError "Internal orchestrator error"
 // @Router /api/v1/posts [get]
 func GetDetailsPost(c *gin.Context) {
 	id := c.Query("id")
@@ -168,7 +168,7 @@ func GetDetailsPost(c *gin.Context) {
 // @Success 200 {object} map[string]interface{} "Updated post successfully"
 // @Failure 400 {object} types.StatusBadRequest "Bad Request"
 // @Failure 401 {object} types.StatusUnauthorized "Unauthorized"
-// @Failure 500 {object} types.StatusInternalError "Internal server error"
+// @Failure 500 {object} types.StatusInternalError "Internal orchestrator error"
 // @Router /api/v1/posts [put]
 func UpdatePost(c *gin.Context) {
 	// Step 1: Parse form data

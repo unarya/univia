@@ -323,31 +323,6 @@ definitions:
         example: f38c31612b2b6f03caaa8a8fb8e0809ab21e7403d9fe7c9fb358a5b5255c1959
         type: string
     type: object
-  github_com_unarya_univia_pkg_types.TwitterLoginRequest:
-    properties:
-      background_color:
-        example: '#1DA1F2'
-        type: string
-      background_image:
-        example: https://example.com/bg.jpg
-        type: string
-      email:
-        example: user@example.com
-        type: string
-      image:
-        example: https://example.com/avatar.jpg
-        type: string
-      twitter_id:
-        example: "123456789"
-        type: string
-      username:
-        example: johndoe
-        type: string
-    required:
-    - email
-    - twitter_id
-    - username
-    type: object
   github_com_unarya_univia_pkg_types.UpdateSeenRequest:
     properties:
       notification_id:
@@ -438,7 +413,7 @@ paths:
           schema:
             $ref: '#/definitions/github_com_unarya_univia_pkg_types.StatusBadRequest'
         "500":
-          description: Internal server error
+          description: Internal orchestrator error
           schema:
             $ref: '#/definitions/github_com_unarya_univia_pkg_types.StatusInternalError'
       summary: Verify the code
@@ -528,32 +503,6 @@ paths:
           schema:
             $ref: '#/definitions/github_com_unarya_univia_pkg_types.StatusBadRequest'
       summary: Login with Google
-      tags:
-      - Authentication
-  /api/v1/auth/login/twitter:
-    post:
-      consumes:
-      - application/json
-      description: Login using Twitter account info
-      parameters:
-      - description: Twitter login request
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/github_com_unarya_univia_pkg_types.TwitterLoginRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Login success with tokens
-          schema:
-            $ref: '#/definitions/github_com_unarya_univia_pkg_types.SuccessResponse'
-        "400":
-          description: Invalid input
-          schema:
-            $ref: '#/definitions/github_com_unarya_univia_pkg_types.StatusBadRequest'
-      summary: Login with Twitter
       tags:
       - Authentication
   /api/v1/auth/refresh-access-token:
@@ -723,7 +672,7 @@ paths:
           schema:
             $ref: '#/definitions/github_com_unarya_univia_pkg_types.StatusBadRequest'
         "500":
-          description: Internal server error
+          description: Internal orchestrator error
           schema:
             $ref: '#/definitions/github_com_unarya_univia_pkg_types.StatusInternalError'
       summary: Verify the code and generate token
@@ -769,7 +718,7 @@ paths:
           schema:
             $ref: '#/definitions/github_com_unarya_univia_pkg_types.StatusBadRequest'
         "500":
-          description: Internal server error
+          description: Internal orchestrator error
           schema:
             $ref: '#/definitions/github_com_unarya_univia_pkg_types.StatusInternalError'
       security:
@@ -804,7 +753,7 @@ paths:
           schema:
             $ref: '#/definitions/github_com_unarya_univia_pkg_types.StatusBadRequest'
         "500":
-          description: Internal server error
+          description: Internal orchestrator error
           schema:
             $ref: '#/definitions/github_com_unarya_univia_pkg_types.StatusInternalError'
       security:
@@ -1067,7 +1016,7 @@ paths:
           schema:
             $ref: '#/definitions/github_com_unarya_univia_pkg_types.StatusUnauthorized'
         "500":
-          description: Internal server error
+          description: Internal orchestrator error
           schema:
             $ref: '#/definitions/github_com_unarya_univia_pkg_types.StatusInternalError'
       security:
@@ -1119,7 +1068,7 @@ paths:
           schema:
             $ref: '#/definitions/github_com_unarya_univia_pkg_types.StatusUnauthorized'
         "500":
-          description: Internal server error
+          description: Internal orchestrator error
           schema:
             $ref: '#/definitions/github_com_unarya_univia_pkg_types.StatusInternalError'
       security:
@@ -1142,7 +1091,7 @@ paths:
           schema:
             $ref: '#/definitions/github_com_unarya_univia_pkg_types.StatusBadRequest'
         "500":
-          description: Internal server error
+          description: Internal orchestrator error
           schema:
             $ref: '#/definitions/github_com_unarya_univia_pkg_types.StatusInternalError'
       summary: List categories
@@ -1189,7 +1138,7 @@ paths:
           schema:
             $ref: '#/definitions/github_com_unarya_univia_pkg_types.StatusUnauthorized'
         "500":
-          description: Internal server error
+          description: Internal orchestrator error
           schema:
             $ref: '#/definitions/github_com_unarya_univia_pkg_types.StatusInternalError'
       security:
@@ -1214,7 +1163,7 @@ paths:
           schema:
             $ref: '#/definitions/github_com_unarya_univia_pkg_types.SuccessListRolesResponse'
         "500":
-          description: Internal server error
+          description: Internal orchestrator error
           schema:
             $ref: '#/definitions/github_com_unarya_univia_pkg_types.StatusInternalError'
       security:
@@ -1245,7 +1194,7 @@ paths:
           schema:
             $ref: '#/definitions/github_com_unarya_univia_pkg_types.StatusBadRequest'
         "500":
-          description: Internal server error
+          description: Internal orchestrator error
           schema:
             $ref: '#/definitions/github_com_unarya_univia_pkg_types.StatusInternalError'
       summary: Create a new role

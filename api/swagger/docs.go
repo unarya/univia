@@ -99,7 +99,7 @@ const docTemplate = `{
                         }
                     },
                     "500": {
-                        "description": "Internal server error",
+                        "description": "Internal orchestrator error",
                         "schema": {
                             "$ref": "#/definitions/github_com_unarya_univia_pkg_types.StatusInternalError"
                         }
@@ -220,46 +220,6 @@ const docTemplate = `{
                         "required": true,
                         "schema": {
                             "$ref": "#/definitions/github_com_unarya_univia_pkg_types.GoogleLoginRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Login success with tokens",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_unarya_univia_pkg_types.SuccessResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Invalid input",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_unarya_univia_pkg_types.StatusBadRequest"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/v1/auth/login/twitter": {
-            "post": {
-                "description": "Login using Twitter account info",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Authentication"
-                ],
-                "summary": "Login with Twitter",
-                "parameters": [
-                    {
-                        "description": "Twitter login request",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/github_com_unarya_univia_pkg_types.TwitterLoginRequest"
                         }
                     }
                 ],
@@ -545,7 +505,7 @@ const docTemplate = `{
                         }
                     },
                     "500": {
-                        "description": "Internal server error",
+                        "description": "Internal orchestrator error",
                         "schema": {
                             "$ref": "#/definitions/github_com_unarya_univia_pkg_types.StatusInternalError"
                         }
@@ -620,7 +580,7 @@ const docTemplate = `{
                         }
                     },
                     "500": {
-                        "description": "Internal server error",
+                        "description": "Internal orchestrator error",
                         "schema": {
                             "$ref": "#/definitions/github_com_unarya_univia_pkg_types.StatusInternalError"
                         }
@@ -675,7 +635,7 @@ const docTemplate = `{
                         }
                     },
                     "500": {
-                        "description": "Internal server error",
+                        "description": "Internal orchestrator error",
                         "schema": {
                             "$ref": "#/definitions/github_com_unarya_univia_pkg_types.StatusInternalError"
                         }
@@ -1077,7 +1037,7 @@ const docTemplate = `{
                         }
                     },
                     "500": {
-                        "description": "Internal server error",
+                        "description": "Internal orchestrator error",
                         "schema": {
                             "$ref": "#/definitions/github_com_unarya_univia_pkg_types.StatusInternalError"
                         }
@@ -1155,7 +1115,7 @@ const docTemplate = `{
                         }
                     },
                     "500": {
-                        "description": "Internal server error",
+                        "description": "Internal orchestrator error",
                         "schema": {
                             "$ref": "#/definitions/github_com_unarya_univia_pkg_types.StatusInternalError"
                         }
@@ -1187,7 +1147,7 @@ const docTemplate = `{
                         }
                     },
                     "500": {
-                        "description": "Internal server error",
+                        "description": "Internal orchestrator error",
                         "schema": {
                             "$ref": "#/definitions/github_com_unarya_univia_pkg_types.StatusInternalError"
                         }
@@ -1261,7 +1221,7 @@ const docTemplate = `{
                         }
                     },
                     "500": {
-                        "description": "Internal server error",
+                        "description": "Internal orchestrator error",
                         "schema": {
                             "$ref": "#/definitions/github_com_unarya_univia_pkg_types.StatusInternalError"
                         }
@@ -1301,7 +1261,7 @@ const docTemplate = `{
                         }
                     },
                     "500": {
-                        "description": "Internal server error",
+                        "description": "Internal orchestrator error",
                         "schema": {
                             "$ref": "#/definitions/github_com_unarya_univia_pkg_types.StatusInternalError"
                         }
@@ -1345,7 +1305,7 @@ const docTemplate = `{
                         }
                     },
                     "500": {
-                        "description": "Internal server error",
+                        "description": "Internal orchestrator error",
                         "schema": {
                             "$ref": "#/definitions/github_com_unarya_univia_pkg_types.StatusInternalError"
                         }
@@ -1939,40 +1899,6 @@ const docTemplate = `{
                 "refresh_token": {
                     "type": "string",
                     "example": "f38c31612b2b6f03caaa8a8fb8e0809ab21e7403d9fe7c9fb358a5b5255c1959"
-                }
-            }
-        },
-        "github_com_unarya_univia_pkg_types.TwitterLoginRequest": {
-            "type": "object",
-            "required": [
-                "email",
-                "twitter_id",
-                "username"
-            ],
-            "properties": {
-                "background_color": {
-                    "type": "string",
-                    "example": "#1DA1F2"
-                },
-                "background_image": {
-                    "type": "string",
-                    "example": "https://example.com/bg.jpg"
-                },
-                "email": {
-                    "type": "string",
-                    "example": "user@example.com"
-                },
-                "image": {
-                    "type": "string",
-                    "example": "https://example.com/avatar.jpg"
-                },
-                "twitter_id": {
-                    "type": "string",
-                    "example": "123456789"
-                },
-                "username": {
-                    "type": "string",
-                    "example": "johndoe"
                 }
             }
         },

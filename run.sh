@@ -15,7 +15,7 @@ ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 INFRA_DIR="$ROOT_DIR/infra"
 API_DIR="$ROOT_DIR/cmd/api"
 SIGNALING_DIR="$ROOT_DIR/cmd/signaling"
-
+ENV_FILE="$ROOT_DIR/configs/.env"
 MYSQL_IMAGE_TAG="univia:mysql"
 API_IMAGE_TAG="univia:dev"
 SIGNALING_IMAGE_TAG="univia-signaling:dev"
@@ -34,6 +34,11 @@ error_exit() {
 for dir in "$INFRA_DIR" "$API_DIR" "$SIGNALING_DIR"; do
     [ -d "$dir" ] || error_exit "Missing directory: $dir"
 done
+
+# Load env vars for the execution
+if [ -f "$ENV_FILE" ]; then
+  source "$ENV_FILE" 2>/dev/null || true
+fi
 
 cd "$ROOT_DIR"
 
@@ -68,10 +73,10 @@ docker build \
 # DEPLOY STAGE
 # ----------------------------------------------------------------------
 log "Starting infrastructure stack..."
-cd "$INFRA_DIR" && docker compose --env-file ../configs/.env up -d || error_exit "Failed to start infra stack."
+cd "$INFRA_DIR" && docker compose --env-file "$ENV_FILE" up -d || error_exit "Failed to start infra stack."
 
 log "Listing running containers..."
-docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
+docker ps --filter "name=univia-" --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
 
 echo ""
 echo "✅ Univia microservices are running successfully!"

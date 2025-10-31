@@ -21,7 +21,7 @@ import (
 // @Param request body types.CreateRoleRequest true "Role Name"
 // @Success 201 {object} types.SuccessCreateRoleResponse "Role Created Successfully"
 // @Failure 400 {object} types.StatusBadRequest "Invalid Input"
-// @Failure 500 {object} types.StatusInternalError "Internal server error"
+// @Failure 500 {object} types.StatusInternalError "Internal orchestrator error"
 // @Router /api/v1/roles [post]
 func CreateRole(c *gin.Context) {
 	var request types.CreateRoleRequest
@@ -49,7 +49,7 @@ func CreateRole(c *gin.Context) {
 // @Security     BearerAuth
 // @Param        Authorization header string true "Bearer <access_token>"
 // @Success 200 {object} types.SuccessListRolesResponse "Successfully List All Roles"
-// @Failure 500 {object} types.StatusInternalError "Internal server error"
+// @Failure 500 {object} types.StatusInternalError "Internal orchestrator error"
 // @Router /api/v1/roles [get]
 func ListRoles(c *gin.Context) {
 	// Cache
